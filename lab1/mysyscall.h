@@ -60,11 +60,4 @@
     rv;							\
    })
 
-#define MY_SYSCALL6(NUM, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) \
-   ({							     \
-     int rv = -ENOSYS;					     \
-     asm volatile ("nop" : : :);			     \
-     rv;						     \
-   })
-
 #endif // __MYSYSCALL_H__
