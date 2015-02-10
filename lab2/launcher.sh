@@ -14,7 +14,13 @@
 #
 
 set +m
+old="$(stty -g)"
 trap '' 2
 trap "stty $(stty -g)" EXIT
+
 stty  -echo -icanon -isig || exit $?
-./swish
+./swish $@
+
+# Clean up
+set -m
+stty "$old"
