@@ -17,6 +17,8 @@ main(int argc, char **argv)
   // the value of x by 1 using in-line assembly
   //
 
+  asm("inc %%eax": "=a"(x): "a"(x));
+
   printf("Hello x = %d after increment\n", x);
 
   if(x == 2){
