@@ -11,7 +11,7 @@ my_getpid: my_getpid.c mysyscall.h
 	gcc -Wall -Werror -o my_getpid my_getpid.c
 
 mygrep: mygrep.c mysyscall.h
-	gcc -m32 -Wall -Werror -nostdlib -static -g -e util_start -o mygrep mygrep.c
+	gcc -m32 -Wall -Werror -nostdlib -static -g -e util_start -o mygrep mygrep.c mysyscall.c
 
 handin:	clean
 	@if [ `git status --porcelain| wc -l` != 0 ] ; then echo "\n\n\n\n\t\tWARNING: YOU HAVE UNCOMMITTED CHANGES\n\n    Consider committing any pending changes and rerunning make handin.\n\n\n\n"; fi

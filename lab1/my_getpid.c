@@ -6,9 +6,9 @@
 int main() {
   pid_t pid1, pid2;
   pid1 = pid2 = 0;
-
+printf("huh");
   pid1 = getpid();
-  
+printf("is this working");
   // Exercise 5: Your code here.
   // Use the appropriate MY_SYSCALL#() macro.
   //
@@ -22,7 +22,7 @@ int main() {
   // 
   //  E.g.: 
   // pid2 = MY_SYSCALL...(NUM);
-
+pid2 = MY_SYSCALL20(20);
   if (pid1 == pid2 && pid2 > 0)
       printf("Congratulations!  You have correctly gotten your pid with inline assembly, which is is %d\n", pid1);
   else 

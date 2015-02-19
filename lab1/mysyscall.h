@@ -16,48 +16,57 @@
 //
 // #define MY_GETPID(...) MY_SYSCALL...(...)
 
-#define MY_SYSCALL0(NUM)				\
-   ({							\
-    int rv = -ENOSYS;					\
-    asm volatile ("nop" : : :);				\
-    rv;							\
+#define MY_SYSCALL0(NUM)({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM));\
+    rv;\
+})
+
+#define MY_SYSCALL1(NUM, ARG1)\
+  ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__ ("int $0x80" : "=a" (rv) : "a" (NUM), "b"(ARG1));\
+    rv;\
   })
 
-#define MY_SYSCALL1(NUM, ARG1)				\
-  ({							\
-    int rv = -ENOSYS;					\
-    asm volatile ("nop" : : :);				\
-    rv;							\
-  })
-
-
-#define MY_SYSCALL2(NUM, ARG1, ARG2)			\
-   ({							\
-     int rv = -ENOSYS;					\
-     asm volatile ("nop" : : :);			\
-     rv;						\
-   })
-
-   
-#define MY_SYSCALL3(NUM, ARG1, ARG2, ARG3)		\
-   ({							\
-     int rv = -ENOSYS;					\
-     asm volatile ("nop" : : :);			\
-     rv;						\
+#define MY_SYSCALL2(NUM, ARG1)\
+   ({\
+     int rv = -ENOSYS;\
+     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1));\
+     rv;\
    })
    
-#define MY_SYSCALL4(NUM, ARG1, ARG2, ARG3, ARG4)	\
-   ({							\
-     int rv = -ENOSYS;					\
-     asm volatile ("nop" : : :);			\
-     rv;						\
+#define MY_SYSCALL3(NUM, ARG1, ARG2, ARG3)\
+   ({\
+     int rv = -ENOSYS;\
+     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
+     rv;\
+   })
+   
+#define MY_SYSCALL4(NUM, ARG1, ARG2, ARG3)    \
+   ({             \
+     int rv = -ENOSYS;          \
+     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1),  "c"(ARG2), "d"(ARG3));\
+     rv;            \
    })
 
-#define MY_SYSCALL5(NUM, ARG1, ARG2, ARG3, ARG4, ARG5)	\
-   ({							\
-     int rv = -ENOSYS;					\
-    asm volatile ("nop" : : :);				\
-    rv;							\
+#define MY_SYSCALL5(NUM, ARG1, ARG2, ARG3)    \
+   ({             \
+     int rv = -ENOSYS;          \
+     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
+     rv;            \
    })
 
+#define MY_SYSCALL20(NUM)\
+   ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__("int $0x80"\
+    :"=a"(rv)\
+    :"a"(NUM)\
+    :);\
+    rv;\
+   })
+   
 #endif // __MYSYSCALL_H__
+
+
