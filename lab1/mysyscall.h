@@ -57,6 +57,13 @@
      rv;            \
    })
 
+#define MY_SYSCALL6(NUM, ARG1)\
+   ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1));\
+    rv;\
+   })
+
 #define MY_SYSCALL20(NUM)\
    ({\
     int rv = -ENOSYS;\
