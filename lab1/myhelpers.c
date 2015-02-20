@@ -1,6 +1,7 @@
 #define NULL ((char *)0)
 
 int strlen(const char *str);
+int my_strcmp(const char *str1, const char *str2);
 int strcmp(const char *str1, const char *str2);
 void my_strcpy(char* str1, char* str2);
 void str_memset(char* str, int c, int n);
@@ -161,4 +162,41 @@ double my_atof(char *str) {
 	        e++;
 	}
 	return ret;
+}
+
+
+/*
+-----------------------------------------------------------------------------
+Compare two strings, return 1 if they are equivalent and 0 if not.
+-----------------------------------------------------------------------------
+*/
+int my_strcmp(const char *str1, const char *str2)
+{
+	if(str1 != NULL && str2 != NULL) {
+		const char *s1, *s2;
+		s1 = str1;
+		s2 = str2;
+	/*
+	Check the strings character by character if their length is the same
+	use a while loop, while the current character is equal
+	if either hit NULL '\0' then break out of the loop
+	*/
+		while(*s1 == *s2)
+		{
+			if(*s1 == '\0' || *s2 == '\0')
+				break;
+			s1++;
+			s2++;
+		}
+	/*
+	After a string breaks the while loop, confirm if the other string is also at a null char.
+	If they are both a '\0' return 1, or else return 0
+	*/
+	if(*s1 == '\0' && *s2 == '\0')
+		return 1;
+	else
+		return 0;
+} else {
+	return 0;
+}
 }

@@ -37,3 +37,4 @@ void my_strcpy(char* str1, char* str2);
  *Only converting string to int though
  **/
 double my_atof(char *str);
+int my_strcmp(const char *str1, const char *str2);

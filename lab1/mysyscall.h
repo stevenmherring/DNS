@@ -64,6 +64,20 @@
     rv;\
    })
 
+   #define MY_SYSCALL10(NUM, ARG1)\
+   ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1));\
+    rv;\
+  })
+
+#define MY_SYSCALL84(NUM, ARG1, ARG2)\
+    ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2));\
+    rv;\
+    })
+   
 #define MY_SYSCALL20(NUM)\
    ({\
     int rv = -ENOSYS;\
@@ -73,7 +87,23 @@
     :);\
     rv;\
    })
-   
+
+#define MY_SYSCALL33(NUM, ARG1, ARG2)\
+   ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2));\
+   rv;\
+   })
+
+#define MY_SYSCALL89(NUM, ARG1, ARG2, ARG3)\
+   ({\
+    int rv = -ENOSYS;\
+    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
+   rv;\
+   })
+
+
 #endif // __MYSYSCALL_H__
+
 
 
