@@ -3,3 +3,20 @@ file should describe what you did, what approach you took, results of any
 measurements you made, which files are included in your submission and what
 they are for, etc.  Feel free to include any other information you think is
 helpful to us in this README; it can only help your grade.
+
+
+Implementation started with the majority of my comments as a skeleton.
+
+I made mysyscall.h for the syscalls and wrapper functions in mysyscall.c I wound up
+adding unlink, access, lstat and readdir at the current time in addition to the original six that
+were necessary.
+
+Next I made a bunch of helper functions, in myhelpers.c including string length, string compare,
+string copy, string memset and ATOF(used double).
+
+After being unable to use getopts due to the lack of stdlib, I created my own op argument catcher
+as similar/simple as I could.
+
+I have permission checks when opening/creating/writing files.
+
+I think I was able to efficiently get everything but -r done. 
