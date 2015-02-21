@@ -95,15 +95,15 @@
    rv;\
    })
 
-#define MY_SYSCALL89(NUM, ARG1, ARG2, ARG3)\
-   ({\
-    int rv = -ENOSYS;\
-    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
-   rv;\
+#define MY_SYSCALL141(NUM, ARG1, ARG2, ARG3)    \
+   ({             \
+     int rv = -ENOSYS;          \
+     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
+     rv;            \
    })
 
-
 #endif // __MYSYSCALL_H__
+
 
 
 
