@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define STD_IN 0
 #define STD_OUT 1
@@ -13,11 +15,19 @@
 #define EXIT_FAILURE 1
 #define O_RDWR 02
 #define O_CREAT 0100
+//#define O_DIRECTORY 040000
 #define MAX_LINE_BUFFER 4096 //only will read lines of 1024 byte length..seems long enough
+#define DIR_BUFF_SIZE 1024
 
 typedef enum {false, true} bool;
 
 void util_start(void);
+struct linux_dirent {
+   long           d_ino;
+   off_t          d_off;
+   unsigned short d_reclen;
+   char           d_name[];
+};
 
 
 asm (".global util_start\r\n"
@@ -36,6 +46,9 @@ asm ("util_start:\r\n"
 
 int main(int argc, char **argv) {
   int return_code = argc;
+
+ // struct linux_dirent *dir;
+  char dirBuff[DIR_BUFF_SIZE];
   
   char* ERR_FILE_FAIL = "Bad File, couldn't open properly.\n";
   char* ERR_FILE_PERM = "Lack File Permissions.\n";
@@ -126,9 +139,9 @@ int main(int argc, char **argv) {
     } //if/else
   }//for loop - get opt replacement
   //Okay we got our OP codes, lets error check what we got
-  if(sinFlag == true) { // input will be handled from std_in
+  if(sinFlag == true && rB == false) { // input will be handled from std_in
     inDesc = STD_IN;
-  } else { //lets get the file descriptor and store it
+  } else if(rB == false) { //lets get the file descriptor and store it
     if(MY_SYSCALL33(33, inputFile, F_OK) == 0) { //file exists
       if(MY_SYSCALL33(33, inputFile, R_OK) == 0) {
         inDesc = MY_SYSCALL5(5, inputFile, O_RDWR, 777);
@@ -171,7 +184,16 @@ int main(int argc, char **argv) {
   *We want to check for recursive flag first, followed by reverse pattern then default
   **/
   if(rB == true) { //If rB is true, we are going to search revursively into the children if search target is a directory
+    //confirm the inputFile is a directory, so OPEN it like a file but with directory call
+    sys_write(4, STD_OUT, "here", 4);
+    inDesc = MY_SYSCALL33(inputFile, O_DIRECTORY, 111);
+    if(inDesc > 0) { //open was successful?
+      sys_getdents(inDesc, dirBuff, DIR_BUFF_SIZE);
+      //change working directory?
+      //struct data storing in buffer dirBuff;
+      sys_write(4, STD_OUT, dirBuff, strlen(dirBuff));
 
+    } else { sys_write(4, STD_OUT, dirBuff, strlen(dirBuff)); }
   }
   else if(vB == true) { // vB is true, do a reverse of the initial 
     while(MY_SYSCALL3(3, inDesc, buf, 1) > 0 && cNumDone == false) {

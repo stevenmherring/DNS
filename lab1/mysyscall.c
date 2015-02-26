@@ -11,7 +11,7 @@ void sys_close(int callNum, int desc);
 void sys_unlink(int callNum, int file);
 void sys_access(const char* path, int mode);
 void my_getpid(int callNum);
-void sys_getdents(int desc, struct dirent *dirp, int count);
+void sys_getdents(int desc, void *dirp, int count);
 
 void sys_restart_syscall(int callNum) {
 	MY_SYSCALL0(callNum);
@@ -47,7 +47,7 @@ void sys_access(const char* path, int mode) {
 	MY_SYSCALL33(33, path, mode);
 }
 
-void sys_getdents(int desc, struct dirent *dirp, int count) {
+void sys_getdents(int desc, void *dirp, int count) {
 	MY_SYSCALL141(141, desc, dirp, count);
 }
 
