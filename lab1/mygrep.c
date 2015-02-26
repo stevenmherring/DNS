@@ -264,9 +264,14 @@ int main(int argc, char **argv) {
 
   // Exit.  Until this is implemented,
   // your program will hang or give a segmentation fault.
+<<<<<<< HEAD
   sys_close(6, inDesc);
   sys_close(6, outDesc);
   MY_SYSCALL1(1, return_code);
+=======
+  MY_SYSCALL1(1, return_code);
+
+>>>>>>> ed69738d60d8d8dc831c933d409254ecf684fcf7
   return return_code;
 }
 
