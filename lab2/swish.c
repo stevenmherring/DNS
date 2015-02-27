@@ -13,7 +13,7 @@ main (int argc, char ** argv, char **envp) {
   int finished = 0;
   char *prompt = "swish> ";
   char cmd[MAX_INPUT];
-
+  char *EXIT_CMD =  "exit\n";
 
   while (!finished) {
     char *cursor;
@@ -24,10 +24,10 @@ main (int argc, char ** argv, char **envp) {
 
     // Print the prompt
     rv = write(1, prompt, strlen(prompt));
-    if (!rv) { 
-      finished = 1;
+   if (!rv) { 
+     finished = 1;
       break;
-    }
+   }
     
     // read and parse the input
     for(rv = 1, count = 0, 
@@ -41,6 +41,8 @@ main (int argc, char ** argv, char **envp) {
       last_char = *cursor;
     } 
     *cursor = '\0';
+	if(strcmp(cmd, EXIT_CMD) == 0) { printf("Exiting...\n"); rv = 0; }
+
 
     if (!rv) { 
       finished = 1;
