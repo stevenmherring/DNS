@@ -7,13 +7,16 @@
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT 1024
 
+/**
+* Swish by Chris Ryan and Steven Herring for Don Porters CSE 306
+**/
 int 
 main (int argc, char ** argv, char **envp) {
 
   int finished = 0;
   char *prompt = "swish> ";
   char cmd[MAX_INPUT];
-  char *EXIT_CMD =  "exit\n";
+  char *EXIT_CMD =  "exit\n"; //Char Array to compare user input with string
 
   while (!finished) {
     char *cursor;
@@ -41,7 +44,7 @@ main (int argc, char ** argv, char **envp) {
       last_char = *cursor;
     } 
     *cursor = '\0';
-	if(strcmp(cmd, EXIT_CMD) == 0) { printf("Exiting...\n"); rv = 0; }
+	if(strcmp(cmd, EXIT_CMD) == 0) { printf("Exiting...\n"); rv = 0; } //Compare user input with EXIT_CMD and exit program correctly
 
 
     if (!rv) { 
