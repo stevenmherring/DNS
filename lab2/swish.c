@@ -18,7 +18,7 @@ int main (int argc, char ** argv, char **envp) {
   char *prompt = "swish> ";
   char cmd[MAX_INPUT_BUFF_BUFF];
   char *EXIT_CMD =  "exit\n";
-   char cwd[MAX_INPUT_BUFF_BUFF]; 
+  char cwd[MAX_INPUT_BUFF_BUFF]; 
   /********************************************************************
    Setting the commands that the shell recognizes 
    ********************************************************************/
@@ -27,14 +27,22 @@ int main (int argc, char ** argv, char **envp) {
   char *directory = "testDir";
 
   while (!finished) {
-    char *cursor;
-    char last_char;
-    int rv;
-    int count;
-    getcwd(cwd,sizeof(cwd));
+  char *theCWD = getcwd(cwd,sizeof(cwd));
+
+  char *cursor;
+
+  cursor = theCWD + strlen(theCWD);
+  *cursor = ' ';
+  cursor++;
+  *cursor = '\0';
+  cursor =NULL ;
+  char last_char;
+  int rv;
+  int count;
 
 
     // Print the prompt
+    rv = write(1, theCWD, strlen(theCWD));
     rv = write(1, prompt, strlen(prompt));
     int iterator =0;
     int pid=-1;
