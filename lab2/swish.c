@@ -17,6 +17,7 @@ int main (int argc, char ** argv, char **envp) {
   int finished = 0;
   char *prompt = "swish> ";
   char cmd[MAX_INPUT_BUFF_BUFF];
+  char cmdTemp[MAX_INPUT_BUFF_BUFF];
   char *EXIT_CMD =  "exit\n";
   char cwd[MAX_INPUT_BUFF_BUFF]; 
   /********************************************************************
@@ -24,7 +25,7 @@ int main (int argc, char ** argv, char **envp) {
    ********************************************************************/
   char *commandsNL[] = { "ls\n","cd\n","pwd\n"}; 
   char *commands[] = { "ls","cd","pwd"}; 
-  char *directory = "testDir";
+  
 
   while (!finished) {
   char *theCWD = getcwd(cwd,sizeof(cwd));
@@ -36,37 +37,48 @@ int main (int argc, char ** argv, char **envp) {
   cursor++;
   *cursor = '\0';
   cursor =NULL ;
+
+
+
   char last_char;
   int rv;
   int count;
 
 
-    // Print the prompt
-    rv = write(1, theCWD, strlen(theCWD));
-    rv = write(1, prompt, strlen(prompt));
-    int iterator =0;
-    int pid=-1;
+  /*******************************************************************
+  Print the CWD
+  Print the prompt
+  ********************************************************************/
+  rv = write(1, theCWD, strlen(theCWD));
+  rv = write(1, prompt, strlen(prompt));
+  int iterator =0;
+  int pid=-1;
 
 
     for(iterator= 0; iterator < 3; iterator++){
       if (!strncmp(commandsNL[iterator],cmd,2)){
-
+          
           if (strncmp(commandsNL[1],cmd,2) == 0){
-            if (chdir(directory) < 0)
-            {
-              printf("error opening directory");
-              return 123;
 
-            } else {
+          cursor = cmd;
+          cursor+=3;
+          strcpy(cmdTemp,cursor);
 
-              if ((pid = fork()) < 0) printf("fork failed");
-                  if (pid == 0){
-                    execvp("pwd",argv);
-                    
-                    }
-            }
+          
+          cursor =cmdTemp;
+          cursor+=strlen(cmdTemp)-1;
+          *cursor = '\0'; 
+            if (strcmp(cmd,"cd\n") == 0){
+              printf("Needs to be implemented");
+              return 1;
+            } else 
+                    if (chdir(cmdTemp) < 0)
+                    {
+                      printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);
+                      return 1;
 
-
+                    } 
+                
           }
       if ((pid = fork()) < 0) printf("fork failed");
         if (pid == 0){
@@ -96,7 +108,7 @@ int main (int argc, char ** argv, char **envp) {
     } 
    
     *cursor = '\0';
-	  if(strcmp(cmd,EXIT_CMD) == 0) { execvp("exit",argv); return 0; }
+	  if(strcmp(cmd,EXIT_CMD) == 0) { printf("Exiting. "); return 0; }
 
 
 
