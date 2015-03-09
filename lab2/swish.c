@@ -108,7 +108,7 @@ int main (int argc, char ** argv, char **envp) {
     } 
    
     *cursor = '\0';
-	  if(strcmp(cmd,EXIT_CMD) == 0) { printf("Exiting. "); return 0; }
+	  if(strcmp(cmd,EXIT_CMD) == 0) { printf("Exiting. "); finished = 1; return 0; }
 
 
 
