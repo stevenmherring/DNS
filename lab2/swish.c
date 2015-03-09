@@ -5,12 +5,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include "mysyscall.h"
+#include "swishHelperFunctions.c"
 
-#ifdef debug306
-#define cse306(fmt, ...) printf("CSE306: RUNNING: %s: ENDED: "cmd" (ret=%d)" fmt, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#else
-#define cse306(fmt, ...)
-#endif
+
 
 
 // Assume no input line will be longer than 1024 bytes
@@ -27,7 +24,6 @@ int main (int argc, char ** argv, char **envp) {
   Command line parsing begins here
   First check to see if -d is defined, and debugging messages need to be printed.
    ********************************************************************/
-
 
   int finished = 0;
   char *prompt = "swish> ";
@@ -60,9 +56,10 @@ int main (int argc, char ** argv, char **envp) {
   cursor++;
   *cursor = '\0';
   cursor =NULL ;
+  getCMDargs(commandsNL,1,argv,argc);
+
   rv = write(1, theCWD, strlen(theCWD));
   rv = write(1, prompt, strlen(prompt));
-
 
   while (!finished) {
   char last_char;
@@ -89,11 +86,11 @@ int main (int argc, char ** argv, char **envp) {
    
     *cursor = '\0';
 
-    
+
   /********************************************************************
    Check the CMD string to see if the input matches any of the commands
    found in the commandsNL array.
-   ********************************************************************/
++-   ********************************************************************/
     for(iterator= 0; iterator < 3; iterator++){
 
   /********************************************************************
@@ -136,8 +133,9 @@ int main (int argc, char ** argv, char **envp) {
           }
       else if ((pid = fork()) < 0) printf("fork failed"); /* Fail case on fork */
         if (pid == 0){
+
+         
           execvp(commands[iterator],argv);
-          printf("Executing commands[iterator]");
           
           }
 
