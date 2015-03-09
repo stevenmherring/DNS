@@ -16,6 +16,18 @@
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
 
+<<<<<<< HEAD
+/**
+* Swish by Chris Ryan and Steven Herring for Don Porters CSE 306
+**/
+int 
+main (int argc, char ** argv, char **envp) {
+
+  int finished = 0;
+  char *prompt = "swish> ";
+  char cmd[MAX_INPUT];
+  char *EXIT_CMD =  "exit\n"; //Char Array to compare user input with string
+=======
 extern char **environ;
 
 
@@ -41,6 +53,7 @@ int main (int argc, char ** argv, char **envp) {
   char *commandsNL[] = { "ls\n","cd\n","pwd\n"}; 
   char *commands[] = { "ls","cd","pwd"}; 
   
+>>>>>>> lab2_chris
 
 
 
