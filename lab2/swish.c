@@ -20,7 +20,6 @@ main (int argc, char ** argv, char **envp) {
   char *prompt = "swish> ";
   char cmd[MAX_INPUT];
   char *EXIT_CMD =  "exit\n"; //Char Array to compare user input with string
-=======
 extern char **environ;
 int main (int argc, char ** argv, char **envp) {
   /********************************************************************
