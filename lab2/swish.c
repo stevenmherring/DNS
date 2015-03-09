@@ -88,7 +88,7 @@ int main (int argc, char ** argv, char **envp) {
   //Tokenize the commands by a space deilmeter store it into *p
   char cmdcpy[MAX_INPUT_BUFF_BUFF];
   strncpy(cmdcpy, cmd, strlen(cmd));
-  char *p = strtok(cmdcpy, " ");
+//  char *p = strtok(cmdcpy, " ");
 
   /********************************************************************
    Check the CMD string to see if the input matches any of the commands
@@ -152,7 +152,7 @@ int main (int argc, char ** argv, char **envp) {
 		} 
 		input[l+1] = '\0';
 	 } //assign input buffer
-	else if(p[j] == '>') {
+	else if(cmd[j] == '>') {
 		int l = 0;
 		for(k = j+1; k < strlen(cmd); k++) {
 			if(cmd[k] != ' ') { output[l] = cmd[k]; l++; }
@@ -160,7 +160,7 @@ int main (int argc, char ** argv, char **envp) {
 		}
 		output[l+1] = '\0';
 	 } //assign output buffer
-	else if(p[j] == '|') { } //piping
+	else if(cmd[j] == '|') { } //piping
 	}
 	printf("Input: %s\n", input);
 	printf("Output: %s\n", output);
