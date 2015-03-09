@@ -6,6 +6,13 @@
 #include <errno.h>
 #include "mysyscall.h"
 
+#ifdef debug306
+#define cse306(fmt, ...) printf("CSE306: RUNNING: %s: ENDED: "cmd" (ret=%d)" fmt, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+#define cse306(fmt, ...)
+#endif
+
+
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
 
@@ -13,6 +20,14 @@ extern char **environ;
 
 
 int main (int argc, char ** argv, char **envp) {
+
+
+
+  /********************************************************************
+  Command line parsing begins here
+  First check to see if -d is defined, and debugging messages need to be printed.
+   ********************************************************************/
+
 
   int finished = 0;
   char *prompt = "swish> ";
@@ -43,14 +58,6 @@ int main (int argc, char ** argv, char **envp) {
   char last_char;
   int rv;
   int count;
-
-
-  /*******************************************************************
-  Print the CWD
-  Print the prompt
-  ********************************************************************/
-  rv = write(1, theCWD, strlen(theCWD));
-  rv = write(1, prompt, strlen(prompt));
   int iterator =0;
   int pid=-1;
 
@@ -117,6 +124,14 @@ int main (int argc, char ** argv, char **envp) {
     // Execute the command, handling built-in commands separately 
     // Just echo the command line for now
     write(1, cmd, strnlen(cmd, MAX_INPUT_BUFF_BUFF));
+
+
+  /*******************************************************************
+  Print the CWD
+  Print the prompt
+  ********************************************************************/
+  rv = write(1, theCWD, strlen(theCWD));
+  rv = write(1, prompt, strlen(prompt));
 
   } /* End while */
 
