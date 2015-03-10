@@ -177,7 +177,7 @@ int main (int argc, char ** argv, char **envp) {
         else {
           in_index = 1;
         }
-        for(k = j+in_index; k < (strlen(cmd)-(in_index/2)); k++) {
+        for(k = j+in_index; k < (strlen(cmd)-1); k++) {
           if(cmd[k] != ' ') {
             input[l] = cmd[k];
             l++;
@@ -205,7 +205,7 @@ int main (int argc, char ** argv, char **envp) {
         else{
           out_index = 1;
         }
-        for(k = j+out_index; k < (strlen(cmd)-(out_index/2)); k++) {
+        for(k = j+out_index; k < (strlen(cmd)-1); k++) {
           if(cmd[k] != ' ' || cmd[k] != '\n') {
             output[l] = cmd[k];
             l++;
