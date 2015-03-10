@@ -58,10 +58,12 @@ int main (int argc, char ** argv, char **envp) {
   cursor =NULL ;
   getCMDargs(commandsNL,1,argv,argc);
 
-  rv = write(1, theCWD, strlen(theCWD));
-  rv = write(1, prompt, strlen(prompt));
+  //rv = write(1, theCWD, strlen(theCWD));
+  //rv = write(1, prompt, strlen(prompt));
 
   while (!finished) {
+  rv = write(1, theCWD, strlen(theCWD));
+  rv = write(1, prompt, strlen(prompt));
   char last_char;
   int count;
   int iterator =0;
@@ -136,42 +138,65 @@ int main (int argc, char ** argv, char **envp) {
           }
 //if the input is for a application (cat/ls) then we need to parse the arguments following it
       else if ((pid = fork()) < 0) printf("fork failed"); /* Fail case on fork */
-        if (pid == 0){
-	int j = 0, k = 0, in_index = 0, out_index = 0;
-	char input[MAX_INPUT_BUFF_BUFF];
-	char output[MAX_INPUT_BUFF_BUFF]; 
-	for(j = 0; j < strlen(cmd); j++) {
-	/**
-	* Search for <, >, or |
-	**/
-	if(cmd[j] == '<') {
-		int l = 0;
-    if(cmd[j+1] == ' ') { in_index = 2; }
-    else{ in_index = 1; }
-		for(k = j+in_index; k < strlen(cmd); k++) {
-			if(cmd[k] != ' ') { input[l] = cmd[k]; l++; }
-			else { break; }
-		} 
-		input[l+1] = '\0';
-	 } //assign input buffer
-	else if(cmd[j] == '>') {
-		int l = 0;
-    if(cmd[j+1] == ' ') { out_index = 2; }
-    else{ out_index = 1; }
-		for(k = j+out_index; k < strlen(cmd); k++) {
-			if(cmd[k] != ' ') { output[l] = cmd[k]; l++; }
-			else { break; }
-		}
-		output[l+1] = '\0';
-	 } //assign output buffer
-	else if(cmd[j] == '|') { } //piping
-	}
-	printf("Input: %s\n", input);
-	printf("Output: %s\n", output);
-         
-          execvp(commands[iterator],argv);
+      if (pid == 0){
+        int j = 0, k = 0, in_index = 0, out_index = 0;
+        char input[MAX_INPUT_BUFF_BUFF];
+        char output[MAX_INPUT_BUFF_BUFF]; 
+        for(j = 0; j < strlen(cmd); j++) {
+          /**
+          * Search for <, >, or |
+          **/
+
+          /* Handle input redirection */
+          if(cmd[j] == '<') {
+            int l = 0;
+            if(cmd[j+1] == ' ') { 
+              in_index = 2; 
+            }
+            else { 
+              in_index = 1; 
+            }
+            for(k = j+in_index; k < strlen(cmd); k++) {
+              if(cmd[k] != ' ') { 
+                input[l] = cmd[k]; 
+                l++; 
+              }
+              else { 
+                break; 
+              }
+            } 
+          input[l+1] = '\0';
+          } //assign input buffer
+
+          /* Handle output redirection */
           
-          }
+          else if(cmd[j] == '>') {
+            int l = 0;
+            if(cmd[j+1] == ' ') { 
+              out_index = 2; 
+            }
+            else{ 
+              out_index = 1; 
+            }
+            for(k = j+out_index; k < strlen(cmd); k++) {
+              if(cmd[k] != ' ') { 
+                output[l] = cmd[k]; 
+                l++; 
+              }
+              else { 
+                break; 
+              }
+            }
+      output[l+1] = '\0';
+      } //assign output buffer
+      else if(cmd[j] == '|') { } //piping
+      }
+      printf("Input: %s\n", input);
+      printf("Output: %s\n", output);
+       
+      execvp(commands[iterator],argv);
+        
+        }
 
         }
       }
@@ -197,8 +222,6 @@ int main (int argc, char ** argv, char **envp) {
   Print the CWD
   Print the prompt
   ********************************************************************/
-  rv = write(1, theCWD, strlen(theCWD));
-  rv = write(1, prompt, strlen(prompt));
 
   } /* End while */
 
