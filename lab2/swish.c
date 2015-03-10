@@ -137,7 +137,7 @@ int main (int argc, char ** argv, char **envp) {
 //if the input is for a application (cat/ls) then we need to parse the arguments following it
       else if ((pid = fork()) < 0) printf("fork failed"); /* Fail case on fork */
         if (pid == 0){
-	int j = 0, k = 0;
+	int j = 0, k = 0, in_index = 0, out_index = 0;
 	char input[MAX_INPUT_BUFF_BUFF];
 	char output[MAX_INPUT_BUFF_BUFF]; 
 	for(j = 0; j < strlen(cmd); j++) {
@@ -146,7 +146,9 @@ int main (int argc, char ** argv, char **envp) {
 	**/
 	if(cmd[j] == '<') {
 		int l = 0;
-		for(k = j+1; k < strlen(cmd); k++) {
+    if(cmd[j+1] == ' ') { in_index = 2; }
+    else{ in_index = 1; }
+		for(k = j+in_index; k < strlen(cmd); k++) {
 			if(cmd[k] != ' ') { input[l] = cmd[k]; l++; }
 			else { break; }
 		} 
@@ -154,7 +156,9 @@ int main (int argc, char ** argv, char **envp) {
 	 } //assign input buffer
 	else if(cmd[j] == '>') {
 		int l = 0;
-		for(k = j+1; k < strlen(cmd); k++) {
+    if(cmd[j+1] == ' ') { out_index = 2; }
+    else{ out_index = 1; }
+		for(k = j+out_index; k < strlen(cmd); k++) {
 			if(cmd[k] != ' ') { output[l] = cmd[k]; l++; }
 			else { break; }
 		}
