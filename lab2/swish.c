@@ -155,7 +155,10 @@ int main (int argc, char ** argv, char **envp) {
     int j = 0, k = 0;
     char input[MAX_INPUT_BUFF_BUFF];
     char output[MAX_INPUT_BUFF_BUFF];
-    for(j = 0; j < strlen(cmd); j++) {
+    memset(input, '\0', strlen(input));
+    memset(output, '\0', strlen(output));
+    printf("cmd: %s", cmd);
+    for(j = 0; j < (strlen(cmd) - 1); j++) {
       /**
       * Search for <, >, or |
       **/
@@ -166,8 +169,10 @@ int main (int argc, char ** argv, char **envp) {
       if space cursor + 1
       store next argument from input
       */
+      printf("before input: %c\n", cmd[j]);
       if(cmd[j] == '<') {
         inRedir = true;
+        int in_index;
         int l = 0;
         if(cmd[j+1] == ' ') {
           in_index = 2;
@@ -195,15 +200,16 @@ int main (int argc, char ** argv, char **envp) {
       */
       else if(cmd[j] == '>') {
         outRedir = true;
+        int out_index = 0;
         int l = 0;
         if(cmd[j+1] == ' ') {
-          out_index = 2;
-        }
-        else{
           out_index = 1;
         }
+        else{
+          out_index = 0;
+        }
         for(k = j+out_index; k < strlen(cmd); k++) {
-          if(cmd[k] != ' ') {
+          if(cmd[k] != ' ' || cmd[k] != '\n') {
             output[l] = cmd[k];
             l++;
           }
@@ -217,8 +223,8 @@ int main (int argc, char ** argv, char **envp) {
         //piping potentially won't even be here.
       } //piping
     }//for J search by char for < > | etc.
-    printf("Input: %s\n", input);
-    printf("Output: %s\n", output);
+    //printf("Input: %s\n", input);
+    //printf("Output: %s\n", output);
     // execvp(commands[iterator],tokenArr);
     //printf("TokenArr : %s ",tokenArr[0]);
     // printf("TokenArr : %s ",tokenArr[1]);
@@ -228,12 +234,21 @@ int main (int argc, char ** argv, char **envp) {
     *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works
     *So parsing character by character, which will have its own issues (file names w/ spaces for example)
     **/
+    printf("output: %s", output);
     if(inRedir) {
       //open/close FDs for in redirection
+      FILE *file_in = fopen(input, O_RDONLY);
+      int fd_in = file_in->_fileno;
+      dup2(fd_in, STDIN_FILENO);
+      close(fd_in);
       inRedir = false;
     }
     if(outRedir) {
       //open/close FDs for out redirection
+      FILE *file_out = fopen(output, "ab+");
+      int fd_out = file_out->_fileno;
+      dup2(fd_out, STDOUT_FILENO);
+      close(fd_out);
       outRedir = false;
     }
     execvp(tokenArr[0], tokenArr);
