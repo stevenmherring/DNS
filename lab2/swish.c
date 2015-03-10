@@ -159,7 +159,12 @@ int main (int argc, char ** argv, char **envp) {
                 
           }
 //if the input is for a application (cat/ls) then we need to parse the arguments following it
-      else if ((pid = fork()) < 0){ printf("fork failed"); return 1; }/* Fail case on fork */
+      else 
+        if (!strncmp(cmd,"putenv",6)){
+          printf("Attempting putenv. %s ",tokenArr[1]);
+          putenv(tokenArr[1]);
+        }
+        if ((pid = fork()) < 0){ printf("fork failed"); return 1; }/* Fail case on fork */
         if (pid == 0){
   
       	int j = 0, k = 0;
@@ -188,8 +193,8 @@ int main (int argc, char ** argv, char **envp) {
 	 } //assign output buffer
 	else if(cmd[j] == '|') { } //piping
 	}
-	//printf("Input: %s\n", input);
-	//printf("Output: %s\n", output);
+	printf("Input: %s\n", input);
+	printf("Output: %s\n", output);
          
           // execvp(commands[iterator],tokenArr);
           //printf("TokenArr : %s ",tokenArr[0]);
