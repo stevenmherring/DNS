@@ -35,7 +35,7 @@ int main (int argc, char ** argv, char **envp) {
   /********************************************************************
   Setting the commands that the shell recognizes
   ********************************************************************/
-  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n"};
+  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};
   //char *commands[] = { "ls","cd","pwd","make"};
 
   /*******************************************************************
@@ -151,75 +151,25 @@ int main (int argc, char ** argv, char **envp) {
     return 1;
   }/* Fail case on fork */
   if (pid == 0){
-    int j = 0, k = 0;
+    int j = 0;//, k = 0, l = 0;
+    //int in_index = 0, out_index = 0;
     char input[MAX_INPUT_BUFF_BUFF];
     char output[MAX_INPUT_BUFF_BUFF];
     memset(input, '\0', strlen(input));
     memset(output, '\0', strlen(output));
-    for(j = 0; j < (strlen(cmd) - 1); j++) {
-      /**
-      * Search for <, >, or |
-      **/
-      /*
-      Handle input redirection
-      Check character of the input for <
-      If found, set a cursor to that position + 1
-      if space cursor + 1
-      store next argument from input
-      */
-      if(cmd[j] == '<') {
-        inRedir = true;
-        int in_index;
-        int l = 0;
-        if(cmd[j+1] == ' ') {
-          in_index = 2;
-        }
-        else {
-          in_index = 1;
-        }
-        for(k = j+in_index; k < (strlen(cmd)-1); k++) {
-          if(cmd[k] != ' ') {
-            input[l] = cmd[k];
-            l++;
-          }
-          else {
-            break;
-          }
-        }
-        input[l] = '\0';
-      } //assign input buffer
-      /*
-      Handle output redirection
-      Check character of the input for >
-      If found, set cursor at index + 1
-      if cursor = ' ' cursor =+ 1
-      store next argument
-      */
-      else if(cmd[j] == '>') {
-        outRedir = true;
-        int out_index = 0;
-        int l = 0;
-        if(cmd[j+1] == ' ') {
-          out_index = 2;
-        }
-        else{
-          out_index = 1;
-        }
-        for(k = j+out_index; k < (strlen(cmd)-1); k++) {
-          if(cmd[k] != ' ' || cmd[k] != '\n') {
-            output[l] = cmd[k];
-            l++;
-          }
-          else {
-            break;
-          }
-        }
-        output[l] = '\0';
-      } //assign output buffer}
-      else if(cmd[j] == '|') {
-        //piping potentially won't even be here.
-      } //piping
-    }//for J search by char for < > | etc.
+
+    /*
+    *Check if the redirection operations were used, set flags.
+    */
+    j = getRedirTarget(cmd, output, '>');
+    if(j == 0 ) {
+      outRedir = true;
+    }
+    j = getRedirTarget(cmd, input, '<');
+    if(j == 0 ) {
+      inRedir = true;
+    }
+    }///for J search by char for < > | etc.
     //printf("Input: %s\n", input);
     //printf("Output: %s\n", output);
     // execvp(commands[iterator],tokenArr);
