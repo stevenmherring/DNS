@@ -79,7 +79,6 @@ int main (int argc, char ** argv, char **envp) {
     last_char = *cursor;
   }
   *cursor = '\0';
-
   strcpy(tokenBuff,cmd);
   //printf("TokenBuff pre Tokenizer : %s \n",tokenBuff);
   char *tokenArr[50];
@@ -157,7 +156,6 @@ int main (int argc, char ** argv, char **envp) {
     char output[MAX_INPUT_BUFF_BUFF];
     memset(input, '\0', strlen(input));
     memset(output, '\0', strlen(output));
-    printf("cmd: %s", cmd);
     for(j = 0; j < (strlen(cmd) - 1); j++) {
       /**
       * Search for <, >, or |
@@ -169,7 +167,6 @@ int main (int argc, char ** argv, char **envp) {
       if space cursor + 1
       store next argument from input
       */
-      printf("before input: %c\n", cmd[j]);
       if(cmd[j] == '<') {
         inRedir = true;
         int in_index;
@@ -180,7 +177,7 @@ int main (int argc, char ** argv, char **envp) {
         else {
           in_index = 1;
         }
-        for(k = j+in_index; k < strlen(cmd); k++) {
+        for(k = j+in_index; k < (strlen(cmd)-(in_index/2)); k++) {
           if(cmd[k] != ' ') {
             input[l] = cmd[k];
             l++;
@@ -189,7 +186,7 @@ int main (int argc, char ** argv, char **envp) {
             break;
           }
         }
-        input[l+1] = '\0';
+        input[l] = '\0';
       } //assign input buffer
       /*
       Handle output redirection
@@ -203,12 +200,12 @@ int main (int argc, char ** argv, char **envp) {
         int out_index = 0;
         int l = 0;
         if(cmd[j+1] == ' ') {
-          out_index = 1;
+          out_index = 2;
         }
         else{
-          out_index = 0;
+          out_index = 1;
         }
-        for(k = j+out_index; k < strlen(cmd); k++) {
+        for(k = j+out_index; k < (strlen(cmd)-(out_index/2)); k++) {
           if(cmd[k] != ' ' || cmd[k] != '\n') {
             output[l] = cmd[k];
             l++;
@@ -217,7 +214,7 @@ int main (int argc, char ** argv, char **envp) {
             break;
           }
         }
-        output[l+1] = '\0';
+        output[l] = '\0';
       } //assign output buffer}
       else if(cmd[j] == '|') {
         //piping potentially won't even be here.
@@ -234,7 +231,6 @@ int main (int argc, char ** argv, char **envp) {
     *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works
     *So parsing character by character, which will have its own issues (file names w/ spaces for example)
     **/
-    printf("output: %s", output);
     if(inRedir) {
       //open/close FDs for in redirection
       FILE *file_in = fopen(input, O_RDONLY);
@@ -251,7 +247,8 @@ int main (int argc, char ** argv, char **envp) {
       close(fd_out);
       outRedir = false;
     }
-    execvp(tokenArr[0], tokenArr);
+    //execvp(tokenArr[0], tokenArr);
+    execvp(tokenArr[0], argv);
     //cursor = cmd;
     //*cursor = '\n';
   } else {
