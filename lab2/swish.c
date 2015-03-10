@@ -42,7 +42,7 @@ int main (int argc, char ** argv, char **envp) {
   /********************************************************************
    Setting the commands that the shell recognizes 
    ********************************************************************/
-  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n"}; 
+  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n"}; 
   //char *commands[] = { "ls","cd","pwd","make"}; 
   
   /*******************************************************************
@@ -66,7 +66,7 @@ int main (int argc, char ** argv, char **envp) {
   while (!finished) {
   char last_char;
   int count;
-  int iterator =0;
+  //int iterator =0;
   int pid=-1;
 
     /********************************************************************
@@ -104,7 +104,7 @@ int main (int argc, char ** argv, char **envp) {
   int index = 0;
   for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {
     if(tokenArr[counter - 1][index] == '\n') {
-      printf("Token: %s",tokenArr[counter - 1]);
+     // printf("Token: %s",tokenArr[counter - 1]);
       tokenArr[counter - 1][index] = '\0';
       break;
     }
@@ -113,12 +113,12 @@ int main (int argc, char ** argv, char **envp) {
    Check the CMD string to see if the input matches any of the commands
    found in the commandsNL array.
   ********************************************************************/
-    for(iterator= 0; iterator < 5; iterator++){
+    //for(iterator= 0; iterator < 4; iterator++){
 
   /********************************************************************
    If the command is in the array, this line returns 0 so we ! to enter
    ********************************************************************/
-      if (!strcmp(commandsNL[iterator],cmd)){
+      //if (!strncmp(commandsNL[iterator],cmd,2)){
           
 
   /********************************************************************
@@ -188,13 +188,15 @@ int main (int argc, char ** argv, char **envp) {
 	 } //assign output buffer
 	else if(cmd[j] == '|') { } //piping
 	}
-	printf("Input: %s\n", input);
-	printf("Output: %s\n", output);
+	//printf("Input: %s\n", input);
+	//printf("Output: %s\n", output);
          
           // execvp(commands[iterator],tokenArr);
+          //printf("TokenArr : %s ",tokenArr[0]);
+         // printf("TokenArr : %s ",tokenArr[1]);
           execvp(tokenArr[0], tokenArr);
-          cursor = cmd;
-          *cursor = '\n';
+          //cursor = cmd;
+          //*cursor = '\n';
           
           } else {
             /* in parent */
@@ -202,16 +204,12 @@ int main (int argc, char ** argv, char **envp) {
             waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);
           }
 
-        }
-      }
+        //}
+      //}
      
 
 
-	  if(strncmp(cmd,EXIT_CMD,4) == 0) { 
-      printf("Exiting. "); 
-      finished = 1; 
-      return 0; 
-    }
+
 
 
 
@@ -226,7 +224,12 @@ int main (int argc, char ** argv, char **envp) {
   Print the CWD
   Print the prompt
   ********************************************************************/
-
+  if(!strncmp(cmd,EXIT_CMD,4)) { 
+    
+    finished = 1; 
+    break;
+    return 0; 
+  }
   rv = write(1, theCWD, strlen(theCWD));
   rv = write(1, prompt, strlen(prompt));
 
