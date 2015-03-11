@@ -186,7 +186,7 @@ int main (int argc, char ** argv, char **envp) {
   }
   //if the input is for a application (cat/ls) then we need to parse the arguments following it
   else
-  if (!strncmp(cmd,"set",3)){
+  if (!strncmp(cmd,"set",6)){
     for(index = 0; tokenArr[1][index] != '\0'; index++) {
       if(tokenArr[1][index] == '\n') {
         tokenArr[1][index] = '\0';
