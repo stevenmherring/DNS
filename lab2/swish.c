@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-
+#include "redirHelper.c"
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
 
@@ -224,19 +224,25 @@ int main (int argc, char ** argv, char **envp) {
     **/
     if(inRedir) {
       //open/close FDs for in redirection
+      redirInput(input);
+      /*
       FILE *file_in = fopen(input, O_RDONLY);
       int fd_in = file_in->_fileno;
       dup2(fd_in, STDIN_FILENO);
       close(fd_in);
       inRedir = false;
+      */
     }
     if(outRedir) {
       //open/close FDs for out redirection
+      redirOutput(output);
+      /*
       FILE *file_out = fopen(output, "ab+");
       int fd_out = file_out->_fileno;
       dup2(fd_out, STDOUT_FILENO);
       close(fd_out);
       outRedir = false;
+      */
     }
     if (flag == 1){
     execvp(tokenArr[0], tokenArr);
