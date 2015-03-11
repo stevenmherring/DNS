@@ -93,13 +93,13 @@ int main (int argc, char ** argv, char **envp) {
   int flag =0;
   char* token = strtok(tokenBuff, " ");
   while (token) {
-    
+
     if (!strncmp(token,"-",1)){
       flag = 1;
 	   tokenArgs[counterArgs++] = token;
     }
     tokenArr[counter++] = token;
-    
+
     token = strtok(NULL, " ");
   }
   int index = 0;
@@ -128,7 +128,6 @@ int main (int argc, char ** argv, char **envp) {
     printf("TokenArgs[2] : %s \n",tokenArgs[2]);
   tokenArr[counter] = NULL;
   tokenArgs[counterArgs] = NULL;
-
   //tokenArgs[1] = "-d";
   /********************************************************************
   Check the CMD string to see if the input matches any of the commands
@@ -202,7 +201,9 @@ int main (int argc, char ** argv, char **envp) {
     /*
     *Check if the redirection operations were used, set flags.
     */
+    printf("cmd: %s\n", cmd);
     j = getRedirTarget(cmd, output, '>');
+    printf("j: %d\n", j);
     if(j == 0 ) {
       outRedir = true;
     }
@@ -211,49 +212,32 @@ int main (int argc, char ** argv, char **envp) {
       inRedir = true;
     }
     ///for J search by char for < > | etc.
-    //printf("Input: %s\n", input);
-    //printf("Output: %s\n", output);
-    // execvp(commands[iterator],tokenArr);
-    //printf("TokenArr : %s ",tokenArr[0]);
-    // printf("TokenArr : %s ",tokenArr[1]);
 
     /**
     *Prior to exec we need to confirm if redirection was used, if so exec in a different manner
     *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works
     *So parsing character by character, which will have its own issues (file names w/ spaces for example)
     **/
+    /****-----------------
+    *I need to check for numerics preceeding the redirection, in that case we're redirecting that file desc.
+    * IE ls 2>err.log redirects the stderr to err.log
+    */
     if(inRedir) {
       //open/close FDs for in redirection
       redirInput(input);
-      /*
-      FILE *file_in = fopen(input, O_RDONLY);
-      int fd_in = file_in->_fileno;
-      dup2(fd_in, STDIN_FILENO);
-      close(fd_in);
       inRedir = false;
-      */
     }
     if(outRedir) {
       //open/close FDs for out redirection
       redirOutput(output);
-      /*
-      FILE *file_out = fopen(output, "ab+");
-      int fd_out = file_out->_fileno;
-      dup2(fd_out, STDOUT_FILENO);
-      close(fd_out);
       outRedir = false;
-      */
     }
+
+    /*??????????????????????????????????????????????????*/
     if (flag == 1){
     execvp(tokenArr[0], tokenArr);
-    } else execvp(tokenArr[0],tokenArr);
-    
-    //printf("TokenArr[0] %s \n",tokenArr[0]);
-    //printf("TokenArr[1] %s \n",tokenArr[1]);
-    //printf("TokenArr[2] %s \n",tokenArr[2]);
-    //execvp(tokenArr[0], tokenArgs);
-    //cursor = cmd;
-    //*cursor = '\n';
+  } else execvp(tokenArr[0],tokenArr);
+
   } else {
     /* in parent */
     // int status;
