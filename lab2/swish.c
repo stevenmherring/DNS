@@ -95,6 +95,14 @@ int main (int argc, char ** argv, char **envp) {
 
   tokenArgs[counterArgs++] = token;
   while (token) {
+    if (!strncmp(token,"$",1)){
+      flag = 1;
+      char *nlRemove = token;
+      token++;
+      nlRemove+=strlen(token);
+      *nlRemove = '\0'; //printf("getenv : %s \n",getenv(token));
+      tokenArgs[counterArgs++] = getenv(token);
+    }//env variables
     if (!strncmp(token,"-",1)){
       flag = 1;
       tokenArgs[counterArgs++] = token;
@@ -178,7 +186,7 @@ int main (int argc, char ** argv, char **envp) {
   }
   //if the input is for a application (cat/ls) then we need to parse the arguments following it
   else
-  if (!strncmp(cmd,"putenv",6)){
+  if (!strncmp(cmd,"set",6)){
     for(index = 0; tokenArr[1][index] != '\0'; index++) {
       if(tokenArr[1][index] == '\n') {
         tokenArr[1][index] = '\0';
@@ -188,7 +196,7 @@ int main (int argc, char ** argv, char **envp) {
     char *putEnvStr = malloc(strlen(tokenArr[1]));
     strcpy(putEnvStr,tokenArr[1]);
     if (putenv(putEnvStr) != 0){
-      return 123;
+      return 1;
     }
   }
   else {
