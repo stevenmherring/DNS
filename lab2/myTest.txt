@@ -1,0 +1,2 @@
+-rw-rw-r-- 1 student student 0 Mar 11 01:39 myTest.txt
+-rw-rw-r-- 1 student student 55 Mar 11 01:39 myTest.txt

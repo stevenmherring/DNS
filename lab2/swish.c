@@ -79,25 +79,57 @@ int main (int argc, char ** argv, char **envp) {
     last_char = *cursor;
   }
   *cursor = '\0';
+    if(!strncmp(cmd,EXIT_CMD,4)) {
+    finished = 1;
+    break;
+    return 0;
+  }
   strcpy(tokenBuff,cmd);
   //printf("TokenBuff pre Tokenizer : %s \n",tokenBuff);
   char *tokenArr[50];
+  char *tokenArgs[50];
   int counter = 0;
+  int counterArgs =0;
+  int flag =0;
   char* token = strtok(tokenBuff, " ");
   while (token) {
+    
+    if (!strncmp(token,"-",1)){
+      flag = 1;
+	   tokenArgs[counterArgs++] = token;
+    }
     tokenArr[counter++] = token;
+    
     token = strtok(NULL, " ");
   }
-  tokenArr[counter] = NULL;
-
   int index = 0;
   for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {
     if(tokenArr[counter - 1][index] == '\n') {
-      // printf("Token: %s",tokenArr[counter - 1]);
       tokenArr[counter - 1][index] = '\0';
       break;
     }
   }
+
+  if (flag == 1){
+   for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {
+
+    if(tokenArgs[counterArgs - 1][index] == '\n') {
+      tokenArgs[counterArgs - 1][index] = '\0';
+      break;
+    }
+  }
+  }
+
+    printf("TokenArr[0] : %s \n",tokenArr[0]);
+    printf("TokenArgs[0] : %s \n",tokenArgs[0]);
+    printf("TokenArr[1] : %s \n",tokenArr[1]);
+    printf("TokenArgs[1] : %s \n",tokenArgs[1]);
+    printf("TokenArr[2] : %s \n",tokenArr[2]);
+    printf("TokenArgs[2] : %s \n",tokenArgs[2]);
+  tokenArr[counter] = NULL;
+  tokenArgs[counterArgs] = NULL;
+
+  //tokenArgs[1] = "-d";
   /********************************************************************
   Check the CMD string to see if the input matches any of the commands
   found in the commandsNL array.
@@ -143,8 +175,17 @@ int main (int argc, char ** argv, char **envp) {
   //if the input is for a application (cat/ls) then we need to parse the arguments following it
   else
   if (!strncmp(cmd,"putenv",6)){
-    printf("Attempting putenv. %s ",tokenArr[1]);
-    putenv(tokenArr[1]);
+    for(index = 0; tokenArr[1][index] != '\0'; index++) {
+      if(tokenArr[1][index] == '\n') {
+        tokenArr[1][index] = '\0';
+      break;
+      }
+    }
+    char *putEnvStr = malloc(strlen(tokenArr[1]));
+    strcpy(putEnvStr,tokenArr[1]);
+    if (putenv(putEnvStr) != 0){
+      return 123;
+    }
   }
   if ((pid = fork()) < 0){
     printf("fork failed");
@@ -197,8 +238,14 @@ int main (int argc, char ** argv, char **envp) {
       close(fd_out);
       outRedir = false;
     }
-    //execvp(tokenArr[0], tokenArr);
-    execvp(tokenArr[0], argv);
+    if (flag == 1){
+    execvp(tokenArr[0], tokenArr);
+    } else execvp(tokenArr[0],tokenArr);
+    
+    //printf("TokenArr[0] %s \n",tokenArr[0]);
+    //printf("TokenArr[1] %s \n",tokenArr[1]);
+    //printf("TokenArr[2] %s \n",tokenArr[2]);
+    //execvp(tokenArr[0], tokenArgs);
     //cursor = cmd;
     //*cursor = '\n';
   } else {
@@ -216,11 +263,7 @@ int main (int argc, char ** argv, char **envp) {
   Print the CWD
   Print the prompt
   ********************************************************************/
-  if(!strncmp(cmd,EXIT_CMD,4)) {
-    finished = 1;
-    break;
-    return 0;
-  }
+
   rv = write(1, theCWD, strlen(theCWD));
   rv = write(1, prompt, strlen(prompt));
   memset(cmd,'\0',MAX_INPUT_BUFF_BUFF);

@@ -1,9 +1,15 @@
+>
+
 a.out
 challenge.txt
+diditbreak.txt
 launcher.sh
 Makefile
 mysyscall.h
+ output
+P
 output.txt
+output.xt
 README
 slack.txt
 swish
@@ -11,3 +17,10 @@ swish.c
 swishHelperFunctions.c
 swishNonMerged.c
 testDir
+testingOutput.txt
+ testing.txt
+·
+testing.txt
+test.txt
+ test.txt
+t

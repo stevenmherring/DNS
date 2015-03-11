@@ -1,0 +1,31 @@
+total 128
+-rw-rw-r-- 1 student student     0 Mar 10 14:53 >
+
+-rwxrwxr-x 1 student student 16762 Mar 11 00:09 a.out
+-rw-rw-r-- 1 student student    74 Feb 26 21:20 challenge.txt
+-rw-rw-r-- 1 student student   236 Mar 11 00:25 diditbreak.txt
+-rw-rw-r-- 1 student student    61 Mar 11 01:32 fixedRedirection
+-rw-rw-r-- 1 student student  1506 Mar 11 01:38 helloworld
+-rw-rw-r-- 1 student student     0 Mar 11 01:38 helloworld.txt
+-rwxrwxr-x 1 student student   582 Feb 26 21:20 launcher.sh
+-rw-rw-r-- 1 student student   372 Feb 26 21:20 Makefile
+-rw-rw-r-- 1 student student  6340 Mar  9 16:10 mysyscall.h
+-rw-rw-r-- 1 student student   247 Mar 11 01:36 newCat.txt
+-rw-rw-r-- 1 student student    12 Mar 11 01:38 newWorld.txt
+-rw-rw-r-- 1 student student     0 Mar 10 14:33  output
+P
+-rw-rw-r-- 1 student student   247 Mar 11 00:41 output.txt
+-rw-rw-r-- 1 student student   221 Mar 11 00:16 output.xt
+-rw-rw-r-- 1 student student   358 Feb 26 21:20 README
+-rw-rw-r-- 1 student student    64 Mar 11 01:33 redirectionArgs.txt
+-rw-rw-r-- 1 student student   544 Mar 11 01:32 redirection.txt
+-rw-rw-r-- 1 student student    30 Feb 26 21:20 slack.txt
+-rwxrwxr-x 1 student student 12386 Mar 11 01:35 swish
+-rw-rw-r-- 1 student student  8386 Mar 11 01:35 swish.c
+-rw-rw-r-- 1 student student  1451 Mar 10 22:53 swishHelperFunctions.c
+-rw-rw-r-- 1 student student  5176 Mar 10 10:06 swishNonMerged.c
+drwxrwxr-x 2 student student  4096 Mar  9 16:10 testDir
+-rw-rw-r-- 1 student student     0 Mar 10 14:40  testing.txt
+·
+-rw-rw-r-- 1 student student     0 Mar 10 14:41  test.txt
+t
