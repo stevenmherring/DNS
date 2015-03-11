@@ -96,7 +96,7 @@ int main (int argc, char ** argv, char **envp) {
   while (token) {
     if (!strncmp(token,"-",1)){
       flag = 1;
-     tokenArgs[counterArgs++] = token;
+	   tokenArgs[counterArgs++] = token;
     } else
     if (!strncmp(token,">",1)){
       if(strlen(token) == 1){   
