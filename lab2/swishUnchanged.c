@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-#include "redirHelper.c"
+
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
 
@@ -94,24 +94,18 @@ int main (int argc, char ** argv, char **envp) {
 
   tokenArgs[counterArgs++] = token;
   while (token) {
+    
     if (!strncmp(token,"-",1)){
       flag = 1;
-      tokenArgs[counterArgs++] = tokenArr[--counter];
 	   tokenArgs[counterArgs++] = token;
     } else
-    if (!strncmp(token,">",1)){
-      if(strlen(token) == 1){   
-        token = strtok(NULL, " ");
-      } //if char* length = 1
-      else {
-      } //else char* length > 1
-    }//if first char = > 
-    else {
-      tokenArr[counter++] = token;
-    } // else
-    token = strtok(NULL, " ");
-  }//while
+    if (strncmp(token,">",1)){
 
+    tokenArr[counter++] = token;
+    }
+    
+    token = strtok(NULL, " ");
+  }
   int index = 0;
   for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {
     if(tokenArr[counter - 1][index] == '\n') {
@@ -224,31 +218,31 @@ int main (int argc, char ** argv, char **envp) {
     **/
     if(inRedir) {
       //open/close FDs for in redirection
-      redirInput(input);
-      /*
       FILE *file_in = fopen(input, O_RDONLY);
       int fd_in = file_in->_fileno;
       dup2(fd_in, STDIN_FILENO);
       close(fd_in);
       inRedir = false;
-      */
     }
     if(outRedir) {
       //open/close FDs for out redirection
-      redirOutput(output);
-      /*
       FILE *file_out = fopen(output, "ab+");
       int fd_out = file_out->_fileno;
       dup2(fd_out, STDOUT_FILENO);
       close(fd_out);
       outRedir = false;
-      */
     }
     if (flag == 1){
-    	execvp(tokenArgs[0], tokenArgs);
-    } else {
-	execvp(tokenArr[0],tokenArr);
-    	}
+    execvp(tokenArgs[0], tokenArgs);
+    } else 
+
+    execvp(tokenArr[0],tokenArr);
+    //execvp(tokenArr[0], tokenArgs);
+    //cursor = cmd;
+    //*cursor = '\n';
+  } else {
+    /* in parent */
+    // int status;
     waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);
   }
 
