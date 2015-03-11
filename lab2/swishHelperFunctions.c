@@ -36,7 +36,7 @@ int getRedirTarget(char *input, char *target, char op) {
 				index = 1;
 			}
 			for(j = i+index; j < (strlen(input) - 1); j++) {
-				if(input[j] != ' ') {
+				if(input[j] != ' ' && input[j] != '<' && input[j] != '>') {
 					target[k] = input[j];
 					k++;
 				} else {
@@ -46,7 +46,7 @@ int getRedirTarget(char *input, char *target, char op) {
 			target[k] = '\0';
 			break;
 		}//if op found
-		else { 
+		else {
 		}
 	}
 	return found;
