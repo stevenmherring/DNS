@@ -175,8 +175,17 @@ int main (int argc, char ** argv, char **envp) {
   //if the input is for a application (cat/ls) then we need to parse the arguments following it
   else
   if (!strncmp(cmd,"putenv",6)){
-    printf("Attempting putenv. %s ",tokenArr[1]);
-    putenv(tokenArr[1]);
+    for(index = 0; tokenArr[1][index] != '\0'; index++) {
+      if(tokenArr[1][index] == '\n') {
+        tokenArr[1][index] = '\0';
+      break;
+      }
+    }
+    char *putEnvStr = malloc(strlen(tokenArr[1]));
+    strcpy(putEnvStr,tokenArr[1]);
+    if (putenv(putEnvStr) != 0){
+      return 123;
+    }
   }
   if ((pid = fork()) < 0){
     printf("fork failed");
