@@ -169,7 +169,7 @@ int main (int argc, char ** argv, char **envp) {
     if(j == 0 ) {
       inRedir = true;
     }
-    }///for J search by char for < > | etc.
+    ///for J search by char for < > | etc.
     //printf("Input: %s\n", input);
     //printf("Output: %s\n", output);
     // execvp(commands[iterator],tokenArr);
