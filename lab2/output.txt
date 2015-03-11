@@ -1,1 +1,17 @@
-11111drwxrwxr-x 3 student student 4096 Mar 11 16:31 .
+total 112
+-rwxrwxr-x 1 student student 16762 Mar 11 05:17 a.out
+-rw-rw-r-- 1 student student    74 Mar 10 11:35 challenge.txt
+-rwxrwxr-x 1 student student   582 Mar 10 11:35 launcher.sh
+-rw-rw-r-- 1 student student   372 Mar 10 11:35 Makefile
+-rw-rw-r-- 1 student student  6340 Mar 10 11:35 mysyscall.h
+-rw-rw-r-- 1 student student     0 Mar 11 16:47 output.txt
+-rw-rw-r-- 1 student student   358 Mar 10 11:35 README
+-rw-rw-r-- 1 student student   465 Mar 11 16:38 redirHelper.c
+-rw-rw-r-- 1 student student    30 Mar 10 11:35 slack.txt
+-rwxrwxr-x 1 student student 12479 Mar 11 16:46 swish
+-rw-rw-r-- 1 student student  7963 Mar 11 16:45 swish.c
+-rw-rw-r-- 1 student student  1451 Mar 10 23:16 swishHelperFunctions.c
+-rw-rw-r-- 1 student student  5176 Mar 10 11:35 swishNonMerged.c
+-rw-rw-r-- 1 student student  8047 Mar 11 16:33 swishUnchanged.c
+drwxrwxr-x 2 student student  4096 Mar 10 11:35 testDir
+-rw-rw-r-- 1 student student  8558 Mar 11 16:33 WorkingSwish.c

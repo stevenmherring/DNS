@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include "redirHelper.c"
 
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
@@ -35,7 +36,7 @@ int main (int argc, char ** argv, char **envp) {
   /********************************************************************
   Setting the commands that the shell recognizes
   ********************************************************************/
-  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};
+  //char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};
   //char *commands[] = { "ls","cd","pwd","make"};
 
   /*******************************************************************
@@ -79,7 +80,7 @@ int main (int argc, char ** argv, char **envp) {
     last_char = *cursor;
   }
   *cursor = '\0';
-    if(!strncmp(cmd,EXIT_CMD,4)) {
+  if(!strncmp(cmd,EXIT_CMD,4)) {
     finished = 1;
     break;
     return 0;
@@ -96,15 +97,15 @@ int main (int argc, char ** argv, char **envp) {
   while (token) {
     if (!strncmp(token,"-",1)){
       flag = 1;
-     tokenArgs[counterArgs++] = token;
+      tokenArgs[counterArgs++] = token;
     } else
     if (!strncmp(token,">",1)){
-      if(strlen(token) == 1){   
+      if(strlen(token) == 1){
         token = strtok(NULL, " ");
       } //if char* length = 1
       else {
       } //else char* length > 1
-    }//if first char = > 
+    }//if first char = >
     else {
       tokenArr[counter++] = token;
     } // else
@@ -120,13 +121,13 @@ int main (int argc, char ** argv, char **envp) {
   }
 
   if (flag == 1){
-   for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {
+    for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {
 
-    if(tokenArgs[counterArgs - 1][index] == '\n') {
-      tokenArgs[counterArgs - 1][index] = '\0';
-      break;
+      if(tokenArgs[counterArgs - 1][index] == '\n') {
+        tokenArgs[counterArgs - 1][index] = '\0';
+        break;
+      }
     }
-  }
   }
 
   tokenArr[counter] = NULL;
@@ -148,7 +149,7 @@ int main (int argc, char ** argv, char **envp) {
   /********************************************************************
   IF the command is CD
   ********************************************************************/
-  if (strncmp(commandsNL[1],cmd,2) == 0){
+  if (strncmp("cd\n",cmd,2) == 0){
     cursor = cmd; //Make a cursor to the CMD string
     cursor += 3; // Move the cursor past 'cd ' onto the argument for CD
     strcpy( cmdTemp , cursor ); // Copy the value at location into the cmdTemp string (this now holds CD arguments)
@@ -181,7 +182,7 @@ int main (int argc, char ** argv, char **envp) {
     for(index = 0; tokenArr[1][index] != '\0'; index++) {
       if(tokenArr[1][index] == '\n') {
         tokenArr[1][index] = '\0';
-      break;
+        break;
       }
     }
     char *putEnvStr = malloc(strlen(tokenArr[1]));
@@ -190,72 +191,58 @@ int main (int argc, char ** argv, char **envp) {
       return 123;
     }
   }
-  if ((pid = fork()) < 0){
-    printf("fork failed");
-    return 1;
-  }/* Fail case on fork */
-  if (pid == 0){
-    int j = 0;//, k = 0, l = 0;
-    //int in_index = 0, out_index = 0;
-    char input[MAX_INPUT_BUFF_BUFF];
-    char output[MAX_INPUT_BUFF_BUFF];
-    memset(input, '\0', strlen(input));
-    memset(output, '\0', strlen(output));
+  else {
+    if ((pid = fork()) < 0){
+      printf("fork failed");
+      return 1;
+    }/* Fail case on fork */
+    if (pid == 0){
+      int j = 0;//, k = 0, l = 0;
+      //int in_index = 0, out_index = 0;
+      char input[MAX_INPUT_BUFF_BUFF];
+      char output[MAX_INPUT_BUFF_BUFF];
+      memset(input, '\0', strlen(input));
+      memset(output, '\0', strlen(output));
 
-    /*
-    *Check if the redirection operations were used, set flags.
-    */
-    j = getRedirTarget(cmd, output, '>');
-    if(j == 0 ) {
-      outRedir = true;
-    }
-    j = getRedirTarget(cmd, input, '<');
-    if(j == 0 ) {
-      inRedir = true;
-    }
-    ///for J search by char for < > | etc.
-    // execvp(commands[iterator],tokenArr);
+      /*
+      *Check if the redirection operations were used, set flags.
+      */
+      j = getRedirTarget(cmd, output, '>');
+      if(j == 0 ) {
+        outRedir = true;
+      }
+      j = getRedirTarget(cmd, input, '<');
+      if(j == 0 ) {
+        inRedir = true;
+      }
+      ///for J search by char for < > | etc.
+      // execvp(commands[iterator],tokenArr);
 
-    /**
-    *Prior to exec we need to confirm if redirection was used, if so exec in a different manner
-    *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works
-    *So parsing character by character, which will have its own issues (file names w/ spaces for example)
-    **/
-    if(inRedir) {
-      //open/close FDs for in redirection
-      FILE *file_in = fopen(input, O_RDONLY);
-      int fd_in = file_in->_fileno;
-      dup2(fd_in, STDIN_FILENO);
-      close(fd_in);
-      inRedir = false;
+      /**
+      *Prior to exec we need to confirm if redirection was used, if so exec in a different manner
+      *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works
+      *So parsing character by character, which will have its own issues (file names w/ spaces for example)
+      **/
+      if(inRedir) {
+        //open/close FDs for in redirection
+        redirInput(input);
+        inRedir = false;
+      }
+      if(outRedir) {
+        //open/close FDs for out redirection
+        redirOutput(output);
+        outRedir = false;
+      }
+      if (flag == 1){
+        execvp(tokenArgs[0], tokenArgs);
+      } else {
+        execvp(tokenArr[0],tokenArr);
+      }
+    } else {
+      /* in parent */
+      // int status;
+      waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);
     }
-    if(outRedir) {
-      //open/close FDs for out redirection
-      FILE *file_out = fopen(output, "ab+");
-      int fd_out = file_out->_fileno;
-      dup2(fd_out, STDOUT_FILENO);
-      close(fd_out);
-      outRedir = false;
-    }
-    if (flag == 1){
-    printf("TokenArgs[0] %s \n",tokenArgs[0]);
-    printf("TokenArgs[1] %s \n",tokenArgs[1]);
-    printf("TokenArgs[2] %s \n",tokenArgs[2]);
-    write(1,"11111",5);
-    execvp(tokenArgs[0], tokenArgs);
-    } else 
-    write(1,"22222",5);
-    printf("TokenArr[0] %s \n",tokenArr[0]);
-    printf("TokenArr[1] %s \n",tokenArr[1]);
-    printf("TokenArr[2] %s \n",tokenArr[2]);
-    execvp(tokenArr[0],tokenArr);
-    //execvp(tokenArr[0], tokenArgs);
-    //cursor = cmd;
-    //*cursor = '\n';
-  } else {
-    /* in parent */
-    // int status;
-    waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);
   }
 
   //}
