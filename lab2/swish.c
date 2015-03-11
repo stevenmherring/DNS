@@ -206,10 +206,6 @@ int main (int argc, char ** argv, char **envp) {
       inRedir = true;
     }
     ///for J search by char for < > | etc.
-<<<<<<< HEAD
-=======
-    // execvp(commands[iterator],tokenArr);
->>>>>>> master
 
     /**
     *Prior to exec we need to confirm if redirection was used, if so exec in a different manner
@@ -233,17 +229,9 @@ int main (int argc, char ** argv, char **envp) {
 
     /*??????????????????????????????????????????????????*/
     if (flag == 1){
-<<<<<<< HEAD
-    execvp(tokenArr[0], tokenArr);
-  } else execvp(tokenArr[0],tokenArr);
-
-=======
     execvp(tokenArgs[0], tokenArgs);
     } else execvp(tokenArr[0],tokenArr);
-    //execvp(tokenArr[0], tokenArgs);
-    //cursor = cmd;
-    //*cursor = '\n';
->>>>>>> master
+
   } else {
     /* in parent */
     // int status;
