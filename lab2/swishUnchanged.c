@@ -94,23 +94,18 @@ int main (int argc, char ** argv, char **envp) {
 
   tokenArgs[counterArgs++] = token;
   while (token) {
+    
     if (!strncmp(token,"-",1)){
       flag = 1;
 	   tokenArgs[counterArgs++] = token;
     } else
-    if (!strncmp(token,">",1)){
-      if(strlen(token) == 1){   
-        token = strtok(NULL, " ");
-      } //if char* length = 1
-      else {
-      } //else char* length > 1
-    }//if first char = > 
-    else {
-      tokenArr[counter++] = token;
-    } // else
-    token = strtok(NULL, " ");
-  }//while
+    if (strncmp(token,">",1)){
 
+    tokenArr[counter++] = token;
+    }
+    
+    token = strtok(NULL, " ");
+  }
   int index = 0;
   for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {
     if(tokenArr[counter - 1][index] == '\n') {
@@ -238,16 +233,9 @@ int main (int argc, char ** argv, char **envp) {
       outRedir = false;
     }
     if (flag == 1){
-    printf("TokenArgs[0] %s \n",tokenArgs[0]);
-    printf("TokenArgs[1] %s \n",tokenArgs[1]);
-    printf("TokenArgs[2] %s \n",tokenArgs[2]);
-    write(1,"11111",5);
     execvp(tokenArgs[0], tokenArgs);
     } else 
-    write(1,"22222",5);
-    printf("TokenArr[0] %s \n",tokenArr[0]);
-    printf("TokenArr[1] %s \n",tokenArr[1]);
-    printf("TokenArr[2] %s \n",tokenArr[2]);
+
     execvp(tokenArr[0],tokenArr);
     //execvp(tokenArr[0], tokenArgs);
     //cursor = cmd;
