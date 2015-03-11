@@ -85,7 +85,6 @@ int main (int argc, char ** argv, char **envp) {
     return 0;
   }
   strcpy(tokenBuff,cmd);
-  //printf("TokenBuff pre Tokenizer : %s \n",tokenBuff);
   char *tokenArr[50];
   char *tokenArgs[50];
   int counter = 0;
@@ -96,6 +95,7 @@ int main (int argc, char ** argv, char **envp) {
     
     if (!strncmp(token,"-",1)){
       flag = 1;
+      tokenArgs[counterArgs++] = tokenArr[--counter];
 	   tokenArgs[counterArgs++] = token;
     }
     tokenArr[counter++] = token;
@@ -120,12 +120,6 @@ int main (int argc, char ** argv, char **envp) {
   }
   }
 
-    printf("TokenArr[0] : %s \n",tokenArr[0]);
-    printf("TokenArgs[0] : %s \n",tokenArgs[0]);
-    printf("TokenArr[1] : %s \n",tokenArr[1]);
-    printf("TokenArgs[1] : %s \n",tokenArgs[1]);
-    printf("TokenArr[2] : %s \n",tokenArr[2]);
-    printf("TokenArgs[2] : %s \n",tokenArgs[2]);
   tokenArr[counter] = NULL;
   tokenArgs[counterArgs] = NULL;
 
@@ -211,11 +205,7 @@ int main (int argc, char ** argv, char **envp) {
       inRedir = true;
     }
     ///for J search by char for < > | etc.
-    //printf("Input: %s\n", input);
-    //printf("Output: %s\n", output);
     // execvp(commands[iterator],tokenArr);
-    //printf("TokenArr : %s ",tokenArr[0]);
-    // printf("TokenArr : %s ",tokenArr[1]);
 
     /**
     *Prior to exec we need to confirm if redirection was used, if so exec in a different manner
@@ -239,12 +229,8 @@ int main (int argc, char ** argv, char **envp) {
       outRedir = false;
     }
     if (flag == 1){
-    execvp(tokenArr[0], tokenArr);
+    execvp(tokenArgs[0], tokenArgs);
     } else execvp(tokenArr[0],tokenArr);
-    
-    //printf("TokenArr[0] %s \n",tokenArr[0]);
-    //printf("TokenArr[1] %s \n",tokenArr[1]);
-    //printf("TokenArr[2] %s \n",tokenArr[2]);
     //execvp(tokenArr[0], tokenArgs);
     //cursor = cmd;
     //*cursor = '\n';
