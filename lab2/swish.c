@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include "redirHelper.c"
+//#include "piping.c"
 
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
@@ -29,6 +30,8 @@ int main (int argc, char ** argv, char **envp) {
   char *prompt = "swish> ";
   char cmd[MAX_INPUT_BUFF_BUFF];
   char tokenBuff[MAX_INPUT_BUFF_BUFF];
+  char cmdCopyPipes[MAX_INPUT_BUFF_BUFF];
+//  char tokenCopy[MAX_INPUT_BUFF_BUFF];
   char cmdTemp[MAX_INPUT_BUFF_BUFF];
   char *EXIT_CMD =  "exit\n";
   char cwd[MAX_INPUT_BUFF_BUFF];
@@ -107,7 +110,7 @@ int main (int argc, char ** argv, char **envp) {
       flag = 1;
       tokenArgs[counterArgs++] = token;
     } else
-    if (!strncmp(token,">",1) || !strncmp(token, "<",1)){
+    if (!strncmp(token,">",1) || !strncmp(token, "<",1) || !strncmp(token, "|", 1)){
       if(strlen(token) == 1){
         token = strtok(NULL, " ");
       } //if char* length = 1
@@ -128,6 +131,48 @@ int main (int argc, char ** argv, char **envp) {
     }
   }
 
+  //test recursive piping here
+strncpy(cmdCopyPipes, cmd, strlen(cmd));
+int i;
+for(i = 0; i < strlen(cmdCopyPipes); i++) {
+  if(cmdCopyPipes[i] == '\n') {
+    cmdCopyPipes[i] = '\0';
+    break;
+  }
+}
+
+execute_only_pipes(cmdCopyPipes);
+/*  write(1, "test", 5);
+  char** pipeTokens;
+  strcpy(tokenCopy,cmd);
+  pipeTokens = strsplit(tokenCopy, '|');
+  int pIndex = 0;
+  char* const* cmds[10][50];
+
+  char a1[] = {"hello\n"};
+  char* a2[10];
+  char** a3[6];
+  a2[1] = a1;
+  a3[0] = *a2[1];
+
+  write(1, a3[0], 6);
+
+  write(1, *cmds[2], strlen(**cmds[2]));
+  while(pipeTokens[pIndex] != NULL) {
+  //x`  removeSpaces(pipeTokens[pIndex], cmds[pIndex], pIndex);
+    pIndex++;
+  }
+*/
+//    char* cmd1[] = { "ls" , NULL };
+  //  char* cmd2[] = { "grep", ".txt", NULL };
+  //  char* more[] = { "wc", "-l", NULL };
+  ///  char* const* cmds[] = { cmd1, cmd2, more, NULL };
+//  pipeline(pipeTokens, 0, STDIN_FILENO);
+//  exec_pipeline(*cmds, 0, STDIN_FILENO);
+  //recursivePipe(pipeTokens, 1, STDIN_FILENO);
+  //free(pipeTokens);
+  write(1, "done\n", 5);
+//  return 0;
   if (flag == 1){
     for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {
 
