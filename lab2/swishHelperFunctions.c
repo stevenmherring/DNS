@@ -1,9 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 #define MAX_INPUT_BUFFER 1024
 
 /*
 Helper functions for swish
 */
 int getRedirTarget(char *input, char *target, char op);
+char** strsplit(char* str, const char d);
+void removeSpaces(char* input, char **ret, int index);
 
 int getArgs(char ** argv, int argc){
 	int i =0;
@@ -50,6 +56,58 @@ int getRedirTarget(char *input, char *target, char op) {
 		}
 	}
 	return found;
+}
+
+/**
+*strsplit splits a string up and feeds it back as a 2d array
+**/
+char** strsplit(char* str, const char d) {
+	char** r = 0;
+	int count = 0;
+	char* temp = str;
+	char* ld = 0;
+
+	while(*temp)
+	{
+		if(d == *temp)
+		{
+			count++;
+			ld = temp;
+		}
+		temp++;
+	}
+	count += ld < (str + strlen(str) - 1);
+	count++;
+	r = malloc(sizeof(char*) * count);
+	if(r){
+		int index = 0;
+		char* token = strtok(str, &d);
+		while(token) {
+			*(r + index++) = strdup(token);
+			token = strtok(0, &d);
+		}
+		*(r + index) = 0;
+	}
+	return r;
+}
+
+void removeSpaces(char* input, char **ret, int index){
+	int rCount = 0;
+	char *rToke = strtok(input, " ");
+	while(rToke) {
+		ret[rCount++] = rToke;
+		rToke = strtok(NULL, " ");
+	}
+	//return ret;
+	//char *r = input;
+	//if(input[0] == ' ') {
+	//	for(i = 0, j = 1; i < strlen(input); i++, j++) {
+	//		r[i] = input[j];
+	//	}
+	//}
+
+
+
 }
 /*
 char* getCMDargs(char* command,char* bufferToParse){
