@@ -168,7 +168,8 @@ int parseExecFlags(char** commands,int commandsNLchoice, char ** argv, int argc)
 	return 0;
 } */
 
-/* Process a ptr to an array of ptrs, and return 0 if -d is flag, 1 if it is not */
+/* Process a ptr to an array of ptrs, and return 0 if -d is flag, 1 if it is not
+
 int findFlagD (char ** argv, int argc){
 
 	char* cursor;
@@ -179,10 +180,29 @@ int findFlagD (char ** argv, int argc){
 	while (cursor != NULL) {
 		if (!strcmp (cursor , "-d")){
 			return 0;
-		} 
+		} else if (strlen (cursor) > 1 ){
+				cursor += strle(
+				if( strncmp ( cursor, ".sh", 3)){
+				
+				}
+			}
 		cursor++;
 	}
 	}
 	return 1;
 }
 
+ Takes a buffer that contains the file for the script, a char* contains the arguments for the script and return whether the execution succeeded 
+
+int execScript (char *scriptName, char *scriptArgs[]){
+
+	int returnValScript;
+	char *const currentEnv = NULL;
+	currentEnv = getenv("PATH");
+	if ( (returnValScript = execvpe(scriptName, scriptArgs, currentEnv) ) == -1){
+		printf("Error executing script");	
+		return -1;
+	}
+
+}
+*/
