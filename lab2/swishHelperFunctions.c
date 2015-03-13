@@ -43,7 +43,7 @@ int getRedirTarget(char *input, char *target, char op) {
 			} else {
 				index = 1;
 			}
-			for(j = i+index; j < (strlen(input) - 1); j++) {
+			for(j = i+index; j < (strlen(input)); j++) {
 				if(input[j] != ' ' && input[j] != '<' && input[j] != '>') {
 					target[k] = input[j];
 					k++;
@@ -128,18 +128,18 @@ int printWolfie(){
   srand(time(NULL));
   while(index != 0){
     for (iterator =1;iterator < 24;iterator++){
-      
+
     printf("\n");
     }
     for (iterator =1;iterator < 24;iterator++){
     colorCounter = rand() % 8;
     index = (int) fgets(wolfieBuffer,125,fd);
     if(index!=0){
-      
+
     printf("%s%s",colors[colorCounter] ,wolfieBuffer);
     }
     }
-    
+
     sleep(1);
   }
     return 0;
@@ -175,7 +175,7 @@ int findFlagD (char ** argv, int argc){
 	char* cursor;
 	int iterateArgv = 0;
 	for (iterateArgv = 1; iterateArgv < argc; iterateArgv++){
-	
+
 	cursor = argv[iterateArgv];
 	while (cursor != NULL) {
 		if (!strcmp (cursor , "-d")){
@@ -183,7 +183,7 @@ int findFlagD (char ** argv, int argc){
 		} else if (strlen (cursor) > 1 ){
 				cursor += strle(
 				if( strncmp ( cursor, ".sh", 3)){
-				
+
 				}
 			}
 		cursor++;
@@ -192,7 +192,7 @@ int findFlagD (char ** argv, int argc){
 	return 1;
 }
 
- Takes a buffer that contains the file for the script, a char* contains the arguments for the script and return whether the execution succeeded 
+ Takes a buffer that contains the file for the script, a char* contains the arguments for the script and return whether the execution succeeded
 
 int execScript (char *scriptName, char *scriptArgs[]){
 
@@ -200,7 +200,7 @@ int execScript (char *scriptName, char *scriptArgs[]){
 	char *const currentEnv = NULL;
 	currentEnv = getenv("PATH");
 	if ( (returnValScript = execvpe(scriptName, scriptArgs, currentEnv) ) == -1){
-		printf("Error executing script");	
+		printf("Error executing script");
 		return -1;
 	}
 

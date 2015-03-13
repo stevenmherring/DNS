@@ -9,12 +9,11 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include "redirHelper.c"
-//#include "piping.c"
+#include "redirection.c"
 
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
 
-typedef enum {false, true} bool; //boolean enumerations
 
 extern char **environ;
 
@@ -27,7 +26,7 @@ int main (int argc, char ** argv, char **envp) {
 
   //int flagD;
   //flagD  = findFlagD(argv, argc);
-  
+
   //printf("Flag D %d \n",flagD);
   //printWolfie();
   int finished = 0;
@@ -145,38 +144,10 @@ for(i = 0; i < strlen(cmdCopyPipes); i++) {
   }
 }
 
-execute_only_pipes(cmdCopyPipes);
-/*  write(1, "test", 5);
-  char** pipeTokens;
-  strcpy(tokenCopy,cmd);
-  pipeTokens = strsplit(tokenCopy, '|');
-  int pIndex = 0;
-  char* const* cmds[10][50];
-
-  char a1[] = {"hello\n"};
-  char* a2[10];
-  char** a3[6];
-  a2[1] = a1;
-  a3[0] = *a2[1];
-
-  write(1, a3[0], 6);
-
-  write(1, *cmds[2], strlen(**cmds[2]));
-  while(pipeTokens[pIndex] != NULL) {
-  //x`  removeSpaces(pipeTokens[pIndex], cmds[pIndex], pIndex);
-    pIndex++;
-  }
-*/
-//    char* cmd1[] = { "ls" , NULL };
-  //  char* cmd2[] = { "grep", ".txt", NULL };
-  //  char* more[] = { "wc", "-l", NULL };
-  ///  char* const* cmds[] = { cmd1, cmd2, more, NULL };
-//  pipeline(pipeTokens, 0, STDIN_FILENO);
-//  exec_pipeline(*cmds, 0, STDIN_FILENO);
-  //recursivePipe(pipeTokens, 1, STDIN_FILENO);
-  //free(pipeTokens);
-  write(1, "done\n", 5);
-//  return 0;
+redirControl(cmdCopyPipes);
+//execute_only_pipes(cmdCopyPipes);
+write(1, "done\n", 5);
+  return 0;
   if (flag == 1){
     for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {
 
