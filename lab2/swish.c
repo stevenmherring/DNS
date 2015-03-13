@@ -25,6 +25,10 @@ int main (int argc, char ** argv, char **envp) {
   First check to see if -d is defined, and debugging messages need to be printed.
   ********************************************************************/
 
+  int flagD;
+  flagD  = findFlagD(argv, argc);
+  
+  printf("Flag D %d \n",flagD);
   //printWolfie();
   int finished = 0;
   char *prompt = "swish> ";

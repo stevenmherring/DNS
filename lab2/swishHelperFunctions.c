@@ -11,6 +11,7 @@ Helper functions for swish
 int getRedirTarget(char *input, char *target, char op);
 char** strsplit(char* str, const char d);
 void removeSpaces(char* input, char **ret, int index);
+int findFlagD (char ** argv, int argc);
 
 int getArgs(char ** argv, int argc){
 	int i =0;
@@ -166,3 +167,22 @@ int parseExecFlags(char** commands,int commandsNLchoice, char ** argv, int argc)
     //execvp(commands[iterator],argv);
 	return 0;
 } */
+
+/* Process a ptr to an array of ptrs, and return 0 if -d is flag, 1 if it is not */
+int findFlagD (char ** argv, int argc){
+
+	char* cursor;
+	int iterateArgv = 0;
+	for (iterateArgv = 1; iterateArgv < argc; iterateArgv++){
+	
+	cursor = argv[iterateArgv];
+	while (cursor != NULL) {
+		if (!strcmp (cursor , "-d")){
+			return 0;
+		} 
+		cursor++;
+	}
+	}
+	return 1;
+}
+
