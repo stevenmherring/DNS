@@ -3,6 +3,10 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <unistd.h>
+#include "findCDhelper.c"
+#include "redirection.c"
+
 #define MAX_INPUT_BUFFER 1024
 
 /*
@@ -12,6 +16,8 @@ int getRedirTarget(char *input, char *target, char op);
 char** strsplit(char* str, const char d);
 void removeSpaces(char* input, char **ret, int index);
 int findFlagD (char ** argv, int argc);
+int execvpe (const char *file, char *const argv[], char *const envp[]);
+int execScript (char *scriptName);
 
 int getArgs(char ** argv, int argc){
 	int i =0;
@@ -168,41 +174,84 @@ int parseExecFlags(char** commands,int commandsNLchoice, char ** argv, int argc)
 	return 0;
 } */
 
-/* Process a ptr to an array of ptrs, and return 0 if -d is flag, 1 if it is not
+// Process a ptr to an array of ptrs, and return 0 if -d is flag, 1 if it is not
 
 int findFlagD (char ** argv, int argc){
 
-	char* cursor;
+	char* cursor = NULL;
 	int iterateArgv = 0;
 	for (iterateArgv = 1; iterateArgv < argc; iterateArgv++){
-
-	cursor = argv[iterateArgv];
-	while (cursor != NULL) {
-		if (!strcmp (cursor , "-d")){
-			return 0;
-		} else if (strlen (cursor) > 1 ){
-				cursor += strle(
-				if( strncmp ( cursor, ".sh", 3)){
-
-				}
+		cursor = argv[iterateArgv];
+		while (cursor != NULL) {
+			if (!strcmp (cursor , "-d")){
+				return 0;
 			}
-		cursor++;
-	}
+
+		}
+
 	}
 	return 1;
 }
 
- Takes a buffer that contains the file for the script, a char* contains the arguments for the script and return whether the execution succeeded
+int execCLscript (char ** argv, int argc){
+	char* cursor = NULL;
+	int iterateArgv = 0;
+	for (iterateArgv = 1; iterateArgv < argc; iterateArgv++){
+		cursor = argv[iterateArgv];
+		execvp("./testScript.sh",argv);
+		while (cursor != NULL) {
+			if (strlen (cursor) > 1 ){
+				char* scriptStr = cursor;
+				cursor += strlen(cursor) -3;
+				if( !strncmp ( cursor, ".sh", 3)){
+					execScript(scriptStr);
+					return 0;
+				}
+			}
+		}
+		}
+	return 1;
+}
+// Takes a buffer that contains the file for the script, a char* contains the arguments for the script and return whether the execution succeeded
 
-int execScript (char *scriptName, char *scriptArgs[]){
+int execScript (char *scriptName){
+	//int returnValScript;
+	//char *currentEnv = NULL;
+	//char *removeNL;
+	//removeNL = scriptName;
+	//removeNL += strlen(scriptName);
+	//*removeNL = '\0';
+	//currentEnv = getenv("PATH");
+	char *scriptArgs[] = {""};
+	FILE* scriptFD;
+	execvp(scriptName,scriptArgs);
+	if((scriptFD = fopen(scriptName,"r+")) == NULL){
+		return 1;
+	}
+	int amtRead = 0;
+	char *scriptBuffer = malloc(125);
+	while ((amtRead = (int) fgets(scriptBuffer, 125, scriptFD)) != 0){
 
-	int returnValScript;
-	char *const currentEnv = NULL;
-	currentEnv = getenv("PATH");
-	if ( (returnValScript = execvpe(scriptName, scriptArgs, currentEnv) ) == -1){
-		printf("Error executing script");
-		return -1;
+		if (!strncmp(scriptBuffer, "#", 1)){
+			;
+		} else {
+			int rvParse;
+			if (((rvParse = checkForCd(scriptBuffer)) == 1)){
+				if (((rvParse = checkForExit(scriptBuffer)) == 1)){
+					if (((rvParse = checkForSet(scriptBuffer)) == 1)){
+					} //else
+				}
+			}
+		 //redirControl(scriptBuffer);
+
+
+
+
+
+			}
 	}
 
+
+
+	return 0;
 }
-*/

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "redirHelper.c"
 #include "swishHelperFunctions.c"
-//include "piping.c"
+#include "redirection.c"
 
 // Assume no input line will be longer than 1024 bytes
 #define MAX_INPUT_BUFF_BUFF 1024
