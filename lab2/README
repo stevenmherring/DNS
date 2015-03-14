@@ -1,5 +1,9 @@
-Describe how you implemented the main programming assignment. The README
-file should describe what you did, what approach you took, results of any
-measurements you made, which files are included in your submission and what
-they are for, etc.  Feel free to include any other information you think is
-helpful to us in this README; it can only help your grade.
+We built every utility of our shell separately then merged them together into one. This gave us a few problems, most notably when integrating redirection with piping.
+
+Redirection on it's own was fine, parse the lines, separate by >< and then spaces if used. Piping had it's own troubles though. Originally we developed a strong function that recursively handled piping only using a 3D Const Char Array, it worked flawlessly with a hard coded array.  Creating the array during run time proved to be more difficult that we rewrote the function to iterate over our input stream.
+
+Integrating redirection and piping led to a huge problem of never being able to return to the standard output if we used redirection on the tail end of a pipeline. This sucked, because it also made our scripting fail, which again...worked well on it's own or with the piping_only parser or redirection_only parser. 
+
+Wolfie was a fun break, made him animate and change colors!
+
+Job Control was a huge task to take on after spending hours on the other two issues to no avail, unfortunately..as of now we are not spending slack hours on job control being unsure if we could actually make it work and integrate it correctly.
