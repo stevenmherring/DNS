@@ -10,7 +10,6 @@ int checkForExit (char *cmd);
 **/
 void redirInput(char *input) {
 	FILE *fd = fopen(input, "ab+");
-	#define MAX_INPUT_BUFF_BUFF 1024
 	int fd_in = fd->_fileno;
 	dup2(fd_in, STDIN_FILENO);
 	close(fd_in);

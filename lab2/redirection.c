@@ -1,5 +1,6 @@
 void redirControl(char* buffer);
 void removeQ(char* str);
+void redirOnly(char* buffer);
 
 typedef enum {false, true} bool; //boolean enumerations
 
@@ -11,6 +12,64 @@ void removeQ(char* str) {
 	}
 	str[strlen(str) - 1] = '\0';
 }
+
+
+/*REDIR ONLY*/
+void redirOnly(char *buffer){
+	char input[50];
+	char output[50];
+	char *tokenArgs[50];
+	char tokenBuff[1024];
+	int counterArgs = 0;
+	memset(input, '\0', strlen(input));
+	memset(output, '\0', strlen(output));
+	pid_t cpid;
+	bool outRedir, inRedir;
+	strcpy(tokenBuff, buffer);
+	int i = 0;
+
+	char* token = strtok(tokenBuff, " ");
+	while(token){
+		if(!strncmp(token, ">", 1) || !strncmp(token, "<", 1)) {
+			token = strtok(NULL, " ");
+		}
+		else {
+		tokenArgs[counterArgs++] = token;
+		}
+		token = strtok(NULL, " ");
+	}//while
+
+	cpid = fork();
+	if(cpid != 0) {
+	//wait
+		waitpid(cpid, NULL, WUNTRACED | WCONTINUED);
+	}
+	else {
+		if(getRedirTarget(buffer, output, '>') == 0){
+			outRedir = true;
+		}
+		if(getRedirTarget(buffer, input, '<') == 0){
+			inRedir = true;
+		}
+		if(inRedir) {
+			redirInput(input);
+			inRedir = false;
+		}
+		if(outRedir){
+			redirOutput(output);
+			outRedir = false;
+		}
+		if(execvp(tokenArgs[0], tokenArgs) == -1) {
+			//failed
+			exit(1);
+		}
+		exit(0);
+	}
+	for(i = 0; i < counterArgs; i++) {
+		tokenArgs[i] = NULL;
+	}
+}
+
 
 /* redirControl is in charge of checking the buffer for redirection flags and processing them */
 
@@ -150,39 +209,3 @@ void redirControl(char *buffer){
 		}
 	}
 } //end of redirControl
-
-int execScript (char *scriptName){
-	//int returnValScript;
-	//char *currentEnv = NULL;
-	//char *removeNL;
-	//removeNL = scriptName;
-	//removeNL += strlen(scriptName);
-	//*removeNL = '\0';
-	//currentEnv = getenv("PATH");
-	char *scriptArgs[] = {""};
-	FILE* scriptFD;
-	execvp(scriptName,scriptArgs);
-	if((scriptFD = fopen(scriptName,"r+")) == NULL){
-		return 1;
-	}
-	int amtRead = 0;
-	char *scriptBuffer = malloc(125);
-	while ((amtRead = (int) fgets(scriptBuffer, 125, scriptFD)) != 0){
-
-		if (!strncmp(scriptBuffer, "#", 1)){
-			;
-		} else {
-			int rv = -1;
-			//redirControl(scriptBuffer);
-			if ((rv = checkForCd(scriptBuffer)) == 0) {;}
-			else if ((rv = checkForExit(scriptBuffer)) == 0) {;}
-			else if ((rv = checkForEverything(scriptBuffer)) == 0) {;}
-			else if ((rv = checkForWolfie(scriptBuffer)) == 0) {;}
-
-			}
-	}
-
-
-
-	return 0;
-}
