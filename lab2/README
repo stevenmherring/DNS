@@ -6,4 +6,4 @@ Integrating redirection and piping led to a huge problem of never being able to 
 
 Wolfie was a fun break, made him animate and change colors!
 
-Job Control was a huge task to take on after spending hours on the other two issues to no avail, unfortunately..as of now we are not spending slack hours on job control being unsure if we could actually make it work and integrate it correctly.
+Redirection and piping work perfectly on their own.
