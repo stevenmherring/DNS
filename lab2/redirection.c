@@ -1,6 +1,7 @@
 void redirControl(char* buffer);
 void removeQ(char* str);
 void redirOnly(char* buffer);
+int execScript (char *scriptName);
 
 typedef enum {false, true} bool; //boolean enumerations
 
@@ -209,3 +210,39 @@ void redirControl(char *buffer){
 		}
 	}
 } //end of redirControl
+
+int execScript (char *scriptName){
+       //int returnValScript;
+       //char *currentEnv = NULL;
+       //char *removeNL;
+       //removeNL = scriptName;
+       //removeNL += strlen(scriptName);
+       //*removeNL = '\0';
+       //currentEnv = getenv("PATH");
+       char *scriptArgs[] = {""};
+       FILE* scriptFD;
+       execvp(scriptName,scriptArgs);
+       if((scriptFD = fopen(scriptName,"r+")) == NULL){
+               return 1;
+       }
+       int amtRead = 0;
+       char *scriptBuffer = malloc(125);
+       while ((amtRead = (int) fgets(scriptBuffer, 125, scriptFD)) != 0){
+
+               if (!strncmp(scriptBuffer, "#", 1)){
+                       ;
+               } else {
+                       int rv = -1;
+                       //redirControl(scriptBuffer);
+                       if ((rv = checkForCd(scriptBuffer)) == 0) {;}
+                       else if ((rv = checkForExit(scriptBuffer)) == 0) {;}
+                       else if ((rv = checkForEverything(scriptBuffer)) == 0) {;}
+                       else if ((rv = checkForWolfie(scriptBuffer)) == 0) {;}
+
+                       }
+       }
+
+
+
+       return 0;
+}
