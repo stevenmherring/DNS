@@ -22,6 +22,7 @@ void redirControl(char *buffer){
 	int pipesCount = -1;
 	int count, i, status;
 	char input[50], output[50];
+	bool checkOut, checkIn;
 	pid_t pidc;
 
 	do {
@@ -43,32 +44,27 @@ void redirControl(char *buffer){
 					//is temp = 1? is it <? then get just process that and move temp forward
 					if(i == 0 && i == pipesCount-1) { // no pipes so we can accept a change in input
 						if(strlen(temp) > 1 && getRedirTarget(temp, input, '<') ==  0) {
-							//redirInput(input);
-							cmdArgs[--count] = NULL;
+							checkIn = true;
+							cmdArgs[count] = NULL;
 						}
-
-
-						/////////////////////////////////////////
-
 						if(strlen(temp) > 1 && getRedirTarget(temp, output, '>') ==  0) {
 							//redirOutput(output);
 							//set a flag for redirection, and redirect during FORK process?
 							strcpy(temp, output);
+							checkOut = true;
 							cmdArgs[count] = NULL;
 						}
-
-						/////////////////////////////////////////
-
-
-
 						if(strlen(temp) == 1 && (temp[i] == '<' || temp[i] == '>')) {
 							if(temp[i] == '<') {
 								temp = strsep(&pipeCommands[i], " ");
 								//redirInput(temp);
+								checkIn = true;
+								strcpy(input, temp);
 							} else if(temp[i] == '>') {
 								temp = strsep(&pipeCommands[i], " ");
 								//redirOutput(temp);
 								strcpy(output, temp);
+								checkOut = true;
 							}
 							temp = strsep(&pipeCommands[i], " ");
 						}
@@ -76,20 +72,28 @@ void redirControl(char *buffer){
 					else if(i == 0 && strlen(temp) > 1) { // first pipe
 						if(getRedirTarget(temp, input, '<') ==  0) {
 							//redirInput(input);
-							cmdArgs[--count] = NULL;
+							checkIn = true;
+							cmdArgs[count] = NULL;
 							if(strlen(temp) == 1) {
 								temp = strsep(&pipeCommands[i], " ");
 							}
 						}
 					}
-					else if(i == pipesCount-1 && strlen(temp) > 1) { // last pipe
-						if(getRedirTarget(temp, output, '>') == 0) {
-						//	redirOutput(output);
-							cmdArgs[--count] = NULL;
-							if(strlen(temp) == 1) {
-								temp = strsep(&pipeCommands[i], " ");
+					else if(i == pipesCount-1) { // last pipe
+						if(strlen(temp) > 1){
+							if(getRedirTarget(temp, output, '>') == 0) {
+	//							temp = strsep(&pipeCommands[i], " ");
+//								strcpy(output, temp);
+								checkOut = true;
+								temp = NULL;
 							}
 						}
+						else if(strlen(temp) == 1) {
+								temp = strsep(&pipeCommands[i], " ");
+								strcpy(output, temp);
+								checkOut = true;
+								temp = NULL;
+							}
 					}
 					if(temp != NULL) {
 						if(!strcmp(temp, "~")) {
@@ -112,14 +116,15 @@ void redirControl(char *buffer){
 		if(i < pipesCount-1) {
 			pipe(currPipe);
 		}
-
-
 		//redirInput(input);
 		pidc = fork(); //attempt new child process
 		if(pidc == 0) { //if we're in child
-			redirOutput(output);
-			printf("what ");
-			write(1, "werd\n", 5);
+			if(checkIn){
+				redirInput(input);
+			}
+			if(checkOut){
+				redirOutput(output);
+			}
 			if(i > 0) { //process command
 				close(oldPipe[1]);
 				dup2(oldPipe[0], 0);
@@ -130,20 +135,20 @@ void redirControl(char *buffer){
 				dup2(currPipe[1], 1);
 				close(currPipe[1]);
 			} //are there commands left to execte
-/** DEBUGGING STUF< REMOVE IT
-int ind = 0;
-while(cmdArgs[ind] != NULL) {
-printf("Arguments: %s\n", cmdArgs[ind]);
-ind++;
-} //Print arguments to the user *error checking
-**/
+// DEBUGGING STUF< REMOVE IT
+//int ind = 0;
+//while(cmdArgs[ind] != NULL) {
+//write(1, "\nARG: ", 6);
+//write(1, cmdArgs[ind], strlen(cmdArgs[ind]));
+//ind++;
+//} //Print arguments to the user *error checking
+
 			if(execvp(cmdArgs[0], cmdArgs) == -1) {
 				printf("Command did not execute, check command: %s\n", cmdArgs[0]);
 			}
 			exit(1);
 		}
 		else { //not in the child
-			printf("yea ");
 			if(i > 0) {
 				close(oldPipe[0]);
 				close(oldPipe[1]);
