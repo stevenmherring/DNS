@@ -130,15 +130,7 @@ void redirControl(char *buffer){
 				dup2(currPipe[1], 1);
 				close(currPipe[1]);
 			} //are there commands left to execte
-// DEBUGGING STUF< REMOVE IT
-//int ind = 0;
-//while(cmdArgs[ind] != NULL) {
-//write(1, "\nARG: ", 6);
-//write(1, cmdArgs[ind], strlen(cmdArgs[ind]));
-//ind++;
-//} //Print arguments to the user *error checking
-
-			if(execvp(cmdArgs[0], cmdArgs) == -1) {
+		if(execvp(cmdArgs[0], cmdArgs) == -1) {
 				printf("Command did not execute, check command: %s\n", cmdArgs[0]);
 			}
 			exit(1);
