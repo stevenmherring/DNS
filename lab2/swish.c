@@ -30,6 +30,18 @@ int main (int argc, char ** argv, char **envp) {
 //  char tokenCopy[MAX_INPUT_BUFF_BUFF];
   char cwd[MAX_INPUT_BUFF_BUFF];
 
+//  execScript("testScript.sh");
+  char *extractSh;
+  if (argv[1] != NULL){
+
+    extractSh = argv[1];
+    extractSh += strlen(argv[1])-3;
+    if(!strncmp(extractSh,".sh",3)){
+
+      execScript(argv[1]);
+      exit(0);
+    }
+  }
   /********************************************************************
   Setting the commands that the shell recognizes
   ********************************************************************/
@@ -75,6 +87,7 @@ int main (int argc, char ** argv, char **envp) {
   int rv = -1;
   if ((rv = checkForCd(cmd)) == 0) {;}
   else if ((rv = checkForExit(cmd)) == 0) {;}
+  else if ((rv = checkForSet(cmd)) == 0) {;}
   else if ((rv = checkForWolfie(cmd)) == 0) {;}
   else{
 

@@ -103,6 +103,171 @@ int checkForWolfie(char *buff){
 		return 0;
 	} else return 1;
 }
+
+
+void removeNewLinesLastElementArray(char **arrayToNull, int numOfElementsInArr){
+
+  // Null terminate the tokenArr array.
+  int index = 0;
+  for(index = 0; arrayToNull[numOfElementsInArr - 1][index] != '\0'; index++) {
+    if(arrayToNull[numOfElementsInArr - 1][index] == '\n') {
+      arrayToNull[numOfElementsInArr - 1][index] = '\0';
+      break;
+    }
+  }
+
+  arrayToNull[numOfElementsInArr] = NULL;
+}
+int checkForSet (char *cmd){
+  char *tokenArr[50];
+  char *tokenArgs[50];
+  char tokenBuff[MAX_INPUT_BUFF_BUFF];
+  int pid=-1;
+  int counter = 0;
+  int counterArgs =0;
+  int flag =0;
+  strcpy(tokenBuff,cmd); // Token buff now holds the entire command line
+  char* token = strtok(tokenBuff, " "); // Token holds the first space delimited command line
+
+  tokenArgs[counterArgs++] = token; // Token Args now holds the first executable command, counter for this array incremented
+  while (token) { // While the command line has more space delimited strings
+    if (!strncmp(token,"$",1)){ // If the token string starts with a $ variable
+      flag = 1; // We will set the flag to use execvp with the argument dependent exec
+      char *nlRemove = token; // Make a cursor to this tokenized string
+      token++; // Move the pointer of the tokenized string to the immediate value after '$' ie , if $PATH then token == 'PATH\n'
+      nlRemove+=strlen(token); // Move the cursor to the end of the Token
+      *nlRemove = '\0'; // Remove the newline from the 'PATH\n' example
+      if((tokenArgs[counterArgs++] = getenv(token)) == NULL){  // Get the environmental variable associated with this new Token
+        printf("Cannot find that environment variable.");
+        exit(1);
+      }
+    }//End if '$xxx' .. Environment variable value now stored in tokenArgs[]
+    if (!strncmp(token,"-",1)){ // Some argument found, place this in tokenArg[]
+      flag = 1; // Use the tokenArg[] exec
+      tokenArgs[counterArgs++] = token; // Place the tokenized string into the tokenArg[]
+    } else
+    if (!strncmp(token,">",1) || !strncmp(token, "<",1) || !strncmp(token, "|", 1)){ // Deprecated IGNORES these 3 chars and does not place anything
+      if(strlen(token) == 1){
+        token = strtok(NULL, " ");
+      } //if char* length = 1
+      else {
+      } //else char* length > 1
+    }//if first char = >
+    else { // If these cases are not found, it will assume the value is a modifier to another call and places this value in token Arr.
+      tokenArr[counter++] = token;
+    } // else
+    token = strtok(NULL, " ");
+  }//while
+  removeNewLinesLastElementArray(tokenArr,counter);
+  removeNewLinesLastElementArray(tokenArgs,counterArgs);
+  if ((!(strncmp(cmd,"set",3))) || (!strncmp(cmd,"echo",4))){
+		if ((!(strncmp(cmd,"set",3)))){
+		char *putEnvStr = malloc(strlen(tokenArr[1]));
+    strcpy(putEnvStr,tokenArr[1]);
+    if (putenv(putEnvStr) != 0){
+      return 1;
+      printf("Could not put environment variable");
+      exit(1);
+    }
+		}
+    if ((pid = fork()) < 0){
+      printf("fork failed");
+      //return 1;
+			exit(0);
+    }/* Fail case on fork */
+    if (pid == 0){
+      if (flag == 1){
+        execvp(tokenArgs[0], tokenArgs);
+        //return 0;
+				exit(0);
+      } else
+        execvp(tokenArr[0],tokenArr);
+        //return 0;
+				exit(0);
+    } else {
+      /* in parent */
+      // int status;
+      waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);
+			return 0;
+    }
+  }
+	return 1;
+}
+
+int checkForEverything (char *cmd){
+  char *tokenArr[50];
+  char *tokenArgs[50];
+  char tokenBuff[MAX_INPUT_BUFF_BUFF];
+  int pid=-1;
+  int counter = 0;
+  int counterArgs =0;
+  int flag =0;
+  strcpy(tokenBuff,cmd); // Token buff now holds the entire command line
+  char* token = strtok(tokenBuff, " "); // Token holds the first space delimited command line
+
+  tokenArgs[counterArgs++] = token; // Token Args now holds the first executable command, counter for this array incremented
+  while (token) { // While the command line has more space delimited strings
+    if (!strncmp(token,"$",1)){ // If the token string starts with a $ variable
+      flag = 1; // We will set the flag to use execvp with the argument dependent exec
+      char *nlRemove = token; // Make a cursor to this tokenized string
+      token++; // Move the pointer of the tokenized string to the immediate value after '$' ie , if $PATH then token == 'PATH\n'
+      nlRemove+=strlen(token); // Move the cursor to the end of the Token
+      *nlRemove = '\0'; // Remove the newline from the 'PATH\n' example
+      if((tokenArgs[counterArgs++] = getenv(token)) == NULL){  // Get the environmental variable associated with this new Token
+        printf("Cannot find that environment variable.");
+        exit(1);
+      }
+    }//End if '$xxx' .. Environment variable value now stored in tokenArgs[]
+    if (!strncmp(token,"-",1)){ // Some argument found, place this in tokenArg[]
+      flag = 1; // Use the tokenArg[] exec
+      tokenArgs[counterArgs++] = token; // Place the tokenized string into the tokenArg[]
+    } else
+    if (!strncmp(token,">",1) || !strncmp(token, "<",1) || !strncmp(token, "|", 1)){ // Deprecated IGNORES these 3 chars and does not place anything
+      if(strlen(token) == 1){
+        token = strtok(NULL, " ");
+      } //if char* length = 1
+      else {
+      } //else char* length > 1
+    }//if first char = >
+    else { // If these cases are not found, it will assume the value is a modifier to another call and places this value in token Arr.
+      tokenArr[counter++] = token;
+    } // else
+    token = strtok(NULL, " ");
+  }//while
+  removeNewLinesLastElementArray(tokenArr,counter);
+  removeNewLinesLastElementArray(tokenArgs,counterArgs);
+		if ((!(strncmp(cmd,"set",3)))){
+		char *putEnvStr = malloc(strlen(tokenArr[1]));
+    strcpy(putEnvStr,tokenArr[1]);
+    if (putenv(putEnvStr) != 0){
+      return 1;
+      printf("Could not put environment variable");
+      exit(1);
+    }
+		}
+    if ((pid = fork()) < 0){
+      printf("fork failed");
+      //return 1;
+			exit(0);
+    }/* Fail case on fork */
+    if (pid == 0){
+      if (flag == 1){
+        execvp(tokenArgs[0], tokenArgs);
+        //return 0;
+				exit(0);
+      } else
+        execvp(tokenArr[0],tokenArr);
+        //return 0;
+				exit(0);
+    } else {
+      /* in parent */
+      // int status;
+      waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);
+			return 0;
+    }
+
+	return 1;
+}
 /**
 *redirInput small method for handling input redirection
 **/
