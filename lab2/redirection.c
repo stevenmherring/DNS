@@ -25,6 +25,7 @@ void redirControl(char *buffer){
 	bool checkOut, checkIn;
 	pid_t pidc;
 
+
 	do {
 		temp = strsep(&buffer, "|");
 		if(temp != NULL) {
@@ -48,7 +49,6 @@ void redirControl(char *buffer){
 							cmdArgs[count] = NULL;
 						}
 						if(strlen(temp) > 1 && getRedirTarget(temp, output, '>') ==  0) {
-							//redirOutput(output);
 							//set a flag for redirection, and redirect during FORK process?
 							strcpy(temp, output);
 							checkOut = true;
@@ -57,12 +57,10 @@ void redirControl(char *buffer){
 						if(strlen(temp) == 1 && (temp[i] == '<' || temp[i] == '>')) {
 							if(temp[i] == '<') {
 								temp = strsep(&pipeCommands[i], " ");
-								//redirInput(temp);
 								checkIn = true;
 								strcpy(input, temp);
 							} else if(temp[i] == '>') {
 								temp = strsep(&pipeCommands[i], " ");
-								//redirOutput(temp);
 								strcpy(output, temp);
 								checkOut = true;
 							}
@@ -71,7 +69,6 @@ void redirControl(char *buffer){
 					}//no pipes check
 					else if(i == 0 && strlen(temp) > 1) { // first pipe
 						if(getRedirTarget(temp, input, '<') ==  0) {
-							//redirInput(input);
 							checkIn = true;
 							cmdArgs[count] = NULL;
 							if(strlen(temp) == 1) {
@@ -82,8 +79,6 @@ void redirControl(char *buffer){
 					else if(i == pipesCount-1) { // last pipe
 						if(strlen(temp) > 1){
 							if(getRedirTarget(temp, output, '>') == 0) {
-	//							temp = strsep(&pipeCommands[i], " ");
-//								strcpy(output, temp);
 								checkOut = true;
 								temp = NULL;
 							}

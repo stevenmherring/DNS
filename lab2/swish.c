@@ -63,7 +63,6 @@ int main (int argc, char ** argv, char **envp) {
 
   rv = write(1, theCWD, strlen(theCWD));
   rv = write(1, prompt, strlen(prompt));
-
   while (!finished) {
     char last_char;
     int count;
@@ -143,11 +142,9 @@ for(i = 0; i < strlen(cmdCopyPipes); i++) {
     break;
   }
 }
-
-redirControl(cmdCopyPipes);
-//execute_only_pipes(cmdCopyPipes);
-write(1, "done\n", 5);
-  return 0;
+if(*cmdCopyPipes != 0) {
+  redirControl(cmdCopyPipes);
+}
   if (flag == 1){
     for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {
 
