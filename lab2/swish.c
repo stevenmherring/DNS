@@ -28,7 +28,6 @@ int main (int argc, char ** argv, char **envp) {
   char cmd[MAX_INPUT_BUFF_BUFF];
   char cmdCopyPipes[MAX_INPUT_BUFF_BUFF];
 //  char tokenCopy[MAX_INPUT_BUFF_BUFF];
-  char *EXIT_CMD =  "exit\n";
   char cwd[MAX_INPUT_BUFF_BUFF];
 
   /********************************************************************
@@ -51,10 +50,10 @@ int main (int argc, char ** argv, char **envp) {
   cursor++;
   *cursor = '\0';
   cursor =NULL ;
+  rv = write(1, theCWD, strlen(theCWD));
+  rv = write(1, prompt, strlen(prompt));
 
   while (!finished) {
-    rv = write(1, theCWD, strlen(theCWD));
-    rv = write(1, prompt, strlen(prompt));
     char last_char;
     int count;
     /********************************************************************
@@ -73,12 +72,11 @@ int main (int argc, char ** argv, char **envp) {
     last_char = *cursor;
   }
   *cursor = '\0';
-
-  if(!strncmp(cmd,EXIT_CMD,4)) {
-    finished = 1;
-    break;
-    return 0;
-  }
+  int rv = -1;
+  if ((rv = checkForCd(cmd)) == 0) {;}
+  else if ((rv = checkForExit(cmd)) == 0) {;}
+  else if ((rv = checkForWolfie(cmd)) == 0) {;}
+  else{
 
   //test recursive piping here
 strncpy(cmdCopyPipes, cmd, strlen(cmd));
@@ -92,6 +90,16 @@ for(i = 0; i < strlen(cmdCopyPipes); i++) {
 if(*cmdCopyPipes != 0) {
   redirControl(cmdCopyPipes);
 }
+}
+  theCWD = getcwd(cwd,sizeof(cwd));
+  char *cursor;
+  cursor = theCWD + strlen(theCWD);
+  *cursor = ' ';
+  cursor++;
+  *cursor = '\0';
+  cursor =NULL ;
+  rv = write(1, theCWD, strlen(theCWD));
+  rv = write(1, prompt, strlen(prompt));
   memset(cmd,'\0',MAX_INPUT_BUFF_BUFF);
 } /* End while */
 return 0;

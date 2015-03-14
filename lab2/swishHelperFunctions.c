@@ -113,37 +113,6 @@ void removeSpaces(char* input, char **ret, int index){
 
 }
 
-int printWolfie(){
-  char wolfieBuffer[255];
-  char *colors[] = {"\x1B[0m","\x1B[31m","\x1B[32m","\x1B[33m","\x1B[34m","\x1B[35m","\x1B[36m","\x1B[37m"};
-  FILE * fd;
-  if ((fd = fopen("catWolfieSAFE.txt","r")) < 0){
-    printf("Error opening");
-    return 1;
-  }
-  //fgets(wolfieBuffer,125,fd);
-  int index =1;
-  int iterator =0;
-  int colorCounter =0;
-  srand(time(NULL));
-  while(index != 0){
-    for (iterator =1;iterator < 24;iterator++){
-
-    printf("\n");
-    }
-    for (iterator =1;iterator < 24;iterator++){
-    colorCounter = rand() % 8;
-    index = (int) fgets(wolfieBuffer,125,fd);
-    if(index!=0){
-
-    printf("%s%s",colors[colorCounter] ,wolfieBuffer);
-    }
-    }
-
-    sleep(1);
-  }
-    return 0;
-}
 
 /*
 char* getCMDargs(char* command,char* bufferToParse){
