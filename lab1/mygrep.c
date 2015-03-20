@@ -1,5 +1,5 @@
 #include "mysyscall.h"
-#include "mysyscall.c"
+//#include "mysyscall.c"
 #include "myhelpers.h"
 #include "myhelpers.c"
 #include <unistd.h>
