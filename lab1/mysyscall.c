@@ -1,7 +1,7 @@
 #include "mysyscall.h"
 #include "sys/stat.h"
 #include <dirent.h>
-
+/*
 void sys_restart_syscall(int callNum);
 void sys_exit(int callNum, int errorCode);
 void sys_read(int callNum, int desc, char* buf, int len);
@@ -12,7 +12,7 @@ void sys_unlink(int callNum, int file);
 void sys_access(const char* path, int mode);
 void my_getpid(int callNum);
 void sys_getdents(int desc, struct dirent *dirp, int count);
-
+*/
 void sys_restart_syscall(int callNum) {
 	MY_SYSCALL0(callNum);
 }

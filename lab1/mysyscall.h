@@ -15,6 +15,15 @@
 // like:
 //
 // #define MY_GETPID(...) MY_SYSCALL...(...)
+void sys_restart_syscall(int callNum);
+void sys_exit(int callNum, int errorCode);
+void sys_read(int callNum, int desc, char* buf, int len);
+void sys_open(int callNum, const char* file, int flag, int mode);
+void sys_write(int callNum, int desc, char* buf, int len);
+void sys_close(int callNum, int desc);
+void sys_unlink(int callNum, int file);
+void sys_access(const char* path, int mode);
+void my_getpid(int callNum);
 
 #define MY_SYSCALL0(NUM)({\
     int rv = -ENOSYS;\
