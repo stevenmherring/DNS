@@ -1,0 +1,55 @@
+diff --git a/lab1/mygrep.c b/lab1/mygrep.c
+index 20965b2..222b3d5 100644
+--- a/lab1/mygrep.c
++++ b/lab1/mygrep.c
+@@ -1,5 +1,5 @@
+ #include "mysyscall.h"
+-#include "mysyscall.c"
++//#include "mysyscall.c"
+ #include "myhelpers.h"
+ #include "myhelpers.c"
+ #include <unistd.h>
+@@ -18,29 +18,6 @@
+ typedef enum {false, true} bool;
+ 
+ void util_start(void);
+-void branchDir(char *dirPath);
+-
+-void branchDir(char *dirPath) {
+-  DIR* dir;
+-  struct dirent *dirEntry;
+-  struct stat inode;
+-  char name[256];
+-  while((dirEntry = sys_readdir(dirPath)) != 0) {
+-  sys_write(4, STD_OUT, dirPath, strlen(dirPath));
+-  sys_write(4, STD_OUT, dirEntry->d_name, strlen(dirEntry->d_name));
+-  sys_lstat(84, name, &inode);
+-  if(S_ISDIR(inode.st_mode)) {
+-    sys_write(4, STD_OUT, "dir\n", 4);
+-  }
+-  else if(S_ISREG(inode.st_mode)) { sys_write(4, STD_OUT, "reg\n", 4); }
+-  else { 
+-    if (S_ISLNK(inode.st_mode)) {
+-      sys_write(4, STD_OUT, "lnk"\n, 4);
+-    }
+-  }
+-  sys_write(4, STD_OUT, dirEntry->d_name, strlen(dirEntry->d_name));
+-  }
+-}//branch dir
+ 
+ 
+ asm (".global util_start\r\n"
+@@ -94,7 +71,6 @@ int main(int argc, char **argv) {
+   char currentLine[MAX_LINE_BUFFER];
+   char patternCheck[MAX_LINE_BUFFER];
+   int clCursor = 0;
+-  branchDir("homeless");
+   //for loop should process every element, inside the for loop we disect the elements
+   for(opIndex = 1; opIndex < argc; opIndex++) {
+     // && argv[opIndex][0] == '-';
+@@ -273,3 +249,5 @@ int main(int argc, char **argv) {
+ }
+ 
+ 
++
++

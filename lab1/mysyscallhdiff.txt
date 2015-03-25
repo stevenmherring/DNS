@@ -1,0 +1,42 @@
+diff --git a/lab1/mysyscall.h b/lab1/mysyscall.h
+index ca53bde..de5b279 100644
+--- a/lab1/mysyscall.h
++++ b/lab1/mysyscall.h
+@@ -15,6 +15,15 @@
+ // like:
+ //
+ // #define MY_GETPID(...) MY_SYSCALL...(...)
++void sys_restart_syscall(int callNum);
++void sys_exit(int callNum, int errorCode);
++void sys_read(int callNum, int desc, char* buf, int len);
++void sys_open(int callNum, const char* file, int flag, int mode);
++void sys_write(int callNum, int desc, char* buf, int len);
++void sys_close(int callNum, int desc);
++void sys_unlink(int callNum, int file);
++void sys_access(const char* path, int mode);
++void my_getpid(int callNum);
+ 
+ #define MY_SYSCALL0(NUM)({\
+     int rv = -ENOSYS;\
+@@ -95,15 +104,15 @@
+    rv;\
+    })
+ 
+-#define MY_SYSCALL89(NUM, ARG1, ARG2, ARG3)\
+-   ({\
+-    int rv = -ENOSYS;\
+-    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
+-   rv;\
++#define MY_SYSCALL141(NUM, ARG1, ARG2, ARG3)    \
++   ({             \
++     int rv = -ENOSYS;          \
++     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\
++     rv;            \
+    })
+ 
+-
+ #endif // __MYSYSCALL_H__
+ 
+ 
+ 
++

@@ -1,0 +1,3840 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mnew file mode 100644[m
+[1mindex 0000000..64846a8[m
+[1m--- /dev/null[m
+[1m+++ b/README.md[m
+[36m@@ -0,0 +1,19 @@[m
+[32m+[m[32m# README #[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mThis README is to help streamline workflow between group partners[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m### What is this repository for? ###[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mThis application is for Lab 2 of Don Porter's CSE 306 - Operating Systems class.[m[41m[m
+[32m+[m[32mVersion # unnecessary. (we have a strict layout of functionality)[m[41m[m
+[32m+[m[32mWe have two editable branches, Lab2_working and Lab2_chris.[m[41m [m
+[32m+[m[41m[m
+[32m+[m[32m### Contribution guidelines ###[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mBe sure to have updated codebase before starting new functionality.[m[41m[m
+[32m+[m[32mCommit/Merge as often as something new is working properly.[m[41m[m
+[32m+[m[32mComment heavily[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m### Who do I talk to? ###[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mAuthored by Chris Ryan and Steven Herring[m
+\ No newline at end of file[m
+[1mdiff --git a/lab1/a.out b/lab1/a.out[m
+[1mnew file mode 100755[m
+[1mindex 0000000..d21c710[m
+Binary files /dev/null and b/lab1/a.out differ
+[1mdiff --git a/lab1/in.txt b/lab1/in.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9daeafb[m
+[1m--- /dev/null[m
+[1m+++ b/lab1/in.txt[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mtest[m
+[1mdiff --git a/lab1/mygrep b/lab1/mygrep[m
+[1mnew file mode 100755[m
+[1mindex 0000000..0993769[m
+Binary files /dev/null and b/lab1/mygrep differ
+[1mdiff --git a/lab1/mygrep.c b/lab1/mygrep.c[m
+[1mindex 20965b2..222b3d5 100644[m
+[1m--- a/lab1/mygrep.c[m
+[1m+++ b/lab1/mygrep.c[m
+[36m@@ -1,5 +1,5 @@[m
+ #include "mysyscall.h"[m
+[31m-#include "mysyscall.c"[m
+[32m+[m[32m//#include "mysyscall.c"[m
+ #include "myhelpers.h"[m
+ #include "myhelpers.c"[m
+ #include <unistd.h>[m
+[36m@@ -18,29 +18,6 @@[m
+ typedef enum {false, true} bool;[m
+ [m
+ void util_start(void);[m
+[31m-void branchDir(char *dirPath);[m
+[31m-[m
+[31m-void branchDir(char *dirPath) {[m
+[31m-  DIR* dir;[m
+[31m-  struct dirent *dirEntry;[m
+[31m-  struct stat inode;[m
+[31m-  char name[256];[m
+[31m-  while((dirEntry = sys_readdir(dirPath)) != 0) {[m
+[31m-  sys_write(4, STD_OUT, dirPath, strlen(dirPath));[m
+[31m-  sys_write(4, STD_OUT, dirEntry->d_name, strlen(dirEntry->d_name));[m
+[31m-  sys_lstat(84, name, &inode);[m
+[31m-  if(S_ISDIR(inode.st_mode)) {[m
+[31m-    sys_write(4, STD_OUT, "dir\n", 4);[m
+[31m-  }[m
+[31m-  else if(S_ISREG(inode.st_mode)) { sys_write(4, STD_OUT, "reg\n", 4); }[m
+[31m-  else { [m
+[31m-    if (S_ISLNK(inode.st_mode)) {[m
+[31m-      sys_write(4, STD_OUT, "lnk"\n, 4);[m
+[31m-    }[m
+[31m-  }[m
+[31m-  sys_write(4, STD_OUT, dirEntry->d_name, strlen(dirEntry->d_name));[m
+[31m-  }[m
+[31m-}//branch dir[m
+ [m
+ [m
+ asm (".global util_start\r\n"[m
+[36m@@ -94,7 +71,6 @@[m [mint main(int argc, char **argv) {[m
+   char currentLine[MAX_LINE_BUFFER];[m
+   char patternCheck[MAX_LINE_BUFFER];[m
+   int clCursor = 0;[m
+[31m-  branchDir("homeless");[m
+   //for loop should process every element, inside the for loop we disect the elements[m
+   for(opIndex = 1; opIndex < argc; opIndex++) {[m
+     // && argv[opIndex][0] == '-';[m
+[36m@@ -273,3 +249,5 @@[m [mint main(int argc, char **argv) {[m
+ }[m
+ [m
+ [m
+[41m+[m
+[41m+[m
+[1mdiff --git a/lab1/mysyscall.c b/lab1/mysyscall.c[m
+[1mindex 6d21c38..99bdd4c 100644[m
+[1m--- a/lab1/mysyscall.c[m
+[1m+++ b/lab1/mysyscall.c[m
+[36m@@ -1,7 +1,7 @@[m
+ #include "mysyscall.h"[m
+ #include "sys/stat.h"[m
+ #include <dirent.h>[m
+[31m-[m
+[32m+[m[32m/*[m
+ void sys_restart_syscall(int callNum);[m
+ void sys_exit(int callNum, int errorCode);[m
+ void sys_read(int callNum, int desc, char* buf, int len);[m
+[36m@@ -11,47 +11,44 @@[m [mvoid sys_close(int callNum, int desc);[m
+ void sys_unlink(int callNum, int file);[m
+ void sys_access(const char* path, int mode);[m
+ void my_getpid(int callNum);[m
+[31m-void sys_lstat(int callNum, char *user, struct stat *buf);[m
+[31m-[m
+[32m+[m[32mvoid sys_getdents(int desc, struct dirent *dirp, int count);[m
+[32m+[m[32m*/[m
+ void sys_restart_syscall(int callNum) {[m
+[31m-	MY_SYSCALL0(callNum);[m
+[32m+[m[32m        MY_SYSCALL0(callNum);[m
+ }[m
+ [m
+ void sys_exit(int callNum, int errorCode) {[m
+[31m-	MY_SYSCALL1(callNum, errorCode);[m
+[32m+[m[32m        MY_SYSCALL1(callNum, errorCode);[m
+ }[m
+ [m
+ void sys_read(int callNum, int desc, char* buf, int len) {[m
+[31m-	MY_SYSCALL3(callNum, desc, buf, len);[m
+[32m+[m[32m        MY_SYSCALL3(callNum, desc, buf, len);[m
+ }[m
+ [m
+ void sys_open(int callNum, const char* file, int flag, int mode) {[m
+[31m-	MY_SYSCALL4(callNum, file, flag, mode);[m
+[32m+[m[32m        MY_SYSCALL4(callNum, file, flag, mode);[m
+ }[m
+ void sys_write(int callNum, int desc, char* buf, int len) {[m
+[31m-	MY_SYSCALL5(callNum, desc, buf, len);[m
+[32m+[m[32m        MY_SYSCALL5(callNum, desc, buf, len);[m
+ }[m
+ void sys_close(int callNum, int desc) {[m
+[31m-	MY_SYSCALL6(callNum, desc);[m
+[32m+[m[32m        MY_SYSCALL6(callNum, desc);[m
+ }[m
+ [m
+ void sys_unlink(int callNum, int file) {[m
+[31m-	MY_SYSCALL10(callNum, file);[m
+[32m+[m[32m        MY_SYSCALL10(callNum, file);[m
+ }[m
+ [m
+ void my_getpid(int callNum) {[m
+[31m-	MY_SYSCALL20(callNum);[m
+[32m+[m[32m        MY_SYSCALL20(callNum);[m
+ }[m
+ [m
+ void sys_access(const char* path, int mode) {[m
+[31m-	MY_SYSCALL33(33, path, mode);[m
+[32m+[m[32m        MY_SYSCALL33(33, path, mode);[m
+ }[m
+ [m
+[31m-void sys_lstat(int callNum, char *user, struct stat *buf) {[m
+[31m-	MY_SYSCALL84(callNum, user, buf);[m
+[32m+[m[32mvoid sys_getdents(int desc, struct dirent *dirp, int count) {[m
+[32m+[m[32m        MY_SYSCALL141(141, desc, dirp, count);[m
+ }[m
+ [m
+[31m-void sys_readdir(int callNum, int num, struct dirent *dir, int num2) {[m
+[31m-	MY_SYSCALL89(callNum, num, dir, num2);[m
+[31m-}[m
+ [m
+[1mdiff --git a/lab1/mysyscall.h b/lab1/mysyscall.h[m
+[1mindex ca53bde..de5b279 100644[m
+[1m--- a/lab1/mysyscall.h[m
+[1m+++ b/lab1/mysyscall.h[m
+[36m@@ -15,6 +15,15 @@[m
+ // like:[m
+ //[m
+ // #define MY_GETPID(...) MY_SYSCALL...(...)[m
+[32m+[m[32mvoid sys_restart_syscall(int callNum);[m
+[32m+[m[32mvoid sys_exit(int callNum, int errorCode);[m
+[32m+[m[32mvoid sys_read(int callNum, int desc, char* buf, int len);[m
+[32m+[m[32mvoid sys_open(int callNum, const char* file, int flag, int mode);[m
+[32m+[m[32mvoid sys_write(int callNum, int desc, char* buf, int len);[m
+[32m+[m[32mvoid sys_close(int callNum, int desc);[m
+[32m+[m[32mvoid sys_unlink(int callNum, int file);[m
+[32m+[m[32mvoid sys_access(const char* path, int mode);[m
+[32m+[m[32mvoid my_getpid(int callNum);[m
+ [m
+ #define MY_SYSCALL0(NUM)({\[m
+     int rv = -ENOSYS;\[m
+[36m@@ -95,15 +104,15 @@[m
+    rv;\[m
+    })[m
+ [m
+[31m-#define MY_SYSCALL89(NUM, ARG1, ARG2, ARG3)\[m
+[31m-   ({\[m
+[31m-    int rv = -ENOSYS;\[m
+[31m-    __asm__ __volatile__("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\[m
+[31m-   rv;\[m
+[32m+[m[32m#define MY_SYSCALL141(NUM, ARG1, ARG2, ARG3)    \[m
+[32m+[m[32m   ({             \[m
+[32m+[m[32m     int rv = -ENOSYS;          \[m
+[32m+[m[32m     __asm__ __volatile__ ("int $0x80" : "=a"(rv) : "a"(NUM), "b"(ARG1), "c"(ARG2), "d"(ARG3));\[m
+[32m+[m[32m     rv;            \[m
+    })[m
+ [m
+[31m-[m
+ #endif // __MYSYSCALL_H__[m
+ [m
+ [m
+ [m
+[41m+[m
+[1mdiff --git a/lab1/mysyscall.h.gch b/lab1/mysyscall.h.gch[m
+[1mdeleted file mode 100644[m
+[1mindex 27975c6..0000000[m
+Binary files a/lab1/mysyscall.h.gch and /dev/null differ
+[1mdiff --git a/lab1/out.txt b/lab1/out.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9daeafb[m
+[1m--- /dev/null[m
+[1m+++ b/lab1/out.txt[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mtest[m
+[1mdiff --git a/lab2/.gitignore b/lab2/.gitignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..c9cef00[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/.gitignore[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mswish[m
+[1mdiff --git a/lab2/Makefile b/lab2/Makefile[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e8e5f90[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/Makefile[m
+[36m@@ -0,0 +1,12 @@[m
+[32m+[m[32mall: swish[m
+[32m+[m
+[32m+[m[32mswish: swish.c[m
+[32m+[m	[32mgcc -Wall -Werror -o swish swish.c[m
+[32m+[m
+[32m+[m[32mhandin:	clean[m
+[32m+[m	[32m@if [ `git status --porcelain| wc -l` != 0 ] ; then echo "\n\n\n\n\t\tWARNING: YOU HAVE UNCOMMITTED CHANGES\n\n    Consider committing any pending changes and rerunning make handin.\n\n\n\n"; fi[m
+[32m+[m	[32m@git tag -f -a lab2-handin -m "Lab2 Handin"[m
+[32m+[m	[32m@git push --tags handin[m
+[32m+[m
+[32m+[m[32mclean:[m
+[32m+[m	[32mrm -f *~ *.o swish[m
+[1mdiff --git a/lab2/README b/lab2/README[m
+[1mnew file mode 100644[m
+[1mindex 0000000..7716e46[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/README[m
+[36m@@ -0,0 +1,9 @@[m
+[32m+[m[32mWe built every utility of our shell separately then merged them together into one. This gave us a few problems, most notably when integrating redirection with piping.[m
+[32m+[m
+[32m+[m[32mRedirection on it's own was fine, parse the lines, separate by >< and then spaces if used. Piping had it's own troubles though. Originally we developed a strong function that recursively handled piping only using a 3D Const Char Array, it worked flawlessly with a hard coded array.  Creating the array during run time proved to be more difficult that we rewrote the function to iterate over our input stream.[m
+[32m+[m
+[32m+[m[32mIntegrating redirection and piping led to a huge problem of never being able to return to the standard output if we used redirection on the tail end of a pipeline. This sucked, because it also made our scripting fail, which again...worked well on it's own or with the piping_only parser or redirection_only parser.[m[41m [m
+[32m+[m
+[32m+[m[32mWolfie was a fun break, made him animate and change colors![m
+[32m+[m
+[32m+[m[32mRedirection and piping work perfectly on their own.[m
+[1mdiff --git a/lab2/WorkingSwish.c b/lab2/WorkingSwish.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3807a49[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/WorkingSwish.c[m
+[36m@@ -0,0 +1,276 @@[m
+[32m+[m[32m/* CSE 306: Sea Wolves Interactive Shell */[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <unistd.h>[m
+[32m+[m[32m#include <errno.h>[m
+[32m+[m[32m#include "mysyscall.h"[m
+[32m+[m[32m#include "swishHelperFunctions.c"[m
+[32m+[m[32m#include <sys/types.h>[m
+[32m+[m[32m#include <sys/wait.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m
+[32m+[m[32m// Assume no input line will be longer than 1024 bytes[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m
+[32m+[m[32mtypedef enum {false, true} bool; //boolean enumerations[m
+[32m+[m
+[32m+[m[32mextern char **environ;[m
+[32m+[m
+[32m+[m[32mint main (int argc, char ** argv, char **envp) {[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Command line parsing begins here[m
+[32m+[m[32m  First check to see if -d is defined, and debugging messages need to be printed.[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m
+[32m+[m[32m  putenv("SomeVariable=SomeValue");[m
+[32m+[m[32m  int finished = 0;[m
+[32m+[m[32m  char *prompt = "swish> ";[m
+[32m+[m[32m  char cmd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char tokenBuff[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdTemp[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char *EXIT_CMD =  "exit\n";[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Setting the commands that the shell recognizes[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};[m
+[32m+[m[32m  //char *commands[] = { "ls","cd","pwd","make"};[m
+[32m+[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Get the CWD path[m
+[32m+[m[32m  Add a space and a null terminator to the path[m
+[32m+[m[32m  Print the path[m
+[32m+[m[32m  Print the 'swish' prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  int rv;[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  char *cursor;[m
+[32m+[m[32m  cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m  *cursor = ' ';[m
+[32m+[m[32m  cursor++;[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  cursor =NULL ;[m
+[32m+[m[32m  bool inRedir, outRedir;[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m    char last_char;[m
+[32m+[m[32m    int count;[m
+[32m+[m[32m    //int iterator =0;[m
+[32m+[m[32m    int pid=-1;[m
+[32m+[m
+[32m+[m[32m    /********************************************************************[m
+[32m+[m[32m    Removing this should make the only exit occur from the proper exit.[m
+[32m+[m[32m    IE typing 'exit'.[m
+[32m+[m[32m    *********************************************************************[m
+[32m+[m[32m    if (!rv) {[m
+[32m+[m[32m    finished = 1;[m
+[32m+[m[32m    break;[m
+[32m+[m[32m  } Ends while loop */[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /* read and parse the input put it into CMD */[m
+[32m+[m[32m  for(rv = 1, count = 0, cursor = cmd, last_char = 1;rv && (++count < (MAX_INPUT_BUFF_BUFF-1)) && (last_char != '\n'); cursor++) {[m
+[32m+[m[32m    rv = read(0, cursor, 1);[m
+[32m+[m[32m    last_char = *cursor;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m    if(!strncmp(cmd,EXIT_CMD,4)) {[m
+[32m+[m[32m    finished = 1;[m
+[32m+[m[32m    break;[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  strcpy(tokenBuff,cmd);[m
+[32m+[m[32m  char *tokenArr[50];[m
+[32m+[m[32m  char *tokenArgs[50];[m
+[32m+[m[32m  int counter = 0;[m
+[32m+[m[32m  int counterArgs =0;[m
+[32m+[m[32m  int flag =0;[m
+[32m+[m[32m  char* token = strtok(tokenBuff, " ");[m
+[32m+[m
+[32m+[m[32m  tokenArgs[counterArgs++] = token;[m
+[32m+[m[32m  while (token) {[m
+[32m+[m[32m    if (!strncmp(token,"-",1)){[m
+[32m+[m[32m      flag = 1;[m
+[32m+[m	[32m   tokenArgs[counterArgs++] = token;[m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if (!strncmp(token,">",1)){[m
+[32m+[m[32m      if(strlen(token) == 1){[m[41m   [m
+[32m+[m[32m        token = strtok(NULL, " ");[m
+[32m+[m[32m      } //if char* length = 1[m
+[32m+[m[32m      else {[m
+[32m+[m[32m      } //else char* length > 1[m
+[32m+[m[32m    }//if first char = >[m[41m [m
+[32m+[m[32m    else {[m
+[32m+[m[32m      tokenArr[counter++] = token;[m
+[32m+[m[32m    } // else[m
+[32m+[m[32m    token = strtok(NULL, " ");[m
+[32m+[m[32m  }//while[m
+[32m+[m
+[32m+[m[32m  int index = 0;[m
+[32m+[m[32m  for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {[m
+[32m+[m[32m    if(tokenArr[counter - 1][index] == '\n') {[m
+[32m+[m[32m      tokenArr[counter - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  if (flag == 1){[m
+[32m+[m[32m   for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {[m
+[32m+[m
+[32m+[m[32m    if(tokenArgs[counterArgs - 1][index] == '\n') {[m
+[32m+[m[32m      tokenArgs[counterArgs - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  tokenArr[counter] = NULL;[m
+[32m+[m[32m  tokenArgs[counterArgs] = NULL;[m
+[32m+[m
+[32m+[m[32m  //tokenArgs[1] = "-d";[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Check the CMD string to see if the input matches any of the commands[m
+[32m+[m[32m  found in the commandsNL array.[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  //for(iterator= 0; iterator < 4; iterator++){[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  If the command is in the array, this line returns 0 so we ! to enter[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  //if (!strncmp(commandsNL[iterator],cmd,2)){[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  IF the command is CD[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  if (strncmp(commandsNL[1],cmd,2) == 0){[m
+[32m+[m[32m    cursor = cmd; //Make a cursor to the CMD string[m
+[32m+[m[32m    cursor += 3; // Move the cursor past 'cd ' onto the argument for CD[m
+[32m+[m[32m    strcpy( cmdTemp , cursor ); // Copy the value at location into the cmdTemp string (this now holds CD arguments)[m
+[32m+[m[32m    cursor = cmdTemp; // The copied over value still has '\n' so we make a cursor it[m
+[32m+[m[32m    cursor += strlen(cmdTemp)-1; // Move the cursor to the end -1 (The location of the '\n')[m
+[32m+[m[32m    *cursor = '\0';  // Replace the '\n' with Null terminator[m
+[32m+[m[32m    if (strcmp( cmd , "cd\n") == 0){ // Base case CD needs to implement root CD[m
+[32m+[m[32m      chdir(getenv("HOME"));[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if ( chdir ( cmdTemp ) < 0) /* Fail case of opening directory */[m
+[32m+[m[32m    {[m
+[32m+[m[32m      printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  //if the input is for a application (cat/ls) then we need to parse the arguments following it[m
+[32m+[m[32m  else[m
+[32m+[m[32m  if (!strncmp(cmd,"putenv",6)){[m
+[32m+[m[32m    for(index = 0; tokenArr[1][index] != '\0'; index++) {[m
+[32m+[m[32m      if(tokenArr[1][index] == '\n') {[m
+[32m+[m[32m        tokenArr[1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    char *putEnvStr = malloc(strlen(tokenArr[1]));[m
+[32m+[m[32m    strcpy(putEnvStr,tokenArr[1]);[m
+[32m+[m[32m    if (putenv(putEnvStr) != 0){[m
+[32m+[m[32m      return 123;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  if ((pid = fork()) < 0){[m
+[32m+[m[32m    printf("fork failed");[m
+[32m+[m[32m    return 1;[m
+[32m+[m[32m  }/* Fail case on fork */[m
+[32m+[m[32m  if (pid == 0){[m
+[32m+[m[32m    int j = 0;//, k = 0, l = 0;[m
+[32m+[m[32m    //int in_index = 0, out_index = 0;[m
+[32m+[m[32m    char input[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m    char output[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m    memset(input, '\0', strlen(input));[m
+[32m+[m[32m    memset(output, '\0', strlen(output));[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    *Check if the redirection operations were used, set flags.[m
+[32m+[m[32m    */[m
+[32m+[m[32m    j = getRedirTarget(cmd, output, '>');[m
+[32m+[m[32m    if(j == 0 ) {[m
+[32m+[m[32m      outRedir = true;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    j = getRedirTarget(cmd, input, '<');[m
+[32m+[m[32m    if(j == 0 ) {[m
+[32m+[m[32m      inRedir = true;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    ///for J search by char for < > | etc.[m
+[32m+[m[32m    // execvp(commands[iterator],tokenArr);[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m    *Prior to exec we need to confirm if redirection was used, if so exec in a different manner[m
+[32m+[m[32m    *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works[m
+[32m+[m[32m    *So parsing character by character, which will have its own issues (file names w/ spaces for example)[m
+[32m+[m[32m    **/[m
+[32m+[m[32m    if(inRedir) {[m
+[32m+[m[32m      //open/close FDs for in redirection[m
+[32m+[m[32m      FILE *file_in = fopen(input, O_RDONLY);[m
+[32m+[m[32m      int fd_in = file_in->_fileno;[m
+[32m+[m[32m      dup2(fd_in, STDIN_FILENO);[m
+[32m+[m[32m      close(fd_in);[m
+[32m+[m[32m      inRedir = false;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if(outRedir) {[m
+[32m+[m[32m      //open/close FDs for out redirection[m
+[32m+[m[32m      FILE *file_out = fopen(output, "ab+");[m
+[32m+[m[32m      int fd_out = file_out->_fileno;[m
+[32m+[m[32m      dup2(fd_out, STDOUT_FILENO);[m
+[32m+[m[32m      close(fd_out);[m
+[32m+[m[32m      outRedir = false;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (flag == 1){[m
+[32m+[m[32m    printf("TokenArgs[0] %s \n",tokenArgs[0]);[m
+[32m+[m[32m    printf("TokenArgs[1] %s \n",tokenArgs[1]);[m
+[32m+[m[32m    printf("TokenArgs[2] %s \n",tokenArgs[2]);[m
+[32m+[m[32m    write(1,"11111",5);[m
+[32m+[m[32m    execvp(tokenArgs[0], tokenArgs);[m
+[32m+[m[32m    } else[m[41m [m
+[32m+[m[32m    write(1,"22222",5);[m
+[32m+[m[32m    printf("TokenArr[0] %s \n",tokenArr[0]);[m
+[32m+[m[32m    printf("TokenArr[1] %s \n",tokenArr[1]);[m
+[32m+[m[32m    printf("TokenArr[2] %s \n",tokenArr[2]);[m
+[32m+[m[32m    execvp(tokenArr[0],tokenArr);[m
+[32m+[m[32m    //execvp(tokenArr[0], tokenArgs);[m
+[32m+[m[32m    //cursor = cmd;[m
+[32m+[m[32m    //*cursor = '\n';[m
+[32m+[m[32m  } else {[m
+[32m+[m[32m    /* in parent */[m
+[32m+[m[32m    // int status;[m
+[32m+[m[32m    waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  //}[m
+[32m+[m[32m  //}[m
+[32m+[m[32m  // Execute the command, handling built-in commands separately[m
+[32m+[m[32m  // Just echo the command line for now[m
+[32m+[m[32m  //    write(1, cmd, strnlen(cmd, MAX_INPUT_BUFF_BUFF));[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Print the CWD[m
+[32m+[m[32m  Print the prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m[32m  memset(cmd,'\0',MAX_INPUT_BUFF_BUFF);[m
+[32m+[m[32m} /* End while */[m
+[32m+[m[32mreturn 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/a.out b/lab2/a.out[m
+[1mnew file mode 100755[m
+[1mindex 0000000..9b7c176[m
+Binary files /dev/null and b/lab2/a.out differ
+[1mdiff --git a/lab2/catWolfieSAFE.txt b/lab2/catWolfieSAFE.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..975041c[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/catWolfieSAFE.txt[m
+[36m@@ -0,0 +1,115 @@[m
+[32m+[m[32mQQQQQQQQQQQQQQQQF4QQQQQQQ@QQQQQQ[m
+[32m+[m[32mQQQQQQQQQQQQQQQQf=4QQQQQQf4QQQQQ[m
+[32m+[m[32mQQQQQQQQQQQQQQQQf=+$QQQQQ[=4QQQQ[m
+[32m+[m[32mQQQQQQQQQQQQQQQQf=++QQQQQ(=+QQQQ[m
+[32m+[m[32mQQQQQQQQQQQQQQQQ(=c=)!!?9:|=jQQQ[m
+[32m+[m[32mQQQQQQQQQQWT?!=;;=k=======+=]QQQ[m
+[32m+[m[32mQQQQQQQQQQ/===+++vQ=+=++|=++<QQQ[m
+[32m+[m[32mQQQQQQQQWT!==++++jQ>|=++++++<QQQ[m
+[32m+[m[32mQQQQQQ@!:===++++<U@c+++|=+++)QQQ[m
+[32m+[m[32mQQQQW!;==+++=ii||==(=<=+i+++=QQQ[m
+[32m+[m[32mQQQD===+<swXZXXXqpI+++Snuc=|=3QQ[m
+[32m+[m[32mQQF;=++|+|<aqmQZ!=++++)c+o=+=jQQ[m
+[32m+[m[32mQF====++iumQBUUo>=<a}|+1>)(==dQQ[m
+[32m+[m[32mQQ(=++<umBHU8XS(=sXoadXa>u(+=3QQ[m
+[32m+[m[32mQt==+s2Y!*+|||(=)3XXX!<u{Zo|==$Q[m
+[32m+[m[32mE===||===;====++=dXX+a=+n3Xa=+=$[m
+[32m+[m[32mqc=+===wwymm>==+)idXaa>c+>XX%|==[m
+[32m+[m[32mW:==wmQQWQmm===+<dX1XSS%c?)Ss%=<[m
+[32m+[m[32mf=wWWQQQQQQE<c=<*|==+)3o%>y<a==y[m
+[32m+[m[32mqQWQQQQQQQQQQ(=+===|===S6)q<%=mQ[m
+[32m+[m[32mQQQQQQQQQQQQD;=wyQQQQg;|Soa}=jQQ[m
+[32m+[m[32mQQQQQQQQQQQQtwQQQQQQQQg==??=<QQQ[m
+[32m+[m[32mQQQQQQQQQQQQQWQQQQQQQQQm>==<mQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQF4QQQQQQQ@QQQQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQf=4QQQQQQf4QQQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQf=+$QQQQQ[=4QQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQf=++QQQQQ(=+QQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQ(=c=)!!?9:|=jQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQWT?!=;;=k=======+=]QQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQ/===+++vQ=+=++|=++<QQQ[m
+[32m+[m[32m                                                                      QQQQQQQQWT!==++++jQ>|=++++++<QQQ[m
+[32m+[m[32m                                                                      QQQQQQ@!:===++++<U@c+++|=+++)QQQ[m
+[32m+[m[32m                                                                      QQQQW!;==+++=ii||==(=<=+i+++=QQQ[m
+[32m+[m[32m                                                                      QQQD===+<swXZXXXqpI+++Snuc=|=3QQ[m
+[32m+[m[32m                                                                      QQF;=++|+|<aqmQZ!=++++)c+o=+=jQQ[m
+[32m+[m[32m                                                                      QF====++iumQBUUo>=<a}|+1>)(==dQQ[m
+[32m+[m[32m                                                                      QQ(=++<umBHU8XS(=sXoadXa>u(+=3QQ[m
+[32m+[m[32m                                                                      Qt==+s2Y!*+|||(=)3XXX!<u{Zo|==$Q[m
+[32m+[m[32m                                                                      E===||===;====++=dXX+a=+n3Xa=+=$[m
+[32m+[m[32m                                                                      qc=+===wwymm>==+)idXaa>c+>XX%|==[m
+[32m+[m[32m                                                                      W:==wmQQWQmm===+<dX1XSS%c?)Ss%=<[m
+[32m+[m[32m                                                                      f=wWWQQQQQQE<c=<*|==+)3o%>y<a==y[m
+[32m+[m[32m                                                                      qQWQQQQQQQQQQ(=+===|===S6)q<%=mQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQD;=wyQQQQg;|Soa}=jQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQtwQQQQQQQQg==??=<QQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQWQQQQQQQQQm>==<mQQQ[m
+[32m+[m[32m              QQQQQQQQQQQQQQQQF4QQQQQQQ@QQQQQQ[m
+[32m+[m[32m              QQQQQQQQQQQQQQQQf=4QQQQQQf4QQQQQ[m
+[32m+[m[32m              QQQQQQQQQQQQQQQQf=+$QQQQQ[=4QQQQ[m
+[32m+[m[32m              QQQQQQQQQQQQQQQQf=++QQQQQ(=+QQQQ[m
+[32m+[m[32m              QQQQQQQQQQQQQQQQ(=c=)!!?9:|=jQQQ[m
+[32m+[m[32m              QQQQQQQQQQWT?!=;;=k=======+=]QQQ[m
+[32m+[m[32m              QQQQQQQQQQ/===+++vQ=+=++|=++<QQQ[m
+[32m+[m[32m              QQQQQQQQWT!==++++jQ>|=++++++<QQQ[m
+[32m+[m[32m              QQQQQQ@!:===++++<U@c+++|=+++)QQQ[m
+[32m+[m[32m              QQQQW!;==+++=ii||==(=<=+i+++=QQQ[m
+[32m+[m[32m              QQQD===+<swXZXXXqpI+++Snuc=|=3QQ[m
+[32m+[m[32m              QQF;=++|+|<aqmQZ!=++++)c+o=+=jQQ[m
+[32m+[m[32m              QF====++iumQBUUo>=<a}|+1>)(==dQQ[m
+[32m+[m[32m              QQ(=++<umBHU8XS(=sXoadXa>u(+=3QQ[m
+[32m+[m[32m              Qt==+s2Y!*+|||(=)3XXX!<u{Zo|==$Q[m
+[32m+[m[32m              E===||===;====++=dXX+a=+n3Xa=+=$[m
+[32m+[m[32m              qc=+===wwymm>==+)idXaa>c+>XX%|==[m
+[32m+[m[32m              W:==wmQQWQmm===+<dX1XSS%c?)Ss%=<[m
+[32m+[m[32m              f=wWWQQQQQQE<c=<*|==+)3o%>y<a==y[m
+[32m+[m[32m              qQWQQQQQQQQQQ(=+===|===S6)q<%=mQ[m
+[32m+[m[32m              QQQQQQQQQQQQD;=wyQQQQg;|Soa}=jQQ[m
+[32m+[m[32m              QQQQQQQQQQQQtwQQQQQQQQg==??=<QQQ[m
+[32m+[m[32m              QQQQQQQQQQQQQWQQQQQQQQQm>==<mQQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQQQQQF4QQQQQQQ@QQQQQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQQQQQf=4QQQQQQf4QQQQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQQQQQf=+$QQQQQ[=4QQQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQQQQQf=++QQQQQ(=+QQQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQQQQQ(=c=)!!?9:|=jQQQ[m
+[32m+[m[32m                                          QQQQQQQQQQWT?!=;;=k=======+=]QQQ[m
+[32m+[m[32m                                          QQQQQQQQQQ/===+++vQ=+=++|=++<QQQ[m
+[32m+[m[32m                                          QQQQQQQQWT!==++++jQ>|=++++++<QQQ[m
+[32m+[m[32m                                          QQQQQQ@!:===++++<U@c+++|=+++)QQQ[m
+[32m+[m[32m                                          QQQQW!;==+++=ii||==(=<=+i+++=QQQ[m
+[32m+[m[32m                                          QQQD===+<swXZXXXqpI+++Snuc=|=3QQ[m
+[32m+[m[32m                                          QQF;=++|+|<aqmQZ!=++++)c+o=+=jQQ[m
+[32m+[m[32m                                          QF====++iumQBUUo>=<a}|+1>)(==dQQ[m
+[32m+[m[32m                                          QQ(=++<umBHU8XS(=sXoadXa>u(+=3QQ[m
+[32m+[m[32m                                          Qt==+s2Y!*+|||(=)3XXX!<u{Zo|==$Q[m
+[32m+[m[32m                                          E===||===;====++=dXX+a=+n3Xa=+=$[m
+[32m+[m[32m                                          qc=+===wwymm>==+)idXaa>c+>XX%|==[m
+[32m+[m[32m                                          W:==wmQQWQmm===+<dX1XSS%c?)Ss%=<[m
+[32m+[m[32m                                          f=wWWQQQQQQE<c=<*|==+)3o%>y<a==y[m
+[32m+[m[32m                                          qQWQQQQQQQQQQ(=+===|===S6)q<%=mQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQD;=wyQQQQg;|Soa}=jQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQtwQQQQQQQQg==??=<QQQ[m
+[32m+[m[32m                                          QQQQQQQQQQQQQWQQQQQQQQQm>==<mQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQF4QQQQQQQ@QQQQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQf=4QQQQQQf4QQQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQf=+$QQQQQ[=4QQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQf=++QQQQQ(=+QQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQQQQ(=c=)!!?9:|=jQQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQWT?!=;;=k=======+=]QQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQ/===+++vQ=+=++|=++<QQQ[m
+[32m+[m[32m                                                                      QQQQQQQQWT!==++++jQ>|=++++++<QQQ[m
+[32m+[m[32m                                                                      QQQQQQ@!:===++++<U@c+++|=+++)QQQ[m
+[32m+[m[32m                                                                      QQQQW!;==+++=ii||==(=<=+i+++=QQQ[m
+[32m+[m[32m                                                                      QQQD===+<swXZXXXqpI+++Snuc=|=3QQ[m
+[32m+[m[32m                                                                      QQF;=++|+|<aqmQZ!=++++)c+o=+=jQQ[m
+[32m+[m[32m                                                                      QF====++iumQBUUo>=<a}|+1>)(==dQQ[m
+[32m+[m[32m                                                                      QQ(=++<umBHU8XS(=sXoadXa>u(+=3QQ[m
+[32m+[m[32m                                                                      Qt==+s2Y!*+|||(=)3XXX!<u{Zo|==$Q[m
+[32m+[m[32m                                                                      E===||===;====++=dXX+a=+n3Xa=+=$[m
+[32m+[m[32m                                                                      qc=+===wwymm>==+)idXaa>c+>XX%|==[m
+[32m+[m[32m                                                                      W:==wmQQWQmm===+<dX1XSS%c?)Ss%=<[m
+[32m+[m[32m                                                                      f=wWWQQQQQQE<c=<*|==+)3o%>y<a==y[m
+[32m+[m[32m                                                                      qQWQQQQQQQQQQ(=+===|===S6)q<%=mQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQD;=wyQQQQg;|Soa}=jQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQtwQQQQQQQQg==??=<QQQ[m
+[32m+[m[32m                                                                      QQQQQQQQQQQQQWQQQQQQQQQm>==<mQQQ[m
+\ No newline at end of file[m
+[1mdiff --git a/lab2/challenge.txt b/lab2/challenge.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9f31841[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/challenge.txt[m
+[36m@@ -0,0 +1,3 @@[m
+[32m+[m[32mAdd a description of any challenge problems completed in this file.[m
+[32m+[m
+[32m+[m[32mWe have the best wolfie.[m
+[1mdiff --git a/lab2/findCDhelper.c b/lab2/findCDhelper.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..792be85[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/findCDhelper.c[m
+[36m@@ -0,0 +1,138 @@[m
+[32m+[m[32m/*[m
+[32m+[m[32mCheck the command line for the CD command and handles[m
+[32m+[m[32mReturn value = 0 success[m
+[32m+[m[32mReturn value = 1 failure[m
+[32m+[m[32m*/[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m[32mint checkForCd (char *cmd);[m
+[32m+[m[32mint checkForCd (char *cmd){[m
+[32m+[m[32m  char *cursor = NULL;[m
+[32m+[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdTemp[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  if (strncmp("cd\n",cmd,2) == 0){[m
+[32m+[m[32m    cursor = cmd; //Make a cursor to the CMD string[m
+[32m+[m[32m    cursor += 3; // Move the cursor past 'cd ' onto the argument for CD[m
+[32m+[m[32m    strcpy( cmdTemp , cursor ); // Copy the value at location into the cmdTemp string (this now holds CD arguments)[m
+[32m+[m[32m    cursor = cmdTemp; // The copied over value still has '\n' so we make a cursor it[m
+[32m+[m[32m    cursor += strlen(cmdTemp)-1; // Move the cursor to the end -1 (The location of the '\n')[m
+[32m+[m[32m    *cursor = '\0';  // Replace the '\n' with Null terminator[m
+[32m+[m[32m  if (strcmp( cmd , "cd\n") == 0){ // Base case CD needs to implement root CD[m
+[32m+[m[32m      chdir(getenv("HOME"));[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m  } else if ( chdir ( cmdTemp ) < 0){[m
+[32m+[m[32m          printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);[m
+[32m+[m[32m          return 1;[m
+[32m+[m[32m          } else {[m
+[32m+[m[32m                    theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m                    cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m                    *cursor = ' ';[m
+[32m+[m[32m                    cursor++;[m
+[32m+[m[32m                    *cursor = '\0';[m
+[32m+[m[32m                    printf("Success changing.. New CWD %s \n",theCWD);[m
+[32m+[m[32m                  }[m
+[32m+[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m  } else return 1;[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint checkForExit (char *cmd){[m
+[32m+[m[32m  char *EXIT_CMD =  "exit\n";[m
+[32m+[m[32m  if(!strncmp(cmd,EXIT_CMD,4)) {[m
+[32m+[m[32m    exit(0);[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  return 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid removeNewLinesLastElementArray(char **arrayToNull, int numOfElementsInArr){[m
+[32m+[m
+[32m+[m[32m  // Null terminate the tokenArr array.[m
+[32m+[m[32m  int index = 0;[m
+[32m+[m[32m  for(index = 0; arrayToNull[numOfElementsInArr - 1][index] != '\0'; index++) {[m
+[32m+[m[32m    if(arrayToNull[numOfElementsInArr - 1][index] == '\n') {[m
+[32m+[m[32m      arrayToNull[numOfElementsInArr - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  arrayToNull[numOfElementsInArr] = NULL;[m
+[32m+[m[32m}[m
+[32m+[m[32mint checkForSet (char *cmd){[m
+[32m+[m[32m  char *tokenArr[50];[m
+[32m+[m[32m  char *tokenArgs[50];[m
+[32m+[m[32m  char tokenBuff[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  int pid=-1;[m
+[32m+[m[32m  int counter = 0;[m
+[32m+[m[32m  int counterArgs =0;[m
+[32m+[m[32m  int flag =0;[m
+[32m+[m[32m  strcpy(tokenBuff,cmd); // Token buff now holds the entire command line[m
+[32m+[m[32m  char* token = strtok(tokenBuff, " "); // Token holds the first space delimited command line[m
+[32m+[m
+[32m+[m[32m  tokenArgs[counterArgs++] = token; // Token Args now holds the first executable command, counter for this array incremented[m
+[32m+[m[32m  while (token) { // While the command line has more space delimited strings[m
+[32m+[m[32m    if (!strncmp(token,"$",1)){ // If the token string starts with a $ variable[m
+[32m+[m[32m      flag = 1; // We will set the flag to use execvp with the argument dependent exec[m
+[32m+[m[32m      char *nlRemove = token; // Make a cursor to this tokenized string[m
+[32m+[m[32m      token++; // Move the pointer of the tokenized string to the immediate value after '$' ie , if $PATH then token == 'PATH\n'[m
+[32m+[m[32m      nlRemove+=strlen(token); // Move the cursor to the end of the Token[m
+[32m+[m[32m      *nlRemove = '\0'; // Remove the newline from the 'PATH\n' example[m
+[32m+[m[32m      if((tokenArgs[counterArgs++] = getenv(token)) == NULL){  // Get the environmental variable associated with this new Token[m
+[32m+[m[32m        printf("Cannot find that environment variable.");[m
+[32m+[m[32m        exit(1);[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }//End if '$xxx' .. Environment variable value now stored in tokenArgs[][m
+[32m+[m[32m    if (!strncmp(token,"-",1)){ // Some argument found, place this in tokenArg[][m
+[32m+[m[32m      flag = 1; // Use the tokenArg[] exec[m
+[32m+[m[32m      tokenArgs[counterArgs++] = token; // Place the tokenized string into the tokenArg[][m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if (!strncmp(token,">",1) || !strncmp(token, "<",1) || !strncmp(token, "|", 1)){ // Deprecated IGNORES these 3 chars and does not place anything[m
+[32m+[m[32m      if(strlen(token) == 1){[m
+[32m+[m[32m        token = strtok(NULL, " ");[m
+[32m+[m[32m      } //if char* length = 1[m
+[32m+[m[32m      else {[m
+[32m+[m[32m      } //else char* length > 1[m
+[32m+[m[32m    }//if first char = >[m
+[32m+[m[32m    else { // If these cases are not found, it will assume the value is a modifier to another call and places this value in token Arr.[m
+[32m+[m[32m      tokenArr[counter++] = token;[m
+[32m+[m[32m    } // else[m
+[32m+[m[32m    token = strtok(NULL, " ");[m
+[32m+[m[32m  }//while[m
+[32m+[m[32m  removeNewLinesLastElementArray(tokenArr,counter);[m
+[32m+[m[32m  removeNewLinesLastElementArray(tokenArgs,counterArgs);[m
+[32m+[m[32m  if (!strncmp(cmd,"set",3)){[m
+[32m+[m[32m    char *putEnvStr = malloc(strlen(tokenArr[1]));[m
+[32m+[m[32m    strcpy(putEnvStr,tokenArr[1]);[m
+[32m+[m[32m    if (putenv(putEnvStr) != 0){[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m      printf("Could not put environment variable");[m
+[32m+[m[32m      exit(1);[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m    if ((pid = fork()) < 0){[m
+[32m+[m[32m      printf("fork failed");[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m    }/* Fail case on fork */[m
+[32m+[m[32m    if (pid == 0){[m
+[32m+[m[32m      if (flag == 1){[m
+[32m+[m[32m        execvp(tokenArgs[0], tokenArgs);[m
+[32m+[m[32m        return 0;[m
+[32m+[m
+[32m+[m[32m      } else[m
+[32m+[m[32m        execvp(tokenArr[0],tokenArr);[m
+[32m+[m[32m        return 0;[m
+[32m+[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      /* in parent */[m
+[32m+[m[32m      // int status;[m
+[32m+[m[32m      waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);[m
+[32m+[m[32m    }[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/launcher.sh b/lab2/launcher.sh[m
+[1mnew file mode 100755[m
+[1mindex 0000000..454b4e5[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/launcher.sh[m
+[36m@@ -0,0 +1,26 @@[m
+[32m+[m[32m#!/bin/sh[m
+[32m+[m
+[32m+[m[32m## Swish launcher[m[41m [m
+[32m+[m[32m#[m
+[32m+[m[32m#  This shell script ensures that the swish shell[m
+[32m+[m[32m#  gets control key strokes through standard in.[m
+[32m+[m[32m#[m
+[32m+[m[32m#  Launch it like this: . ./launcher.sh[m
+[32m+[m[32m#[m
+[32m+[m[32m#  Note that there should be a dot '.' first, followed by a space.[m
+[32m+[m[32m#  This "sources" the script, importing the commands into the parent,[m
+[32m+[m[32m#  rather than invoking them in a child script.[m
+[32m+[m[32m#  This script should be sourced to properly disable certain shell features.[m
+[32m+[m[32m#[m
+[32m+[m
+[32m+[m[32mset +m[m
+[32m+[m[32mold="$(stty -g)"[m
+[32m+[m[32mtrap '' 2[m
+[32m+[m[32mtrap "stty $(stty -g)" EXIT[m
+[32m+[m
+[32m+[m[32mstty  -echo -icanon -isig || exit $?[m
+[32m+[m[32m./swish $@[m
+[32m+[m
+[32m+[m[32m# Clean up[m
+[32m+[m[32mset -m[m
+[32m+[m[32mstty "$old"[m
+[1mdiff --git a/lab2/mysyscall.h b/lab2/mysyscall.h[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0b11371[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/mysyscall.h[m
+[36m@@ -0,0 +1,223 @@[m
+[32m+[m[32m#ifndef __MYSYSCALL_H__[m
+[32m+[m[32m#define __MYSYSCALL_H__[m
+[32m+[m[32m#include <dirent.h>[m
+[32m+[m[32m#define O_CREAT     0100[m
+[32m+[m[32m#define O_RDONLY    0000[m
+[32m+[m[32m#define O_RDWR	    0002[m
+[32m+[m[32m#define O_WRONLY    0001[m
+[32m+[m[32m#define ENOSYS      38[m
+[32m+[m[32m#define O_DIRECTORY 0200000[m
+[32m+[m
+[32m+[m[32m// Exercise 5: Your code here[m
+[32m+[m[32m// Populate each of these functions with appropriate[m
+[32m+[m[32m// assembly code for each number of system call arguments.[m
+[32m+[m[32m//[m
+[32m+[m[32m// Go ahead and fill in all 7 variants, as you will eventually[m
+[32m+[m[32m// need them.[m
+[32m+[m[32m//[m
+[32m+[m[32m// Friendly advice: as you figure out the signature of a system[m
+[32m+[m[32m// call, you might consider writing a macro for it for future reference,[m
+[32m+[m[32m// like:[m
+[32m+[m[32m//[m
+[32m+[m[32m// #define MY_GETPID(...) MY_SYSCALL...(...)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL0(NUM)		\[m
+[32m+[m[32m  ({							          \[m
+[32m+[m[32m    int rv = -ENOSYS;				\[m
+[32m+[m[32m    asm volatile (          \[m
+[32m+[m[32m      "movl %1, %%eax;"			\[m
+[32m+[m[41m    [m	[32m"int $0x80;" 					\[m
+[32m+[m[41m    [m	[32m"movl %%eax, %0;" 		\[m
+[32m+[m[41m    [m	[32m:"=r" (rv)					  \[m
+[32m+[m[41m    [m	[32m:"r" (NUM)					  \[m
+[32m+[m[41m    [m	[32m:"%eax"						    \[m
+[32m+[m[41m    [m	[32m);						        \[m
+[32m+[m[32m    rv;							        \[m
+[32m+[m[32m  })[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL1(NUM, ARG1)\[m
+[32m+[m[32m  ({							          \[m
+[32m+[m[32m    int rv = -ENOSYS;				\[m
+[32m+[m[32m    asm volatile (          \[m
+[32m+[m[32m      "movl %1, %%eax;"			\[m
+[32m+[m[32m      "movl %2, %%ebx;"     \[m
+[32m+[m[32m      "int $0x80;" 					\[m
+[32m+[m[32m      "movl %%eax, %0;" 		\[m
+[32m+[m[32m      :"=r" (rv)				  	\[m
+[32m+[m[32m      :"r" (NUM), "r" (ARG1)\[m
+[32m+[m[32m      :"%eax"	,"%ebx"				\[m
+[32m+[m[32m      );						        \[m
+[32m+[m[32m    rv;							        \[m
+[32m+[m[32m  })[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL2(NUM, ARG1, ARG2)\[m
+[32m+[m[32m   ({							            \[m
+[32m+[m[32m     int rv = -ENOSYS;				\[m
+[32m+[m[32m     asm volatile (           \[m
+[32m+[m[32m       "movl %1, %%eax;"			\[m
+[32m+[m[32m       "movl %2, %%ebx;"			\[m
+[32m+[m[32m       "movl %3, %%ecx;"			\[m
+[32m+[m[32m       "int $0x80;" 					\[m
+[32m+[m[32m       "movl %%eax, %0;" 			\[m
+[32m+[m[32m       :"=r" (rv)					    \[m
+[32m+[m[32m       :"r" (NUM), "r" (ARG1), "r" (ARG2)\[m
+[32m+[m[32m       :"%eax","%ebx","%ecx"	\[m
+[32m+[m[32m       );						          \[m
+[32m+[m[32m     rv;					           	\[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL3(NUM, ARG1, ARG2, ARG3)\[m
+[32m+[m[32m   ({							              \[m
+[32m+[m[32m     int rv = -ENOSYS;					\[m
+[32m+[m[32m     asm volatile (             \[m
+[32m+[m[32m       "movl %1, %%eax;"			  \[m
+[32m+[m[32m       "movl %2, %%ebx;"			  \[m
+[32m+[m[32m       "movl %3, %%ecx;"			  \[m
+[32m+[m[32m       "movl %4, %%edx;"			  \[m
+[32m+[m[32m       "int $0x80;" 					  \[m
+[32m+[m[32m       "movl %%eax, %0;" 				\[m
+[32m+[m[32m       :"=r" (rv)					      \[m
+[32m+[m[32m       :"g" (NUM), "g" (ARG1), "g" (ARG2), "g" (ARG3)\[m
+[32m+[m[32m       :"%eax","%ebx","%ecx","%edx"\[m
+[32m+[m[32m       );					            	\[m
+[32m+[m[32m     rv;						            \[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL4(NUM, ARG1, ARG2, ARG3, ARG4)	\[m
+[32m+[m[32m   ({							              \[m
+[32m+[m[32m     int rv = -ENOSYS;					\[m
+[32m+[m[32m     asm volatile (             \[m
+[32m+[m[32m       "movl %1, %%eax;"			  \[m
+[32m+[m[32m       "movl %2, %%ebx;"			  \[m
+[32m+[m[32m       "movl %3, %%ecx;"			  \[m
+[32m+[m[32m       "movl %4, %%edx;"			  \[m
+[32m+[m[32m       "movl %5, %%esi;"			  \[m
+[32m+[m[32m       "int $0x80;" 				   	\[m
+[32m+[m[32m       "movl %%eax, %0;" 				\[m
+[32m+[m[32m       :"=r" (rv)					      \[m
+[32m+[m[32m       :"r" (NUM)					      \[m
+[32m+[m[32m       :"%eax"						      \[m
+[32m+[m[32m       );						            \[m
+[32m+[m[32m     rv;					             	\[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL5(NUM, ARG1, ARG2, ARG3, ARG4, ARG5)	\[m
+[32m+[m[32m   ({							              \[m
+[32m+[m[32m     int rv = -ENOSYS;					\[m
+[32m+[m[32m     asm volatile (             \[m
+[32m+[m[32m     "movl %1, %%eax;"			  \[m
+[32m+[m[32m     "movl %2, %%ebx;"			  \[m
+[32m+[m[32m     "movl %3, %%ecx;"			  \[m
+[32m+[m[32m     "movl %4, %%edx;"			  \[m
+[32m+[m[32m     "movl %5, %%esi;"			  \[m
+[32m+[m[32m     "movl %6, %%edi;"			  \[m
+[32m+[m[32m     "int $0x80;" 					  \[m
+[32m+[m[32m     "movl %%eax, %0;" 				\[m
+[32m+[m[32m     :"=r" (rv)					      \[m
+[32m+[m[32m     :"r" (NUM)					      \[m
+[32m+[m[32m     :"%eax"						      \[m
+[32m+[m[32m     );						            \[m
+[32m+[m[32m    rv;							            \[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the open syscall[m
+[32m+[m[32mName        #    |  ARG1                          | ARG2       |  ARG3[m
+[32m+[m[32msys_open	  0x05 | 	const char __user *filename	  | int flags  |	int mode[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32m#define MY_OPEN(ARG1, ARG2, ARG3) MY_SYSCALL3(5,ARG1,ARG2,ARG3)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the write syscall[m
+[32m+[m[32mName        #    |   ARG1              |  ARG2                    | ARG3[m
+[32m+[m[32msys_write	 0x04	 |   unsigned int fd	 |  const char __user *buf	| size_t count[m
+[32m+[m[32mstdin = 0[m
+[32m+[m[32mstdout = 1[m
+[32m+[m[32mstderr = 2[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m
+[32m+[m[32m#define MY_WRITE(FD, BUFFER, AMOUNT) MY_SYSCALL3(4,FD,BUFFER,AMOUNT)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the open syscall[m
+[32m+[m[32mName        #    |  ARG1[m
+[32m+[m[32msys_chdir	12     |	const char __user *filename[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m
+[32m+[m[32m#define MY_CHDIR(filename) MY_SYSCALL1(12,filename)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the read syscall[m
+[32m+[m[32mName        #    |   ARG1             |  ARG2               | ARG3[m
+[32m+[m[32msys_read	0x03	 |   unsigned int fd	|   char __user *buf	| size_t count	-[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32m#define MY_READ(FD, BUFFER, AMOUNT) MY_SYSCALL3(3,FD,BUFFER,AMOUNT)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the getdents syscall[m
+[32m+[m[32mName          #    |   ARG1              |  ARG2                               |  ARG3[m
+[32m+[m[32msys_getdents	0x8d |   unsigned int fd	 |  struct linux_dirent __user *dirent | 	unsigned int count[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32mstruct linux_dirent {[m
+[32m+[m[32m        long           d_ino;[m
+[32m+[m[32m        size_t          d_off;[m
+[32m+[m[32m        unsigned short d_reclen;[m
+[32m+[m[32m        char           d_name[];[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m#define MY_GETDENTS(FD,linux_dirent, COUNT) MY_SYSCALL3(141,FD, linux_dirent, COUNT)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the sys_unlink syscall[m
+[32m+[m[32mName          #    |   ARG1[m
+[32m+[m[32msys_unlink	 0x0a	 |   const char __user *pathname[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32m#define MY_UNLINK(pathname) MY_SYSCALLS1(10,pathname)[m
+[32m+[m[32m// Defing my own syscalls[m
+[32m+[m
+[32m+[m[32mint inline myGetDentsFunction (int fd,char * dir,size_t count){[m
+[32m+[m[32m  if (count < 0){[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  int read= MY_GETDENTS(fd,dir,count);[m
+[32m+[m[32m  return read;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid inline myExitFunction (int RV){[m
+[32m+[m[32m  MY_SYSCALL1(1,RV);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid inline myWriteFunction (int FD,char *BUFFER,int AMOUNT){[m
+[32m+[m[32m  MY_WRITE(FD,BUFFER,AMOUNT);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/*[m
+[32m+[m[32mint inline myGETDENTS (int FD,linux_dirent *dirp,int COUNT){[m
+[32m+[m[32m  MY_GETDENTS(FD,struct linux_dirent *dirp,COUNT);[m
+[32m+[m[32m}[m
+[32m+[m[32m*/[m
+[32m+[m
+[32m+[m[32mint inline myReadFunction (int FD,char *BUFFER,int AMOUNT){[m
+[32m+[m[32m  int rv = MY_READ(FD,BUFFER,AMOUNT);[m
+[32m+[m[32m  return rv;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint inline myOpenFunction (ARG1, ARG2, ARG3){[m
+[32m+[m[32m  int fd = MY_OPEN(ARG1, ARG2 , ARG3);[m
+[32m+[m[32m  return fd;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid inline myUnlinkFunction (char* fileName){[m
+[32m+[m[32m  MY_SYSCALL1(10,fileName);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid inline myCHDIR (char* fileName){[m
+[32m+[m[32m  MY_CHDIR(fileName);[m
+[32m+[m[32m}[m
+[32m+[m[32m#endif // __MYSYSCALL_H__[m
+[1mdiff --git a/lab2/putEnv.c b/lab2/putEnv.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3af3eec[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/putEnv.c[m
+[36m@@ -0,0 +1,257 @@[m
+[32m+[m[32m/* CSE 306: Sea Wolves Interactive Shell */[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <unistd.h>[m
+[32m+[m[32m#include <errno.h>[m
+[32m+[m[32m#include "mysyscall.h"[m
+[32m+[m[32m#include "swishHelperFunctions.c"[m
+[32m+[m[32m#include <sys/types.h>[m
+[32m+[m[32m#include <sys/wait.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m
+[32m+[m[32m// Assume no input line will be longer than 1024 bytes[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m
+[32m+[m[32mtypedef enum {false, true} bool; //boolean enumerations[m
+[32m+[m
+[32m+[m[32mextern char **environ;[m
+[32m+[m
+[32m+[m[32mint main (int argc, char ** argv, char **envp) {[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Command line parsing begins here[m
+[32m+[m[32m  First check to see if -d is defined, and debugging messages need to be printed.[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m
+[32m+[m
+[32m+[m[41m  [m
+[32m+[m[32m  putenv("SomeVariable=SomeValue");[m
+[32m+[m[32m  int finished = 0;[m
+[32m+[m[32m  char *prompt = "swish> ";[m
+[32m+[m[32m  char cmd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char tokenBuff[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdTemp[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char *EXIT_CMD =  "exit\n";[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Setting the commands that the shell recognizes[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  //char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};[m
+[32m+[m[32m  //char *commands[] = { "ls","cd","pwd","make"};[m
+[32m+[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Get the CWD path[m
+[32m+[m[32m  Add a space and a null terminator to the path[m
+[32m+[m[32m  Print the path[m
+[32m+[m[32m  Print the 'swish' prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  int rv;[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  char *cursor;[m
+[32m+[m[32m  cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m  *cursor = ' ';[m
+[32m+[m[32m  cursor++;[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  cursor =NULL ;[m
+[32m+[m[32m  bool inRedir, outRedir;[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m    char last_char;[m
+[32m+[m[32m    int count;[m
+[32m+[m[32m    int pid=-1;[m
+[32m+[m
+[32m+[m[32m  /* read and parse the input put it into CMD */[m
+[32m+[m[32m  for(rv = 1, count = 0, cursor = cmd, last_char = 1;rv && (++count < (MAX_INPUT_BUFF_BUFF-1)) && (last_char != '\n'); cursor++) {[m
+[32m+[m[32m    rv = read(0, cursor, 1);[m
+[32m+[m[32m    last_char = *cursor;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m    if(!strncmp(cmd,EXIT_CMD,4)) {[m
+[32m+[m[32m    finished = 1;[m
+[32m+[m[32m    break;[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  strcpy(tokenBuff,cmd);[m
+[32m+[m[32m  char *tokenArr[50];[m
+[32m+[m[32m  char *tokenArgs[50];[m
+[32m+[m[32m  int counter = 0;[m
+[32m+[m[32m  int counterArgs =0;[m
+[32m+[m[32m  int flag =0;[m
+[32m+[m[32m  char* token = strtok(tokenBuff, " ");[m
+[32m+[m
+[32m+[m[32m  tokenArgs[counterArgs++] = token;[m
+[32m+[m[32m  while (token) {[m
+[32m+[m[32m    if (!strncmp(token,"$",1)){[m
+[32m+[m[32m      flag = 1;[m
+[32m+[m[32m      char *nlRemove = token;[m
+[32m+[m[32m      token++;[m
+[32m+[m[32m      nlRemove+=strlen(token);[m
+[32m+[m[32m      *nlRemove = '\0';[m
+[32m+[m[32m      //printf("getenv : %s \n",getenv(token));[m
+[32m+[m[32m      tokenArgs[counterArgs++] = getenv(token);[m
+[32m+[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (!strncmp(token,"-",1)){[m
+[32m+[m[32m      flag = 1;[m
+[32m+[m[32m      tokenArgs[counterArgs++] = token;[m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if (!strncmp(token,">",1)){[m
+[32m+[m[32m      if(strlen(token) == 1){[m[41m   [m
+[32m+[m[32m        token = strtok(NULL, " ");[m
+[32m+[m[32m      } //if char* length = 1[m
+[32m+[m[32m      else {[m
+[32m+[m[32m      } //else char* length > 1[m
+[32m+[m[32m    }//if first char = >[m[41m [m
+[32m+[m[32m    else {[m
+[32m+[m[32m      tokenArr[counter++] = token;[m
+[32m+[m[32m    } // else[m
+[32m+[m[32m    token = strtok(NULL, " ");[m
+[32m+[m[32m  }//while[m
+[32m+[m
+[32m+[m[32m  int index = 0;[m
+[32m+[m[32m  for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {[m
+[32m+[m[32m    if(tokenArr[counter - 1][index] == '\n') {[m
+[32m+[m[32m      tokenArr[counter - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  if (flag == 1){[m
+[32m+[m[32m   for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {[m
+[32m+[m
+[32m+[m[32m    if(tokenArgs[counterArgs - 1][index] == '\n') {[m
+[32m+[m[32m      tokenArgs[counterArgs - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  tokenArr[counter] = NULL;[m
+[32m+[m[32m  tokenArgs[counterArgs] = NULL;[m
+[32m+[m
+[32m+[m[32m  //tokenArgs[1] = "-d";[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  IF the command is CD[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  if (strncmp("cd\n",cmd,2) == 0){[m
+[32m+[m[32m    cursor = cmd; //Make a cursor to the CMD string[m
+[32m+[m[32m    cursor += 3; // Move the cursor past 'cd ' onto the argument for CD[m
+[32m+[m[32m    strcpy( cmdTemp , cursor ); // Copy the value at location into the cmdTemp string (this now holds CD arguments)[m
+[32m+[m[32m    cursor = cmdTemp; // The copied over value still has '\n' so we make a cursor it[m
+[32m+[m[32m    cursor += strlen(cmdTemp)-1; // Move the cursor to the end -1 (The location of the '\n')[m
+[32m+[m[32m    *cursor = '\0';  // Replace the '\n' with Null terminator[m
+[32m+[m[32m    if (strcmp( cmd , "cd\n") == 0){ // Base case CD needs to implement root CD[m
+[32m+[m[32m      chdir(getenv("HOME"));[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if ( chdir ( cmdTemp ) < 0) /* Fail case of opening directory */[m
+[32m+[m[32m    {[m
+[32m+[m[32m      printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  //if the input is for a application (cat/ls) then we need to parse the arguments following it[m
+[32m+[m[32m  else[m
+[32m+[m[32m  if (!strncmp(cmd,"set",3)){[m
+[32m+[m[32m    for(index = 0; tokenArr[1][index] != '\0'; index++) {[m
+[32m+[m[32m      if(tokenArr[1][index] == '\n') {[m
+[32m+[m[32m        tokenArr[1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    char *putEnvStr = malloc(strlen(tokenArr[1]));[m
+[32m+[m[32m    strcpy(putEnvStr,tokenArr[1]);[m
+[32m+[m[32m    if (putenv(putEnvStr) != 0){[m
+[32m+[m[32m      return 123;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  if ((pid = fork()) < 0){[m
+[32m+[m[32m    printf("fork failed");[m
+[32m+[m[32m    return 1;[m
+[32m+[m[32m  }/* Fail case on fork */[m
+[32m+[m[32m  if (pid == 0){[m
+[32m+[m[32m    int j = 0;//, k = 0, l = 0;[m
+[32m+[m[32m    //int in_index = 0, out_index = 0;[m
+[32m+[m[32m    char input[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m    char output[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m    memset(input, '\0', strlen(input));[m
+[32m+[m[32m    memset(output, '\0', strlen(output));[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    *Check if the redirection operations were used, set flags.[m
+[32m+[m[32m    */[m
+[32m+[m[32m    j = getRedirTarget(cmd, output, '>');[m
+[32m+[m[32m    if(j == 0 ) {[m
+[32m+[m[32m      outRedir = true;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    j = getRedirTarget(cmd, input, '<');[m
+[32m+[m[32m    if(j == 0 ) {[m
+[32m+[m[32m      inRedir = true;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    ///for J search by char for < > | etc.[m
+[32m+[m[32m    // execvp(commands[iterator],tokenArr);[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m    *Prior to exec we need to confirm if redirection was used, if so exec in a different manner[m
+[32m+[m[32m    *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works[m
+[32m+[m[32m    *So parsing character by character, which will have its own issues (file names w/ spaces for example)[m
+[32m+[m[32m    **/[m
+[32m+[m[32m    if(inRedir) {[m
+[32m+[m[32m      //open/close FDs for in redirection[m
+[32m+[m[32m      FILE *file_in = fopen(input, O_RDONLY);[m
+[32m+[m[32m      int fd_in = file_in->_fileno;[m
+[32m+[m[32m      dup2(fd_in, STDIN_FILENO);[m
+[32m+[m[32m      close(fd_in);[m
+[32m+[m[32m      inRedir = false;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if(outRedir) {[m
+[32m+[m[32m      //open/close FDs for out redirection[m
+[32m+[m[32m      FILE *file_out = fopen(output, "ab+");[m
+[32m+[m[32m      int fd_out = file_out->_fileno;[m
+[32m+[m[32m      dup2(fd_out, STDOUT_FILENO);[m
+[32m+[m[32m      close(fd_out);[m
+[32m+[m[32m      outRedir = false;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (flag == 1){[m
+[32m+[m[32m    execvp(tokenArgs[0], tokenArgs);[m
+[32m+[m[32m    } else[m[41m [m
+[32m+[m[32m    execvp(tokenArr[0],tokenArr);[m
+[32m+[m[32m    //execvp(tokenArr[0], tokenArgs);[m
+[32m+[m[32m    //cursor = cmd;[m
+[32m+[m[32m    //*cursor = '\n';[m
+[32m+[m[32m  } else {[m
+[32m+[m[32m    /* in parent */[m
+[32m+[m[32m    // int status;[m
+[32m+[m[32m    waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  //}[m
+[32m+[m[32m  //}[m
+[32m+[m[32m  // Execute the command, handling built-in commands separately[m
+[32m+[m[32m  // Just echo the command line for now[m
+[32m+[m[32m  //    write(1, cmd, strnlen(cmd, MAX_INPUT_BUFF_BUFF));[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Print the CWD[m
+[32m+[m[32m  Print the prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m[32m  memset(cmd,'\0',MAX_INPUT_BUFF_BUFF);[m
+[32m+[m[32m} /* End while */[m
+[32m+[m[32mreturn 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/redirHelper.c b/lab2/redirHelper.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..2bceef5[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/redirHelper.c[m
+[36m@@ -0,0 +1,278 @@[m
+[32m+[m[32mvoid redirInput(char *input);[m
+[32m+[m[32mvoid redirOutput(char *input);[m
+[32m+[m[32mint checkForCd (char *cmd);[m
+[32m+[m[32mint printWolfie();[m
+[32m+[m[32mint checkForWolfie();[m
+[32m+[m[32mint checkForExit (char *cmd);[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m[32m/**[m
+[32m+[m[32m*redirInput small method for handling input redirection[m
+[32m+[m[32m**/[m
+[32m+[m[32mvoid redirInput(char *input) {[m
+[32m+[m	[32mFILE *fd = fopen(input, "ab+");[m
+[32m+[m	[32mint fd_in = fd->_fileno;[m
+[32m+[m	[32mdup2(fd_in, STDIN_FILENO);[m
+[32m+[m	[32mclose(fd_in);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint checkForCd (char *cmd){[m
+[32m+[m[32m  char *cursor = NULL;[m
+[32m+[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdTemp[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  if (strncmp("cd\n",cmd,2) == 0){[m
+[32m+[m[32m    cursor = cmd; //Make a cursor to the CMD string[m
+[32m+[m[32m    cursor += 3; // Move the cursor past 'cd ' onto the argument for CD[m
+[32m+[m[32m    strcpy( cmdTemp , cursor ); // Copy the value at location into the cmdTemp string (this now holds CD arguments)[m
+[32m+[m[32m    cursor = cmdTemp; // The copied over value still has '\n' so we make a cursor it[m
+[32m+[m[32m    cursor += strlen(cmdTemp)-1; // Move the cursor to the end -1 (The location of the '\n')[m
+[32m+[m[32m    *cursor = '\0';  // Replace the '\n' with Null terminator[m
+[32m+[m[32m  if (strcmp( cmd , "cd\n") == 0){ // Base case CD needs to implement root CD[m
+[32m+[m[32m      chdir(getenv("HOME"));[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m  } else if ( chdir ( cmdTemp ) < 0){[m
+[32m+[m[32m          printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);[m
+[32m+[m[32m          return 1;[m
+[32m+[m[32m          } else {[m
+[32m+[m[32m                    theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m                    cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m                    *cursor = ' ';[m
+[32m+[m[32m                    cursor++;[m
+[32m+[m[32m                    *cursor = '\0';[m
+[32m+[m[32m                    printf("Success changing.. New CWD %s \n",theCWD);[m
+[32m+[m[32m                  }[m
+[32m+[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m  } else return 1;[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint checkForExit (char *cmd){[m
+[32m+[m[32m  char *EXIT_CMD =  "exit\n";[m
+[32m+[m[32m  if(!strncmp(cmd,EXIT_CMD,4)) {[m
+[32m+[m[32m    exit(0);[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  return 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mint printWolfie(){[m
+[32m+[m[32m  char wolfieBuffer[255];[m
+[32m+[m[32m  char *colors[] = {"\x1B[0m","\x1B[31m","\x1B[32m","\x1B[33m","\x1B[34m","\x1B[35m","\x1B[36m","\x1B[37m"};[m
+[32m+[m[32m  FILE * fd;[m
+[32m+[m[32m  if ((fd = fopen("catWolfieSAFE.txt","r")) < 0){[m
+[32m+[m[32m    printf("Error opening");[m
+[32m+[m[32m    return 1;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  //fgets(wolfieBuffer,125,fd);[m
+[32m+[m[32m  int index =1;[m
+[32m+[m[32m  int iterator =0;[m
+[32m+[m[32m  int colorCounter =0;[m
+[32m+[m[32m  srand(time(NULL));[m
+[32m+[m[32m  while(index != 0){[m
+[32m+[m[32m    for (iterator =1;iterator < 24;iterator++){[m
+[32m+[m
+[32m+[m[32m    printf("\n");[m
+[32m+[m[32m    }[m
+[32m+[m[32m    for (iterator =1;iterator < 24;iterator++){[m
+[32m+[m[32m    colorCounter = rand() % 8;[m
+[32m+[m[32m    index = (int) fgets(wolfieBuffer,125,fd);[m
+[32m+[m[32m    if(index!=0){[m
+[32m+[m
+[32m+[m[32m    printf("%s%s",colors[colorCounter] ,wolfieBuffer);[m
+[32m+[m[32m    }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    sleep(1);[m
+[32m+[m[32m  }[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint checkForWolfie(char *buff){[m
+[32m+[m
+[32m+[m	[32mif (!strcmp(buff,"wolfie\n")){[m
+[32m+[m		[32mprintWolfie();[m
+[32m+[m		[32mreturn 0;[m
+[32m+[m	[32m} else return 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid removeNewLinesLastElementArray(char **arrayToNull, int numOfElementsInArr){[m
+[32m+[m
+[32m+[m[32m  // Null terminate the tokenArr array.[m
+[32m+[m[32m  int index = 0;[m
+[32m+[m[32m  for(index = 0; arrayToNull[numOfElementsInArr - 1][index] != '\0'; index++) {[m
+[32m+[m[32m    if(arrayToNull[numOfElementsInArr - 1][index] == '\n') {[m
+[32m+[m[32m      arrayToNull[numOfElementsInArr - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  arrayToNull[numOfElementsInArr] = NULL;[m
+[32m+[m[32m}[m
+[32m+[m[32mint checkForSet (char *cmd){[m
+[32m+[m[32m  char *tokenArr[50];[m
+[32m+[m[32m  char *tokenArgs[50];[m
+[32m+[m[32m  char tokenBuff[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  int pid=-1;[m
+[32m+[m[32m  int counter = 0;[m
+[32m+[m[32m  int counterArgs =0;[m
+[32m+[m[32m  int flag =0;[m
+[32m+[m[32m  strcpy(tokenBuff,cmd); // Token buff now holds the entire command line[m
+[32m+[m[32m  char* token = strtok(tokenBuff, " "); // Token holds the first space delimited command line[m
+[32m+[m
+[32m+[m[32m  tokenArgs[counterArgs++] = token; // Token Args now holds the first executable command, counter for this array incremented[m
+[32m+[m[32m  while (token) { // While the command line has more space delimited strings[m
+[32m+[m[32m    if (!strncmp(token,"$",1)){ // If the token string starts with a $ variable[m
+[32m+[m[32m      flag = 1; // We will set the flag to use execvp with the argument dependent exec[m
+[32m+[m[32m      char *nlRemove = token; // Make a cursor to this tokenized string[m
+[32m+[m[32m      token++; // Move the pointer of the tokenized string to the immediate value after '$' ie , if $PATH then token == 'PATH\n'[m
+[32m+[m[32m      nlRemove+=strlen(token); // Move the cursor to the end of the Token[m
+[32m+[m[32m      *nlRemove = '\0'; // Remove the newline from the 'PATH\n' example[m
+[32m+[m[32m      if((tokenArgs[counterArgs++] = getenv(token)) == NULL){  // Get the environmental variable associated with this new Token[m
+[32m+[m[32m        printf("Cannot find that environment variable.");[m
+[32m+[m[32m        exit(1);[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }//End if '$xxx' .. Environment variable value now stored in tokenArgs[][m
+[32m+[m[32m    if (!strncmp(token,"-",1)){ // Some argument found, place this in tokenArg[][m
+[32m+[m[32m      flag = 1; // Use the tokenArg[] exec[m
+[32m+[m[32m      tokenArgs[counterArgs++] = token; // Place the tokenized string into the tokenArg[][m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if (!strncmp(token,">",1) || !strncmp(token, "<",1) || !strncmp(token, "|", 1)){ // Deprecated IGNORES these 3 chars and does not place anything[m
+[32m+[m[32m      if(strlen(token) == 1){[m
+[32m+[m[32m        token = strtok(NULL, " ");[m
+[32m+[m[32m      } //if char* length = 1[m
+[32m+[m[32m      else {[m
+[32m+[m[32m      } //else char* length > 1[m
+[32m+[m[32m    }//if first char = >[m
+[32m+[m[32m    else { // If these cases are not found, it will assume the value is a modifier to another call and places this value in token Arr.[m
+[32m+[m[32m      tokenArr[counter++] = token;[m
+[32m+[m[32m    } // else[m
+[32m+[m[32m    token = strtok(NULL, " ");[m
+[32m+[m[32m  }//while[m
+[32m+[m[32m  removeNewLinesLastElementArray(tokenArr,counter);[m
+[32m+[m[32m  removeNewLinesLastElementArray(tokenArgs,counterArgs);[m
+[32m+[m[32m  if ((!(strncmp(cmd,"set",3))) || (!strncmp(cmd,"echo",4))){[m
+[32m+[m		[32mif ((!(strncmp(cmd,"set",3)))){[m
+[32m+[m		[32mchar *putEnvStr = malloc(strlen(tokenArr[1]));[m
+[32m+[m[32m    strcpy(putEnvStr,tokenArr[1]);[m
+[32m+[m[32m    if (putenv(putEnvStr) != 0){[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m      printf("Could not put environment variable");[m
+[32m+[m[32m      exit(1);[m
+[32m+[m[32m    }[m
+[32m+[m		[32m}[m
+[32m+[m[32m    if ((pid = fork()) < 0){[m
+[32m+[m[32m      printf("fork failed");[m
+[32m+[m[32m      //return 1;[m
+[32m+[m			[32mexit(0);[m
+[32m+[m[32m    }/* Fail case on fork */[m
+[32m+[m[32m    if (pid == 0){[m
+[32m+[m[32m      if (flag == 1){[m
+[32m+[m[32m        execvp(tokenArgs[0], tokenArgs);[m
+[32m+[m[32m        //return 0;[m
+[32m+[m				[32mexit(0);[m
+[32m+[m[32m      } else[m
+[32m+[m[32m        execvp(tokenArr[0],tokenArr);[m
+[32m+[m[32m        //return 0;[m
+[32m+[m				[32mexit(0);[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      /* in parent */[m
+[32m+[m[32m      // int status;[m
+[32m+[m[32m      waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);[m
+[32m+[m			[32mreturn 0;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m	[32mreturn 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint checkForEverything (char *cmd){[m
+[32m+[m[32m  char *tokenArr[50];[m
+[32m+[m[32m  char *tokenArgs[50];[m
+[32m+[m[32m  char tokenBuff[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  int pid=-1;[m
+[32m+[m[32m  int counter = 0;[m
+[32m+[m[32m  int counterArgs =0;[m
+[32m+[m[32m  int flag =0;[m
+[32m+[m[32m  strcpy(tokenBuff,cmd); // Token buff now holds the entire command line[m
+[32m+[m[32m  char* token = strtok(tokenBuff, " "); // Token holds the first space delimited command line[m
+[32m+[m
+[32m+[m[32m  tokenArgs[counterArgs++] = token; // Token Args now holds the first executable command, counter for this array incremented[m
+[32m+[m[32m  while (token) { // While the command line has more space delimited strings[m
+[32m+[m[32m    if (!strncmp(token,"$",1)){ // If the token string starts with a $ variable[m
+[32m+[m[32m      flag = 1; // We will set the flag to use execvp with the argument dependent exec[m
+[32m+[m[32m      char *nlRemove = token; // Make a cursor to this tokenized string[m
+[32m+[m[32m      token++; // Move the pointer of the tokenized string to the immediate value after '$' ie , if $PATH then token == 'PATH\n'[m
+[32m+[m[32m      nlRemove+=strlen(token); // Move the cursor to the end of the Token[m
+[32m+[m[32m      *nlRemove = '\0'; // Remove the newline from the 'PATH\n' example[m
+[32m+[m[32m      if((tokenArgs[counterArgs++] = getenv(token)) == NULL){  // Get the environmental variable associated with this new Token[m
+[32m+[m[32m        printf("Cannot find that environment variable.");[m
+[32m+[m[32m        exit(1);[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }//End if '$xxx' .. Environment variable value now stored in tokenArgs[][m
+[32m+[m[32m    if (!strncmp(token,"-",1)){ // Some argument found, place this in tokenArg[][m
+[32m+[m[32m      flag = 1; // Use the tokenArg[] exec[m
+[32m+[m[32m      tokenArgs[counterArgs++] = token; // Place the tokenized string into the tokenArg[][m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if (!strncmp(token,">",1) || !strncmp(token, "<",1) || !strncmp(token, "|", 1)){ // Deprecated IGNORES these 3 chars and does not place anything[m
+[32m+[m[32m      if(strlen(token) == 1){[m
+[32m+[m[32m        token = strtok(NULL, " ");[m
+[32m+[m[32m      } //if char* length = 1[m
+[32m+[m[32m      else {[m
+[32m+[m[32m      } //else char* length > 1[m
+[32m+[m[32m    }//if first char = >[m
+[32m+[m[32m    else { // If these cases are not found, it will assume the value is a modifier to another call and places this value in token Arr.[m
+[32m+[m[32m      tokenArr[counter++] = token;[m
+[32m+[m[32m    } // else[m
+[32m+[m[32m    token = strtok(NULL, " ");[m
+[32m+[m[32m  }//while[m
+[32m+[m[32m  removeNewLinesLastElementArray(tokenArr,counter);[m
+[32m+[m[32m  removeNewLinesLastElementArray(tokenArgs,counterArgs);[m
+[32m+[m		[32mif ((!(strncmp(cmd,"set",3)))){[m
+[32m+[m		[32mchar *putEnvStr = malloc(strlen(tokenArr[1]));[m
+[32m+[m[32m    strcpy(putEnvStr,tokenArr[1]);[m
+[32m+[m[32m    if (putenv(putEnvStr) != 0){[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m      printf("Could not put environment variable");[m
+[32m+[m[32m      exit(1);[m
+[32m+[m[32m    }[m
+[32m+[m		[32m}[m
+[32m+[m[32m    if ((pid = fork()) < 0){[m
+[32m+[m[32m      printf("fork failed");[m
+[32m+[m[32m      //return 1;[m
+[32m+[m			[32mexit(0);[m
+[32m+[m[32m    }/* Fail case on fork */[m
+[32m+[m[32m    if (pid == 0){[m
+[32m+[m[32m      if (flag == 1){[m
+[32m+[m[32m        execvp(tokenArgs[0], tokenArgs);[m
+[32m+[m[32m        //return 0;[m
+[32m+[m				[32mexit(0);[m
+[32m+[m[32m      } else[m
+[32m+[m[32m        execvp(tokenArr[0],tokenArr);[m
+[32m+[m[32m        //return 0;[m
+[32m+[m				[32mexit(0);[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      /* in parent */[m
+[32m+[m[32m      // int status;[m
+[32m+[m[32m      waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);[m
+[32m+[m			[32mreturn 0;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m	[32mreturn 1;[m
+[32m+[m[32m}[m
+[32m+[m[32m/**[m
+[32m+[m[32m*redirInput small method for handling input redirection[m
+[32m+[m[32m**/[m
+[32m+[m[32mvoid redirOutput(char *input) {[m
+[32m+[m	[32mFILE *fd = fopen(input, "ab+");[m
+[32m+[m	[32mint fd_in = fd->_fileno;[m
+[32m+[m	[32mdup2(fd_in, STDOUT_FILENO);[m
+[32m+[m	[32mclose(fd_in);[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/redirection.c b/lab2/redirection.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f1aac48[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/redirection.c[m
+[36m@@ -0,0 +1,248 @@[m
+[32m+[m[32mvoid redirControl(char* buffer);[m
+[32m+[m[32mvoid removeQ(char* str);[m
+[32m+[m[32mvoid redirOnly(char* buffer);[m
+[32m+[m[32mint execScript (char *scriptName);[m
+[32m+[m
+[32m+[m[32mtypedef enum {false, true} bool; //boolean enumerations[m
+[32m+[m
+[32m+[m[32m/*remove control is for removing qoutes*/[m
+[32m+[m[32mvoid removeQ(char* str) {[m
+[32m+[m	[32mchar *ps;[m
+[32m+[m	[32mfor (ps = str; *ps != '\0'; ps++) {[m
+[32m+[m		[32m*ps = *(ps+1);[m
+[32m+[m	[32m}[m
+[32m+[m	[32mstr[strlen(str) - 1] = '\0';[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/*REDIR ONLY*/[m
+[32m+[m[32mvoid redirOnly(char *buffer){[m
+[32m+[m	[32mchar input[50];[m
+[32m+[m	[32mchar output[50];[m
+[32m+[m	[32mchar *tokenArgs[50];[m
+[32m+[m	[32mchar tokenBuff[1024];[m
+[32m+[m	[32mint counterArgs = 0;[m
+[32m+[m	[32mmemset(input, '\0', strlen(input));[m
+[32m+[m	[32mmemset(output, '\0', strlen(output));[m
+[32m+[m	[32mpid_t cpid;[m
+[32m+[m	[32mbool outRedir, inRedir;[m
+[32m+[m	[32mstrcpy(tokenBuff, buffer);[m
+[32m+[m	[32mint i = 0;[m
+[32m+[m
+[32m+[m	[32mchar* token = strtok(tokenBuff, " ");[m
+[32m+[m	[32mwhile(token){[m
+[32m+[m		[32mif(!strncmp(token, ">", 1) || !strncmp(token, "<", 1)) {[m
+[32m+[m			[32mtoken = strtok(NULL, " ");[m
+[32m+[m		[32m}[m
+[32m+[m		[32melse {[m
+[32m+[m		[32mtokenArgs[counterArgs++] = token;[m
+[32m+[m		[32m}[m
+[32m+[m		[32mtoken = strtok(NULL, " ");[m
+[32m+[m	[32m}//while[m
+[32m+[m
+[32m+[m	[32mcpid = fork();[m
+[32m+[m	[32mif(cpid != 0) {[m
+[32m+[m	[32m//wait[m
+[32m+[m		[32mwaitpid(cpid, NULL, WUNTRACED | WCONTINUED);[m
+[32m+[m	[32m}[m
+[32m+[m	[32melse {[m
+[32m+[m		[32mif(getRedirTarget(buffer, output, '>') == 0){[m
+[32m+[m			[32moutRedir = true;[m
+[32m+[m		[32m}[m
+[32m+[m		[32mif(getRedirTarget(buffer, input, '<') == 0){[m
+[32m+[m			[32minRedir = true;[m
+[32m+[m		[32m}[m
+[32m+[m		[32mif(inRedir) {[m
+[32m+[m			[32mredirInput(input);[m
+[32m+[m			[32minRedir = false;[m
+[32m+[m		[32m}[m
+[32m+[m		[32mif(outRedir){[m
+[32m+[m			[32mredirOutput(output);[m
+[32m+[m			[32moutRedir = false;[m
+[32m+[m		[32m}[m
+[32m+[m		[32mif(execvp(tokenArgs[0], tokenArgs) == -1) {[m
+[32m+[m			[32m//failed[m
+[32m+[m			[32mexit(1);[m
+[32m+[m		[32m}[m
+[32m+[m		[32mexit(0);[m
+[32m+[m	[32m}[m
+[32m+[m	[32mfor(i = 0; i < counterArgs; i++) {[m
+[32m+[m		[32mtokenArgs[i] = NULL;[m
+[32m+[m	[32m}[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/* redirControl is in charge of checking the buffer for redirection flags and processing them */[m
+[32m+[m
+[32m+[m[32mvoid redirControl(char *buffer){[m
+[32m+[m	[32mint MAX_PIPES = 10, MAX_ARGUMENTS = 10;[m
+[32m+[m	[32mchar *temp = NULL, *pipeCommands[MAX_PIPES], *cmdArgs[MAX_ARGUMENTS];[m
+[32m+[m	[32mint currPipe[2]; // since we're doing this iteratively, need to keep track of all pipes[m
+[32m+[m	[32mint oldPipe[2];[m
+[32m+[m	[32mint pipesCount = -1;[m
+[32m+[m	[32mint count, i, status;[m
+[32m+[m	[32mchar input[50], output[50];[m
+[32m+[m	[32mbool checkOut, checkIn;[m
+[32m+[m	[32mpid_t pidc;[m
+[32m+[m
+[32m+[m
+[32m+[m	[32mdo {[m
+[32m+[m		[32mtemp = strsep(&buffer, "|");[m
+[32m+[m		[32mif(temp != NULL) {[m
+[32m+[m			[32mif(strlen(temp) > 0){[m
+[32m+[m				[32mpipeCommands[++pipesCount] = temp;[m
+[32m+[m			[32m}[m
+[32m+[m		[32m}[m
+[32m+[m	[32m} while(temp); //process the buffer and see how many pipes we're dealing with.[m
+[32m+[m	[32mcmdArgs[++pipesCount] = NULL;[m
+[32m+[m	[32mfor(i = 0; i < pipesCount; i++) { //run through each pipe command[m
+[32m+[m		[32mcount = -1;[m
+[32m+[m		[32mdo {[m
+[32m+[m			[32mtemp = strsep(&pipeCommands[i], " ");[m
+[32m+[m			[32mif(temp != NULL) {[m
+[32m+[m				[32mif(strlen(temp) > 0) {[m
+[32m+[m					[32m//if this is the first pipe parameter or the last check for redirection[m
+[32m+[m					[32m//is temp = 1? is it <? then get just process that and move temp forward[m
+[32m+[m					[32mif(i == 0 && i == pipesCount-1) { // no pipes so we can accept a change in input[m
+[32m+[m						[32mif(strlen(temp) > 1 && getRedirTarget(temp, input, '<') ==  0) {[m
+[32m+[m							[32mcheckIn = true;[m
+[32m+[m							[32mcmdArgs[count] = NULL;[m
+[32m+[m						[32m}[m
+[32m+[m						[32mif(strlen(temp) > 1 && getRedirTarget(temp, output, '>') ==  0) {[m
+[32m+[m							[32m//set a flag for redirection, and redirect during FORK process?[m
+[32m+[m							[32mstrcpy(temp, output);[m
+[32m+[m							[32mcheckOut = true;[m
+[32m+[m							[32mcmdArgs[count] = NULL;[m
+[32m+[m						[32m}[m
+[32m+[m						[32mif(strlen(temp) == 1 && (temp[i] == '<' || temp[i] == '>')) {[m
+[32m+[m							[32mif(temp[i] == '<') {[m
+[32m+[m								[32mtemp = strsep(&pipeCommands[i], " ");[m
+[32m+[m								[32mcheckIn = true;[m
+[32m+[m								[32mstrcpy(input, temp);[m
+[32m+[m							[32m} else if(temp[i] == '>') {[m
+[32m+[m								[32mtemp = strsep(&pipeCommands[i], " ");[m
+[32m+[m								[32mstrcpy(output, temp);[m
+[32m+[m								[32mcheckOut = true;[m
+[32m+[m							[32m}[m
+[32m+[m							[32mtemp = strsep(&pipeCommands[i], " ");[m
+[32m+[m						[32m}[m
+[32m+[m					[32m}//no pipes check[m
+[32m+[m					[32melse if(i == 0 && strlen(temp) > 1) { // first pipe[m
+[32m+[m						[32mif(getRedirTarget(temp, input, '<') ==  0) {[m
+[32m+[m							[32mcheckIn = true;[m
+[32m+[m							[32mcmdArgs[count] = NULL;[m
+[32m+[m							[32mif(strlen(temp) == 1) {[m
+[32m+[m								[32mtemp = strsep(&pipeCommands[i], " ");[m
+[32m+[m							[32m}[m
+[32m+[m						[32m}[m
+[32m+[m					[32m}[m
+[32m+[m					[32melse if(i == pipesCount-1) { // last pipe[m
+[32m+[m						[32mif(strlen(temp) > 1){[m
+[32m+[m							[32mif(getRedirTarget(temp, output, '>') == 0) {[m
+[32m+[m								[32mcheckOut = true;[m
+[32m+[m								[32mtemp = NULL;[m
+[32m+[m							[32m}[m
+[32m+[m						[32m}[m
+[32m+[m						[32melse if(strlen(temp) == 1) {[m
+[32m+[m								[32mtemp = strsep(&pipeCommands[i], " ");[m
+[32m+[m								[32mstrcpy(output, temp);[m
+[32m+[m								[32mcheckOut = true;[m
+[32m+[m								[32mtemp = NULL;[m
+[32m+[m							[32m}[m
+[32m+[m					[32m}[m
+[32m+[m					[32mif(temp != NULL) {[m
+[32m+[m						[32mif(!strcmp(temp, "~")) {[m
+[32m+[m							[32mstrcpy(temp, "/home/user");[m
+[32m+[m						[32m} // if pass ~ replace with the default directory[m
+[32m+[m						[32mif(((temp[0] == '\"') && (temp[strlen(temp) - 1] == '\"')) || ((temp[0] == '\'') && (temp[strlen(temp) - 1] =='\''))) {[m
+[32m+[m							[32mchar *ps;[m
+[32m+[m							[32mfor (ps = temp; *ps != '\0'; ps++) {[m
+[32m+[m								[32m*ps = *(ps+1);[m
+[32m+[m							[32m}[m
+[32m+[m							[32mtemp[strlen(temp) - 1] = '\0';[m
+[32m+[m						[32m}[m
+[32m+[m					[32m}//if there is ' ' or " " surrounding an argument parameter, remove them.[m
+[32m+[m					[32mcmdArgs[++count] = temp;[m
+[32m+[m				[32m}[m
+[32m+[m			[32m}[m
+[32m+[m		[32m} while(temp);[m
+[32m+[m		[32mcmdArgs[++count] = NULL;[m
+[32m+[m		[32m//execute commands[m
+[32m+[m		[32mif(i < pipesCount-1) {[m
+[32m+[m			[32mpipe(currPipe);[m
+[32m+[m		[32m}[m
+[32m+[m		[32m//redirInput(input);[m
+[32m+[m		[32mpidc = fork(); //attempt new child process[m
+[32m+[m		[32mif(pidc == 0) { //if we're in child[m
+[32m+[m			[32mif(checkIn){[m
+[32m+[m				[32mredirInput(input);[m
+[32m+[m			[32m}[m
+[32m+[m			[32mif(checkOut){[m
+[32m+[m				[32mredirOutput(output);[m
+[32m+[m			[32m}[m
+[32m+[m			[32mif(i > 0) { //process command[m
+[32m+[m				[32mclose(oldPipe[1]);[m
+[32m+[m				[32mdup2(oldPipe[0], 0);[m
+[32m+[m				[32mclose(oldPipe[0]);[m
+[32m+[m			[32m} //is there a previous command[m
+[32m+[m			[32mif(i < pipesCount-1) {[m
+[32m+[m				[32mclose(currPipe[0]);[m
+[32m+[m				[32mdup2(currPipe[1], 1);[m
+[32m+[m				[32mclose(currPipe[1]);[m
+[32m+[m			[32m} //are there commands left to execte[m
+[32m+[m		[32mif(execvp(cmdArgs[0], cmdArgs) == -1) {[m
+[32m+[m				[32mprintf("Command did not execute, check command: %s\n", cmdArgs[0]);[m
+[32m+[m			[32m}[m
+[32m+[m			[32mexit(1);[m
+[32m+[m		[32m}[m
+[32m+[m		[32melse { //not in the child[m
+[32m+[m			[32mif(i > 0) {[m
+[32m+[m				[32mclose(oldPipe[0]);[m
+[32m+[m				[32mclose(oldPipe[1]);[m
+[32m+[m			[32m} //previous command?[m
+[32m+[m			[32mif(i < pipesCount-1) {[m
+[32m+[m				[32moldPipe[0] = currPipe[0];[m
+[32m+[m				[32moldPipe[1] = currPipe[1];[m
+[32m+[m			[32m} //is there another command to ezecute?[m
+[32m+[m			[32mif(i == pipesCount-1) {[m
+[32m+[m				[32mwaitpid(pidc, &status, 0);[m
+[32m+[m			[32m}[m
+[32m+[m		[32m}[m
+[32m+[m	[32m}[m
+[32m+[m[32m} //end of redirControl[m
+[32m+[m
+[32m+[m[32mint execScript (char *scriptName){[m
+[32m+[m[32m       //int returnValScript;[m
+[32m+[m[32m       //char *currentEnv = NULL;[m
+[32m+[m[32m       //char *removeNL;[m
+[32m+[m[32m       //removeNL = scriptName;[m
+[32m+[m[32m       //removeNL += strlen(scriptName);[m
+[32m+[m[32m       //*removeNL = '\0';[m
+[32m+[m[32m       //currentEnv = getenv("PATH");[m
+[32m+[m[32m       char *scriptArgs[] = {""};[m
+[32m+[m[32m       FILE* scriptFD;[m
+[32m+[m[32m       execvp(scriptName,scriptArgs);[m
+[32m+[m[32m       if((scriptFD = fopen(scriptName,"r+")) == NULL){[m
+[32m+[m[32m               return 1;[m
+[32m+[m[32m       }[m
+[32m+[m[32m       int amtRead = 0;[m
+[32m+[m[32m       char *scriptBuffer = malloc(125);[m
+[32m+[m[32m       while ((amtRead = (int) fgets(scriptBuffer, 125, scriptFD)) != 0){[m
+[32m+[m
+[32m+[m[32m               if (!strncmp(scriptBuffer, "#", 1)){[m
+[32m+[m[32m                       ;[m
+[32m+[m[32m               } else {[m
+[32m+[m[32m                       int rv = -1;[m
+[32m+[m[32m                       //redirControl(scriptBuffer);[m
+[32m+[m[32m                       if ((rv = checkForCd(scriptBuffer)) == 0) {;}[m
+[32m+[m[32m                       else if ((rv = checkForExit(scriptBuffer)) == 0) {;}[m
+[32m+[m[32m                       else if ((rv = checkForEverything(scriptBuffer)) == 0) {;}[m
+[32m+[m[32m                       else if ((rv = checkForWolfie(scriptBuffer)) == 0) {;}[m
+[32m+[m
+[32m+[m[32m                       }[m
+[32m+[m[32m       }[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m       return 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/slack.txt b/lab2/slack.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..cfc68a6[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/slack.txt[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mCumulative Late Hours Used: ~6 hours each so ~12 hours total.[m
+[1mdiff --git a/lab2/swish.c b/lab2/swish.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..47048d2[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/swish.c[m
+[36m@@ -0,0 +1,132 @@[m
+[32m+[m[32m/* CSE 306: Sea Wolves Interactive Shell */[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <unistd.h>[m
+[32m+[m[32m#include <errno.h>[m
+[32m+[m[32m#include "mysyscall.h"[m
+[32m+[m[32m#include "swishHelperFunctions.c"[m
+[32m+[m[32m#include <sys/types.h>[m
+[32m+[m[32m#include <sys/wait.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include "redirHelper.c"[m
+[32m+[m[32m#include "redirection.c"[m
+[32m+[m
+[32m+[m[32m// Assume no input line will be longer than 1024 bytes[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m
+[32m+[m
+[32m+[m[32mextern char **environ;[m
+[32m+[m
+[32m+[m[32mint main (int argc, char ** argv, char **envp) {[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Command line parsing begins here[m
+[32m+[m[32m  First check to see if -d is defined, and debugging messages need to be printed.[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  int finished = 0;[m
+[32m+[m[32m  char *prompt = "swish> ";[m
+[32m+[m[32m  char cmd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdCopyPipes[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m//  char tokenCopy[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  bool pipeBool = false;[m
+[32m+[m
+[32m+[m[32m//execScript("testScript.sh");[m
+[32m+[m[32m  char *extractSh;[m
+[32m+[m[32m  if (argv[1] != NULL){[m
+[32m+[m
+[32m+[m[32m    extractSh = argv[1];[m
+[32m+[m[32m    extractSh += strlen(argv[1])-3;[m
+[32m+[m[32m    if(!strncmp(extractSh,".sh",3)){[m
+[32m+[m
+[32m+[m[32m      execScript(argv[1]);[m
+[32m+[m[32m      exit(0);[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Setting the commands that the shell recognizes[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  //char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};[m
+[32m+[m[32m  //char *commands[] = { "ls","cd","pwd","make"};[m
+[32m+[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Get the CWD path[m
+[32m+[m[32m  Add a space and a null terminator to the path[m
+[32m+[m[32m  Print the path[m
+[32m+[m[32m  Print the 'swish' prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  int rv;[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  char *cursor;[m
+[32m+[m[32m  cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m  *cursor = ' ';[m
+[32m+[m[32m  cursor++;[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  cursor =NULL ;[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m    char last_char;[m
+[32m+[m[32m    int count;[m
+[32m+[m[32m    /********************************************************************[m
+[32m+[m[32m    Removing this should make the only exit occur from the proper exit.[m
+[32m+[m[32m    IE typing 'exit'.[m
+[32m+[m[32m    *********************************************************************[m
+[32m+[m[32m    if (!rv) {[m
+[32m+[m[32m    finished = 1;[m
+[32m+[m[32m    break;[m
+[32m+[m[32m  } Ends while loop */[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /* read and parse the input put it into CMD */[m
+[32m+[m[32m  for(rv = 1, count = 0, cursor = cmd, last_char = 1;rv && (++count < (MAX_INPUT_BUFF_BUFF-1)) && (last_char != '\n'); cursor++) {[m
+[32m+[m[32m    rv = read(0, cursor, 1);[m
+[32m+[m[32m    last_char = *cursor;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  int rv = -1;[m
+[32m+[m[32m  if ((rv = checkForCd(cmd)) == 0) {;}[m
+[32m+[m[32m  else if ((rv = checkForExit(cmd)) == 0) {;}[m
+[32m+[m[32m  else if ((rv = checkForSet(cmd)) == 0) {;}[m
+[32m+[m[32m  else if ((rv = checkForWolfie(cmd)) == 0) {;}[m
+[32m+[m[32m  else{[m
+[32m+[m
+[32m+[m[32m  //test recursive piping here[m
+[32m+[m[32mstrncpy(cmdCopyPipes, cmd, strlen(cmd));[m
+[32m+[m[32mint i;[m
+[32m+[m[32mfor(i = 0; i < strlen(cmdCopyPipes); i++) {[m
+[32m+[m[32m  if(cmdCopyPipes[i] == '|') {[m
+[32m+[m[32m    pipeBool = true;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  if(cmdCopyPipes[i] == '\n') {[m
+[32m+[m[32m    cmdCopyPipes[i] = '\0';[m
+[32m+[m[32m    break;[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mif(*cmdCopyPipes != 0 && pipeBool) {[m
+[32m+[m[32m  redirControl(cmdCopyPipes);[m
+[32m+[m[32m}[m
+[32m+[m[32melse {[m
+[32m+[m[32m  write(1, "no\n", 3);[m
+[32m+[m[32m  redirOnly(cmdCopyPipes);[m
+[32m+[m[32m}[m
+[32m+[m[32m}[m
+[32m+[m[32m  theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  char *cursor;[m
+[32m+[m[32m  cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m  *cursor = ' ';[m
+[32m+[m[32m  cursor++;[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  cursor =NULL ;[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m[32m  memset(cmd,'\0',MAX_INPUT_BUFF_BUFF);[m
+[32m+[m[32m  pipeBool = false;[m
+[32m+[m[32m} /* End while */[m
+[32m+[m[32mreturn 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/swishHelperFunctions.c b/lab2/swishHelperFunctions.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..7d44d1b[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/swishHelperFunctions.c[m
+[36m@@ -0,0 +1,177 @@[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <assert.h>[m
+[32m+[m[32m#include <time.h>[m
+[32m+[m[32m#define MAX_INPUT_BUFFER 1024[m
+[32m+[m
+[32m+[m[32m/*[m
+[32m+[m[32mHelper functions for swish[m
+[32m+[m[32m*/[m
+[32m+[m[32mint getRedirTarget(char *input, char *target, char op);[m
+[32m+[m[32mchar** strsplit(char* str, const char d);[m
+[32m+[m[32mvoid removeSpaces(char* input, char **ret, int index);[m
+[32m+[m[32mint findFlagD (char ** argv, int argc);[m
+[32m+[m
+[32m+[m[32mint getArgs(char ** argv, int argc){[m
+[32m+[m	[32mint i =0;[m
+[32m+[m	[32mfor (i =0; i<argc; i++){[m
+[32m+[m
+[32m+[m	[32mprintf("Argv[%d] : %s \n",i,argv[i]);[m
+[32m+[m	[32m}[m
+[32m+[m	[32mreturn 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m*getRedirTarget takes a string and a character, returns the preceeding string[m
+[32m+[m[32m*works if the string is connected to the character or separated by a space[m
+[32m+[m[32m*returns 0 if successfully found the operand and string, else 1[m
+[32m+[m[32m**/[m
+[32m+[m[32mint getRedirTarget(char *input, char *target, char op) {[m
+[32m+[m	[32mint i = 0, j = 0, k = 0;[m
+[32m+[m	[32mint index = 0;[m
+[32m+[m	[32mint found = 1;[m
+[32m+[m	[32mfor(i = 0; i < (strlen(input) - 1); i++) {[m
+[32m+[m		[32m/**[m
+[32m+[m		[32m*Search for target[m
+[32m+[m		[32m**/[m
+[32m+[m		[32mif(input[i] == op) {[m
+[32m+[m			[32mfound = 0;[m
+[32m+[m			[32mif(input[i+1] == ' ') {[m
+[32m+[m				[32mindex = 2;[m
+[32m+[m			[32m} else {[m
+[32m+[m				[32mindex = 1;[m
+[32m+[m			[32m}[m
+[32m+[m			[32mfor(j = i+index; j < (strlen(input)); j++) {[m
+[32m+[m				[32mif(input[j] != ' ' && input[j] != '<' && input[j] != '>') {[m
+[32m+[m					[32mtarget[k] = input[j];[m
+[32m+[m					[32mk++;[m
+[32m+[m				[32m} else {[m
+[32m+[m					[32mbreak;[m
+[32m+[m				[32m}[m
+[32m+[m			[32m}[m
+[32m+[m			[32mtarget[k] = '\0';[m
+[32m+[m			[32mbreak;[m
+[32m+[m		[32m}//if op found[m
+[32m+[m		[32melse {[m
+[32m+[m		[32m}[m
+[32m+[m	[32m}[m
+[32m+[m	[32mreturn found;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m*strsplit splits a string up and feeds it back as a 2d array[m
+[32m+[m[32m**/[m
+[32m+[m[32mchar** strsplit(char* str, const char d) {[m
+[32m+[m	[32mchar** r = 0;[m
+[32m+[m	[32mint count = 0;[m
+[32m+[m	[32mchar* temp = str;[m
+[32m+[m	[32mchar* ld = 0;[m
+[32m+[m
+[32m+[m	[32mwhile(*temp)[m
+[32m+[m	[32m{[m
+[32m+[m		[32mif(d == *temp)[m
+[32m+[m		[32m{[m
+[32m+[m			[32mcount++;[m
+[32m+[m			[32mld = temp;[m
+[32m+[m		[32m}[m
+[32m+[m		[32mtemp++;[m
+[32m+[m	[32m}[m
+[32m+[m	[32mcount += ld < (str + strlen(str) - 1);[m
+[32m+[m	[32mcount++;[m
+[32m+[m	[32mr = malloc(sizeof(char*) * count);[m
+[32m+[m	[32mif(r){[m
+[32m+[m		[32mint index = 0;[m
+[32m+[m		[32mchar* token = strtok(str, &d);[m
+[32m+[m		[32mwhile(token) {[m
+[32m+[m			[32m*(r + index++) = strdup(token);[m
+[32m+[m			[32mtoken = strtok(0, &d);[m
+[32m+[m		[32m}[m
+[32m+[m		[32m*(r + index) = 0;[m
+[32m+[m	[32m}[m
+[32m+[m	[32mreturn r;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid removeSpaces(char* input, char **ret, int index){[m
+[32m+[m	[32mint rCount = 0;[m
+[32m+[m	[32mchar *rToke = strtok(input, " ");[m
+[32m+[m	[32mwhile(rToke) {[m
+[32m+[m		[32mret[rCount++] = rToke;[m
+[32m+[m		[32mrToke = strtok(NULL, " ");[m
+[32m+[m	[32m}[m
+[32m+[m	[32m//return ret;[m
+[32m+[m	[32m//char *r = input;[m
+[32m+[m	[32m//if(input[0] == ' ') {[m
+[32m+[m	[32m//	for(i = 0, j = 1; i < strlen(input); i++, j++) {[m
+[32m+[m	[32m//		r[i] = input[j];[m
+[32m+[m	[32m//	}[m
+[32m+[m	[32m//}[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/*[m
+[32m+[m[32mchar* getCMDargs(char* command,char* bufferToParse){[m
+[32m+[m	[32mint i =0;[m
+[32m+[m	[32mchar *cmdArgs[MAX_INPUT_BUFFER];[m
+[32m+[m	[32mstrcpy(cmdArgs,bufferToParse);[m
+[32m+[m	[32mchar *cursor = cmdArgs;[m
+[32m+[m	[32mfor (i=0; i<strlen(bufferToParse);i++){[m
+[32m+[m		[32mif (*cursor == ' '){[m
+[32m+[m			[32mcursor++;[m
+[32m+[m			[32mprintf("%s",cursor);[m
+[32m+[m		[32m}[m
+[32m+[m		[32mcursor+=i;[m
+[32m+[m	[32m}[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint parseExecFlags(char** commands,int commandsNLchoice, char ** argv, int argc){[m
+[32m+[m
+[32m+[m	[32m//getCMDargs();[m
+[32m+[m
+[32m+[m[32m    //execvp(commands[iterator],argv);[m
+[32m+[m	[32mreturn 0;[m
+[32m+[m[32m} */[m
+[32m+[m
+[32m+[m[32m/* Process a ptr to an array of ptrs, and return 0 if -d is flag, 1 if it is not[m
+[32m+[m
+[32m+[m[32mint findFlagD (char ** argv, int argc){[m
+[32m+[m
+[32m+[m	[32mchar* cursor;[m
+[32m+[m	[32mint iterateArgv = 0;[m
+[32m+[m	[32mfor (iterateArgv = 1; iterateArgv < argc; iterateArgv++){[m
+[32m+[m
+[32m+[m	[32mcursor = argv[iterateArgv];[m
+[32m+[m	[32mwhile (cursor != NULL) {[m
+[32m+[m		[32mif (!strcmp (cursor , "-d")){[m
+[32m+[m			[32mreturn 0;[m
+[32m+[m		[32m} else if (strlen (cursor) > 1 ){[m
+[32m+[m				[32mcursor += strle([m
+[32m+[m				[32mif( strncmp ( cursor, ".sh", 3)){[m
+[32m+[m
+[32m+[m				[32m}[m
+[32m+[m			[32m}[m
+[32m+[m		[32mcursor++;[m
+[32m+[m	[32m}[m
+[32m+[m	[32m}[m
+[32m+[m	[32mreturn 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m Takes a buffer that contains the file for the script, a char* contains the arguments for the script and return whether the execution succeeded[m
+[32m+[m
+[32m+[m[32mint execScript (char *scriptName, char *scriptArgs[]){[m
+[32m+[m
+[32m+[m	[32mint returnValScript;[m
+[32m+[m	[32mchar *const currentEnv = NULL;[m
+[32m+[m	[32mcurrentEnv = getenv("PATH");[m
+[32m+[m	[32mif ( (returnValScript = execvpe(scriptName, scriptArgs, currentEnv) ) == -1){[m
+[32m+[m		[32mprintf("Error executing script");[m
+[32m+[m		[32mreturn -1;[m
+[32m+[m	[32m}[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m[32m*/[m
+[1mdiff --git a/lab2/swishNonMerged.c b/lab2/swishNonMerged.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..aab758b[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/swishNonMerged.c[m
+[36m@@ -0,0 +1,172 @@[m
+[32m+[m[32m/* CSE 306: Sea Wolves Interactive SHell */[m
+[32m+[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <unistd.h>[m
+[32m+[m[32m#include <errno.h>[m
+[32m+[m[32m#include "mysyscall.h"[m
+[32m+[m[32m#include "swishHelperFunctions.c"[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// Assume no input line will be longer than 1024 bytes[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m
+[32m+[m[32mextern char **environ;[m
+[32m+[m
+[32m+[m
+[32m+[m[32mint main (int argc, char ** argv, char **envp) {[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Command line parsing begins here[m
+[32m+[m[32m  First check to see if -d is defined, and debugging messages need to be printed.[m
+[32m+[m[32m   ********************************************************************/[m
+[32m+[m
+[32m+[m[32m  int finished = 0;[m
+[32m+[m[32m  char *prompt = "swish> ";[m
+[32m+[m[32m  char cmd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdTemp[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char *EXIT_CMD =  "exit\n";[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m[41m [m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m   Setting the commands that the shell recognizes[m[41m [m
+[32m+[m[32m   ********************************************************************/[m
+[32m+[m[32m  char *commandsNL[] = { "ls\n","cd\n","pwd\n"};[m[41m [m
+[32m+[m[32m  char *commands[] = { "ls","cd","pwd"};[m[41m [m
+[32m+[m[41m  [m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Get the CWD path[m
+[32m+[m[32m  Add a space and a null terminator to the path[m
+[32m+[m[32m  Print the path[m[41m [m
+[32m+[m[32m  Print the 'swish' prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  int rv;[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  char *cursor;[m
+[32m+[m[32m  cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m  *cursor = ' ';[m
+[32m+[m[32m  cursor++;[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  cursor =NULL ;[m
+[32m+[m[32m  getCMDargs(commandsNL,1,argv,argc);[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m  char last_char;[m
+[32m+[m[32m  int count;[m
+[32m+[m[32m  int iterator =0;[m
+[32m+[m[32m  int pid=-1;[m
+[32m+[m
+[32m+[m[32m    /********************************************************************[m
+[32m+[m[32m    Removing this should make the only exit occur from the proper exit.[m
+[32m+[m[32m    IE typing 'exit'.[m
+[32m+[m[32m    *********************************************************************[m
+[32m+[m[32m    if (!rv) {[m[41m [m
+[32m+[m[32m     finished = 1;[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    } Ends while loop */[m
+[32m+[m[41m    [m
+[32m+[m[41m    [m
+[32m+[m[32m    /* read and parse the input put it into CMD */[m
+[32m+[m[32m    for(rv = 1, count = 0, cursor = cmd, last_char = 1;rv && (++count < (MAX_INPUT_BUFF_BUFF-1)) && (last_char != '\n'); cursor++) {[m[41m [m
+[32m+[m
+[32m+[m[32m      rv = read(0, cursor, 1);[m
+[32m+[m[32m      last_char = *cursor;[m
+[32m+[m[32m    }[m[41m [m
+[32m+[m[41m   [m
+[32m+[m[32m    *cursor = '\0';[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m   Check the CMD string to see if the input matches any of the commands[m
+[32m+[m[32m   found in the commandsNL array.[m
+[32m+[m[32m+-   ********************************************************************/[m
+[32m+[m[32m    for(iterator= 0; iterator < 3; iterator++){[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m   If the command is in the array, this line returns 0 so we ! to enter[m
+[32m+[m[32m   ********************************************************************/[m
+[32m+[m[32m      if (!strncmp(commandsNL[iterator],cmd,2)){[m
+[32m+[m[41m          [m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m   IF the command is CD[m
+[32m+[m[32m   ********************************************************************/[m
+[32m+[m[32m          if (strncmp(commandsNL[1],cmd,2) == 0){[m
+[32m+[m
+[32m+[m[32m          cursor = cmd; //Make a cursor to the CMD string[m
+[32m+[m[32m          cursor+=3; // Move the cursor past 'cd ' onto the argument for CD[m
+[32m+[m[32m          strcpy(cmdTemp,cursor); // Copy the value at location into the cmdTemp string (this now holds CD arguments)[m
+[32m+[m
+[32m+[m[41m          [m
+[32m+[m[32m          cursor =cmdTemp; // The copied over value still has '\n' so we make a cursor it[m
+[32m+[m[32m          cursor+=strlen(cmdTemp)-1; // Move the cursor to the end -1 (The location of the '\n')[m
+[32m+[m[32m          *cursor = '\0';  // Replace the '\n' with Null terminator[m
+[32m+[m[32m            if (strcmp(cmd,"cd\n") == 0){ // Base case CD needs to implement root CD[m
+[32m+[m[32m              /* TODO */[m
+[32m+[m[32m              printf("Needs to be implemented");[m
+[32m+[m[32m              return 1;[m
+[32m+[m[32m            } else[m[41m [m
+[32m+[m[32m                    if (chdir(cmdTemp) < 0) /* Fail case of opening directory */[m
+[32m+[m[32m                    {[m
+[32m+[m[32m                      printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);[m
+[32m+[m[32m                      return 1;[m
+[32m+[m
+[32m+[m[32m                    } else {[m[41m [m
+[32m+[m[32m                            theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m                            cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m                            *cursor = ' ';[m
+[32m+[m[32m                            cursor++;[m
+[32m+[m[32m                            *cursor = '\0';[m
+[32m+[m[32m                        }[m
+[32m+[m[41m                [m
+[32m+[m[32m          }[m
+[32m+[m[32m      else if ((pid = fork()) < 0) printf("fork failed"); /* Fail case on fork */[m
+[32m+[m[32m        if (pid == 0){[m
+[32m+[m
+[32m+[m[41m         [m
+[32m+[m[32m          execvp(commands[iterator],argv);[m
+[32m+[m[41m          [m
+[32m+[m[32m          }[m
+[32m+[m
+[32m+[m[32m        }[m
+[32m+[m[32m      }[m
+[32m+[m[41m     [m
+[32m+[m
+[32m+[m
+[32m+[m	[32m  if(strncmp(cmd,EXIT_CMD,4) == 0) {[m[41m [m
+[32m+[m[32m      printf("Exiting. ");[m[41m [m
+[32m+[m[32m      finished = 1;[m[41m [m
+[32m+[m[32m      return 0;[m[41m [m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[41m  [m
+[32m+[m
+[32m+[m[32m    // Execute the command, handling built-in commands separately[m[41m [m
+[32m+[m[32m    // Just echo the command line for now[m
+[32m+[m[32m    write(1, cmd, strnlen(cmd, MAX_INPUT_BUFF_BUFF));[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Print the CWD[m
+[32m+[m[32m  Print the prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m
+[32m+[m[32m  } /* End while */[m
+[32m+[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/swishUnchanged.c b/lab2/swishUnchanged.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..6e40adc[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/swishUnchanged.c[m
+[36m@@ -0,0 +1,264 @@[m
+[32m+[m[32m/* CSE 306: Sea Wolves Interactive Shell */[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <unistd.h>[m
+[32m+[m[32m#include <errno.h>[m
+[32m+[m[32m#include "mysyscall.h"[m
+[32m+[m[32m#include "swishHelperFunctions.c"[m
+[32m+[m[32m#include <sys/types.h>[m
+[32m+[m[32m#include <sys/wait.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m
+[32m+[m[32m// Assume no input line will be longer than 1024 bytes[m
+[32m+[m[32m#define MAX_INPUT_BUFF_BUFF 1024[m
+[32m+[m
+[32m+[m[32mtypedef enum {false, true} bool; //boolean enumerations[m
+[32m+[m
+[32m+[m[32mextern char **environ;[m
+[32m+[m
+[32m+[m[32mint main (int argc, char ** argv, char **envp) {[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Command line parsing begins here[m
+[32m+[m[32m  First check to see if -d is defined, and debugging messages need to be printed.[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m
+[32m+[m[32m  putenv("SomeVariable=SomeValue");[m
+[32m+[m[32m  int finished = 0;[m
+[32m+[m[32m  char *prompt = "swish> ";[m
+[32m+[m[32m  char cmd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char tokenBuff[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char cmdTemp[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m  char *EXIT_CMD =  "exit\n";[m
+[32m+[m[32m  char cwd[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Setting the commands that the shell recognizes[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  char *commandsNL[] = { "ls\n","cd\n","pwd\n","printenv\n","putenv\n","cat\n"};[m
+[32m+[m[32m  //char *commands[] = { "ls","cd","pwd","make"};[m
+[32m+[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Get the CWD path[m
+[32m+[m[32m  Add a space and a null terminator to the path[m
+[32m+[m[32m  Print the path[m
+[32m+[m[32m  Print the 'swish' prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  int rv;[m
+[32m+[m[32m  char *theCWD = getcwd(cwd,sizeof(cwd));[m
+[32m+[m[32m  char *cursor;[m
+[32m+[m[32m  cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m  *cursor = ' ';[m
+[32m+[m[32m  cursor++;[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m  cursor =NULL ;[m
+[32m+[m[32m  bool inRedir, outRedir;[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m    char last_char;[m
+[32m+[m[32m    int count;[m
+[32m+[m[32m    //int iterator =0;[m
+[32m+[m[32m    int pid=-1;[m
+[32m+[m
+[32m+[m[32m    /********************************************************************[m
+[32m+[m[32m    Removing this should make the only exit occur from the proper exit.[m
+[32m+[m[32m    IE typing 'exit'.[m
+[32m+[m[32m    *********************************************************************[m
+[32m+[m[32m    if (!rv) {[m
+[32m+[m[32m    finished = 1;[m
+[32m+[m[32m    break;[m
+[32m+[m[32m  } Ends while loop */[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /* read and parse the input put it into CMD */[m
+[32m+[m[32m  for(rv = 1, count = 0, cursor = cmd, last_char = 1;rv && (++count < (MAX_INPUT_BUFF_BUFF-1)) && (last_char != '\n'); cursor++) {[m
+[32m+[m[32m    rv = read(0, cursor, 1);[m
+[32m+[m[32m    last_char = *cursor;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  *cursor = '\0';[m
+[32m+[m[32m    if(!strncmp(cmd,EXIT_CMD,4)) {[m
+[32m+[m[32m    finished = 1;[m
+[32m+[m[32m    break;[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  strcpy(tokenBuff,cmd);[m
+[32m+[m[32m  char *tokenArr[50];[m
+[32m+[m[32m  char *tokenArgs[50];[m
+[32m+[m[32m  int counter = 0;[m
+[32m+[m[32m  int counterArgs =0;[m
+[32m+[m[32m  int flag =0;[m
+[32m+[m[32m  char* token = strtok(tokenBuff, " ");[m
+[32m+[m
+[32m+[m[32m  tokenArgs[counterArgs++] = token;[m
+[32m+[m[32m  while (token) {[m
+[32m+[m[41m    [m
+[32m+[m[32m    if (!strncmp(token,"-",1)){[m
+[32m+[m[32m      flag = 1;[m
+[32m+[m	[32m   tokenArgs[counterArgs++] = token;[m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if (strncmp(token,">",1)){[m
+[32m+[m
+[32m+[m[32m    tokenArr[counter++] = token;[m
+[32m+[m[32m    }[m
+[32m+[m[41m    [m
+[32m+[m[32m    token = strtok(NULL, " ");[m
+[32m+[m[32m  }[m
+[32m+[m[32m  int index = 0;[m
+[32m+[m[32m  for(index = 0; tokenArr[counter - 1][index] != '\0'; index++) {[m
+[32m+[m[32m    if(tokenArr[counter - 1][index] == '\n') {[m
+[32m+[m[32m      tokenArr[counter - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  if (flag == 1){[m
+[32m+[m[32m   for(index = 0; tokenArgs[counterArgs - 1][index] != '\0'; index++) {[m
+[32m+[m
+[32m+[m[32m    if(tokenArgs[counterArgs - 1][index] == '\n') {[m
+[32m+[m[32m      tokenArgs[counterArgs - 1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  tokenArr[counter] = NULL;[m
+[32m+[m[32m  tokenArgs[counterArgs] = NULL;[m
+[32m+[m
+[32m+[m[32m  //tokenArgs[1] = "-d";[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  Check the CMD string to see if the input matches any of the commands[m
+[32m+[m[32m  found in the commandsNL array.[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  //for(iterator= 0; iterator < 4; iterator++){[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  If the command is in the array, this line returns 0 so we ! to enter[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  //if (!strncmp(commandsNL[iterator],cmd,2)){[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  /********************************************************************[m
+[32m+[m[32m  IF the command is CD[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m[32m  if (strncmp(commandsNL[1],cmd,2) == 0){[m
+[32m+[m[32m    cursor = cmd; //Make a cursor to the CMD string[m
+[32m+[m[32m    cursor += 3; // Move the cursor past 'cd ' onto the argument for CD[m
+[32m+[m[32m    strcpy( cmdTemp , cursor ); // Copy the value at location into the cmdTemp string (this now holds CD arguments)[m
+[32m+[m[32m    cursor = cmdTemp; // The copied over value still has '\n' so we make a cursor it[m
+[32m+[m[32m    cursor += strlen(cmdTemp)-1; // Move the cursor to the end -1 (The location of the '\n')[m
+[32m+[m[32m    *cursor = '\0';  // Replace the '\n' with Null terminator[m
+[32m+[m[32m    if (strcmp( cmd , "cd\n") == 0){ // Base case CD needs to implement root CD[m
+[32m+[m[32m      chdir(getenv("HOME"));[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m    } else[m
+[32m+[m[32m    if ( chdir ( cmdTemp ) < 0) /* Fail case of opening directory */[m
+[32m+[m[32m    {[m
+[32m+[m[32m      printf("ERROR OPENING DIRECTORY:%s \n",cmdTemp);[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      theCWD = getcwd (cwd,sizeof(cwd));[m
+[32m+[m[32m      cursor = theCWD + strlen(theCWD);[m
+[32m+[m[32m      *cursor = ' ';[m
+[32m+[m[32m      cursor++;[m
+[32m+[m[32m      *cursor = '\0';[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  //if the input is for a application (cat/ls) then we need to parse the arguments following it[m
+[32m+[m[32m  else[m
+[32m+[m[32m  if (!strncmp(cmd,"putenv",6)){[m
+[32m+[m[32m    for(index = 0; tokenArr[1][index] != '\0'; index++) {[m
+[32m+[m[32m      if(tokenArr[1][index] == '\n') {[m
+[32m+[m[32m        tokenArr[1][index] = '\0';[m
+[32m+[m[32m      break;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    char *putEnvStr = malloc(strlen(tokenArr[1]));[m
+[32m+[m[32m    strcpy(putEnvStr,tokenArr[1]);[m
+[32m+[m[32m    if (putenv(putEnvStr) != 0){[m
+[32m+[m[32m      return 123;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[32m  if ((pid = fork()) < 0){[m
+[32m+[m[32m    printf("fork failed");[m
+[32m+[m[32m    return 1;[m
+[32m+[m[32m  }/* Fail case on fork */[m
+[32m+[m[32m  if (pid == 0){[m
+[32m+[m[32m    int j = 0;//, k = 0, l = 0;[m
+[32m+[m[32m    //int in_index = 0, out_index = 0;[m
+[32m+[m[32m    char input[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m    char output[MAX_INPUT_BUFF_BUFF];[m
+[32m+[m[32m    memset(input, '\0', strlen(input));[m
+[32m+[m[32m    memset(output, '\0', strlen(output));[m
+[32m+[m
+[32m+[m[32m    /*[m
+[32m+[m[32m    *Check if the redirection operations were used, set flags.[m
+[32m+[m[32m    */[m
+[32m+[m[32m    j = getRedirTarget(cmd, output, '>');[m
+[32m+[m[32m    if(j == 0 ) {[m
+[32m+[m[32m      outRedir = true;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    j = getRedirTarget(cmd, input, '<');[m
+[32m+[m[32m    if(j == 0 ) {[m
+[32m+[m[32m      inRedir = true;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    ///for J search by char for < > | etc.[m
+[32m+[m[32m    // execvp(commands[iterator],tokenArr);[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m    *Prior to exec we need to confirm if redirection was used, if so exec in a different manner[m
+[32m+[m[32m    *Using tokens forces us to have spaces between the redirection arguments, this isnt how bash works[m
+[32m+[m[32m    *So parsing character by character, which will have its own issues (file names w/ spaces for example)[m
+[32m+[m[32m    **/[m
+[32m+[m[32m    if(inRedir) {[m
+[32m+[m[32m      //open/close FDs for in redirection[m
+[32m+[m[32m      FILE *file_in = fopen(input, O_RDONLY);[m
+[32m+[m[32m      int fd_in = file_in->_fileno;[m
+[32m+[m[32m      dup2(fd_in, STDIN_FILENO);[m
+[32m+[m[32m      close(fd_in);[m
+[32m+[m[32m      inRedir = false;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if(outRedir) {[m
+[32m+[m[32m      //open/close FDs for out redirection[m
+[32m+[m[32m      FILE *file_out = fopen(output, "ab+");[m
+[32m+[m[32m      int fd_out = file_out->_fileno;[m
+[32m+[m[32m      dup2(fd_out, STDOUT_FILENO);[m
+[32m+[m[32m      close(fd_out);[m
+[32m+[m[32m      outRedir = false;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (flag == 1){[m
+[32m+[m[32m    execvp(tokenArgs[0], tokenArgs);[m
+[32m+[m[32m    } else[m[41m [m
+[32m+[m
+[32m+[m[32m    execvp(tokenArr[0],tokenArr);[m
+[32m+[m[32m    //execvp(tokenArr[0], tokenArgs);[m
+[32m+[m[32m    //cursor = cmd;[m
+[32m+[m[32m    //*cursor = '\n';[m
+[32m+[m[32m  } else {[m
+[32m+[m[32m    /* in parent */[m
+[32m+[m[32m    // int status;[m
+[32m+[m[32m    waitpid(pid, NULL /*&status*/, WUNTRACED | WCONTINUED);[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  //}[m
+[32m+[m[32m  //}[m
+[32m+[m[32m  // Execute the command, handling built-in commands separately[m
+[32m+[m[32m  // Just echo the command line for now[m
+[32m+[m[32m  //    write(1, cmd, strnlen(cmd, MAX_INPUT_BUFF_BUFF));[m
+[32m+[m[32m  /*******************************************************************[m
+[32m+[m[32m  Print the CWD[m
+[32m+[m[32m  Print the prompt[m
+[32m+[m[32m  ********************************************************************/[m
+[32m+[m
+[32m+[m[32m  rv = write(1, theCWD, strlen(theCWD));[m
+[32m+[m[32m  rv = write(1, prompt, strlen(prompt));[m
+[32m+[m[32m  memset(cmd,'\0',MAX_INPUT_BUFF_BUFF);[m
+[32m+[m[32m} /* End while */[m
+[32m+[m[32mreturn 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab2/testDir/.test.txt.un~ b/lab2/testDir/.test.txt.un~[m
+[1mnew file mode 100644[m
+[1mindex 0000000..d40af48[m
+Binary files /dev/null and b/lab2/testDir/.test.txt.un~ differ
+[1mdiff --git a/lab2/testDir/test.txt b/lab2/testDir/test.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3b18e51[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/testDir/test.txt[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mhello world[m
+[1mdiff --git a/lab2/testScript.sh b/lab2/testScript.sh[m
+[1mnew file mode 100755[m
+[1mindex 0000000..9351aed[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/testScript.sh[m
+[36m@@ -0,0 +1,10 @@[m
+[32m+[m[32m# Pounds are comments[m
+[32m+[m[32m# Written by Chris Ryan[m
+[32m+[m[32mclear[m
+[32m+[m[32mecho Knowledge is power[m
+[32m+[m[32mls -l[m
+[32m+[m[32mecho more length[m
+[32m+[m[32mecho more cowbell[m
+[32m+[m[32m# no more cowbell[m
+[32m+[m[32mecho less cowbell[m
+[32m+[m
+[1mdiff --git a/lab2/testScript2.sh b/lab2/testScript2.sh[m
+[1mnew file mode 100644[m
+[1mindex 0000000..933b3e4[m
+[1m--- /dev/null[m
+[1m+++ b/lab2/testScript2.sh[m
+[36m@@ -0,0 +1,9 @@[m
+[32m+[m[32mecho Chris is the best[m
+[32m+[m[32mecho chris made scripting[m
+[32m+[m[32mecho CHris is troll[m
+[32m+[m[32m# CHris is not troll[m
+[32m+[m[32mecho Chris is sometimes troll[m
+[32m+[m[32mls -l[m
+[32m+[m[32mls -d[m
+[32m+[m[32mls -a[m
+[32m+[m
+[1mdiff --git a/lab3/.gitignore b/lab3/.gitignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..19b32c8[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/.gitignore[m
+[36m@@ -0,0 +1,5 @@[m
+[32m+[m[32mdns-sequential[m
+[32m+[m[32mdns-fine[m
+[32m+[m[32mdns-rw[m
+[32m+[m[32mdns-mutex[m
+[32m+[m[32m*.o[m
+[1mdiff --git a/lab3/Makefile b/lab3/Makefile[m
+[1mnew file mode 100644[m
+[1mindex 0000000..489aad9[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/Makefile[m
+[36m@@ -0,0 +1,26 @@[m
+[32m+[m[32mall: dns-sequential dns-mutex dns-rw dns-fine[m
+[32m+[m
+[32m+[m[32mCFLAGS = -g -Wall -Werror -pthread[m
+[32m+[m
+[32m+[m[32m%.o: %.c *.h[m
+[32m+[m	[32mgcc $(CFLAGS) -c -o $@ $<[m
+[32m+[m
+[32m+[m[32mdns-sequential: main.c sequential-trie.o[m
+[32m+[m	[32mgcc $(CFLAGS) -o dns-sequential sequential-trie.o main.c[m
+[32m+[m
+[32m+[m[32mdns-mutex: main.c mutex-trie.o[m
+[32m+[m	[32mgcc $(CFLAGS) -o dns-mutex mutex-trie.o main.c[m
+[32m+[m
+[32m+[m[32mdns-rw: main.c rw-trie.o[m
+[32m+[m	[32mgcc $(CFLAGS) -o dns-rw rw-trie.o main.c[m
+[32m+[m
+[32m+[m[32mdns-fine: main.c fine-trie.o[m
+[32m+[m	[32mgcc $(CFLAGS) -o dns-fine fine-trie.o main.c[m
+[32m+[m
+[32m+[m[32mhandin:	clean[m
+[32m+[m	[32m@if [ `git status --porcelain| wc -l` != 0 ] ; then echo "\n\n\n\n\t\tWARNING: YOU HAVE UNCOMMITTED CHANGES\n\n    Consider committing any pending changes and rerunning make handin.\n\n\n\n"; fi[m
+[32m+[m	[32m@git tag -f -a lab3-handin -m "Lab3 Handin"[m
+[32m+[m	[32m@git push --tags handin[m
+[32m+[m
+[32m+[m[32mclean:[m
+[32m+[m	[32mrm -f *~ *.o dns-sequential dns-mutex dns-rw dns-fine[m
+[1mdiff --git a/lab3/README b/lab3/README[m
+[1mnew file mode 100644[m
+[1mindex 0000000..972b16a[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/README[m
+[36m@@ -0,0 +1,5 @@[m
+[32m+[m[32mDescribe how you implemented the main programming assignment. The README[m
+[32m+[m[32mfile should describe what you did, what approach you took, results of any[m
+[32m+[m[32mmeasurements you made, which files are included in your submission and what[m
+[32m+[m[32mthey are for, etc.  Feel free to include any other information you think is[m
+[32m+[m[32mhelpful to us in this README; it can only help your grade.[m
+[1mdiff --git a/lab3/challenge.txt b/lab3/challenge.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8e1ac00[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/challenge.txt[m
+[36m@@ -0,0 +1,3 @@[m
+[32m+[m[32mAdd a description of any challenge problems completed in this file.[m
+[32m+[m
+[32m+[m[32mNONE[m
+[1mdiff --git a/lab3/fine-trie.c b/lab3/fine-trie.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9700603[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/fine-trie.c[m
+[36m@@ -0,0 +1,34 @@[m
+[32m+[m[32m/* A (reverse) trie with fine-grained (per node) locks.[m[41m [m
+[32m+[m[32m *[m
+[32m+[m[32m * Hint: We recommend using a hand-over-hand protocol to order your locks,[m
+[32m+[m[32m * while permitting some concurrency on different subtrees.[m
+[32m+[m[32m */[m
+[32m+[m
+[32m+[m[32m#include <stddef.h>[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include "trie.h"[m
+[32m+[m
+[32m+[m[32mvoid init(int numthreads) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mint insert (const char *string, size_t strlen, int32_t ip4_address) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint search  (const char *string, size_t strlen, int32_t *ip4_address) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m[32mint delete  (const char *string, size_t strlen) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid print() {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab3/main.c b/lab3/main.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..7719e44[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/main.c[m
+[36m@@ -0,0 +1,310 @@[m
+[32m+[m[32m/* Multi-threaded DNS-like Simulation.[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m * Don Porter - porter@cs.stonybrook.edu[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m * CSE 306 - Stony Brook University[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m */[m
+[32m+[m
+[32m+[m[32m#include <pthread.h>[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <unistd.h>[m
+[32m+[m[32m#include <assert.h>[m
+[32m+[m[32m#include <ctype.h>[m
+[32m+[m[32m#include "trie.h"[m
+[32m+[m
+[32m+[m[32mint allow_squatting = 0;[m
+[32m+[m[32mint simulation_length = 30; // default to 30 seconds[m
+[32m+[m[32mvolatile int finished = 0;[m
+[32m+[m
+[32m+[m[32m// Uncomment this line for debug printing[m
+[32m+[m[32m//#define DEBUG 1[m
+[32m+[m[32m#ifdef DEBUG[m
+[32m+[m[32m#define DEBUG_PRINT(...) printf(__VA_ARGS__)[m
+[32m+[m[32m#else[m
+[32m+[m[32m#define DEBUG_PRINT(...)[m[41m [m
+[32m+[m[32m#endif[m
+[32m+[m
+[32m+[m
+[32m+[m[32mstatic void *[m
+[32m+[m[32mclient(void *arg)[m
+[32m+[m[32m{[m
+[32m+[m[32m  struct random_data rd;[m
+[32m+[m[32m  char rand_state[256];[m
+[32m+[m[32m  int32_t salt = time(0);[m
+[32m+[m
+[32m+[m[32m  // See http://lists.debian.org/debian-glibc/2006/01/msg00037.html[m
+[32m+[m[32m  rd.state = (int32_t*)rand_state;[m
+[32m+[m
+[32m+[m[32m  // Initialize the prng.  For testing, it may be helpful to reduce noise by[m[41m [m
+[32m+[m[32m  // temporarily setting this to a fixed value.[m
+[32m+[m[32m  initstate_r(salt, rand_state, sizeof(rand_state), &rd);[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m    /* Pick a random operation, string, and ip */[m
+[32m+[m[32m    int32_t code;[m
+[32m+[m[32m    int rv = random_r(&rd, &code);[m
+[32m+[m[32m    int length = (code >> 2) & (64-1);[m
+[32m+[m[32m    char buf[64];[m
+[32m+[m[32m    int j;[m
+[32m+[m[32m    int32_t ip4_addr;[m
+[32m+[m[41m    [m
+[32m+[m[32m    if (rv) {[m
+[32m+[m[32m      printf("Failed to get random number - %d\n", rv);[m
+[32m+[m[32m      return NULL;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    DEBUG_PRINT("Length is %d\n", length);[m
+[32m+[m[32m    memset(buf, 0, 64);[m
+[32m+[m[32m    /* Generate a random string in lowercase */[m
+[32m+[m[32m    for (j = 0; j < length; j+= 6) {[m
+[32m+[m[32m      int i;[m
+[32m+[m[32m      int32_t chars;[m
+[32m+[m
+[32m+[m[32m      rv = random_r(&rd, &chars);[m
+[32m+[m[32m      if (rv) {[m
+[32m+[m	[32mprintf("Failed to get random number - %d\n", rv);[m
+[32m+[m	[32mreturn NULL;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      for (i = 0; i < 6 && (i+j) < length; i++) {[m
+[32m+[m	[32mchar val = ( (chars >> (5 * i)) & 31);[m
+[32m+[m	[32mif (val > 25)[m
+[32m+[m	[32m  val = 25;[m
+[32m+[m	[32mbuf[j+i] = 'a' + val;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    DEBUG_PRINT ("Random string is %s\n", buf);[m
+[32m+[m[41m    [m
+[32m+[m
+[32m+[m[32m    switch (code % 3) {[m
+[32m+[m[32m    case 0: // Search[m
+[32m+[m[32m      DEBUG_PRINT ("Search\n");[m
+[32m+[m[32m      search (buf, length, NULL);[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    case 1: // insert[m
+[32m+[m[32m      DEBUG_PRINT ("insert\n");[m
+[32m+[m[32m      rv = random_r(&rd, &ip4_addr);[m
+[32m+[m[32m      if (rv) {[m
+[32m+[m	[32mprintf("Failed to get random number - %d\n", rv);[m
+[32m+[m	[32mreturn NULL;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      insert (buf, length, ip4_addr);[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    case 2: // delete[m
+[32m+[m[32m      DEBUG_PRINT ("delete\n");[m
+[32m+[m[32m      delete (buf, length);[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    default:[m
+[32m+[m[32m      assert(0);[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  return NULL;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mstatic void *[m
+[32m+[m[32msquatter_stress(void *arg)[m
+[32m+[m[32m{[m
+[32m+[m[32m  /* Just loop over 4 names, trying to create them[m
+[32m+[m[32m   * and then free them.  If all threads[m
+[32m+[m[32m   * try to create the same name, all but one should block[m
+[32m+[m[32m   * until a given name is available again.[m
+[32m+[m[32m   */[m
+[32m+[m[32m  int32_t ip = random();[m
+[32m+[m
+[32m+[m[32m  while (!finished) {[m
+[32m+[m[32m    insert ("abc", 3, ip);[m
+[32m+[m[32m    insert ("abe", 3, ip);[m
+[32m+[m[32m    insert ("bce", 3, ip);[m
+[32m+[m[32m    insert ("bcc", 3, ip);[m
+[32m+[m[32m    delete ("abc", 3);[m
+[32m+[m[32m    delete ("abe", 3);[m
+[32m+[m[32m    delete ("bce", 3);[m
+[32m+[m[32m    delete ("bcc", 3);[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  return NULL;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m#define die(msg) do {				\[m
+[32m+[m[32m  print();					\[m
+[32m+[m[32m  printf(msg);					\[m
+[32m+[m[32m  exit(1);					\[m
+[32m+[m[32m  } while (0)[m
+[32m+[m
+[32m+[m[32mint self_tests() {[m
+[32m+[m[32m  int rv;[m
+[32m+[m[32m  int32_t ip = 0;[m
+[32m+[m
+[32m+[m[32m  rv = insert ("abc", 3, 4);[m
+[32m+[m[32m  if (!rv) die ("Failed to insert key abc\n");[m
+[32m+[m
+[32m+[m[32m  rv = delete("abc", 3);[m
+[32m+[m[32m  if (!rv) die ("Failed to delete key abc\n");[m
+[32m+[m[32m  print();[m
+[32m+[m
+[32m+[m[32m  rv = insert ("google", 6, 5);[m
+[32m+[m[32m  if (!rv) die ("Failed to insert key google\n");[m
+[32m+[m
+[32m+[m[32m  rv = insert ("goggle", 6, 4);[m
+[32m+[m[32m  if (!rv) die ("Failed to insert key goggle\n");[m
+[32m+[m
+[32m+[m[32m  rv = delete("goggle", 6);[m
+[32m+[m[32m  if (!rv) die ("Failed to delete key goggle\n");[m
+[32m+[m
+[32m+[m[32m  rv = delete("google", 6);[m
+[32m+[m[32m  if (!rv) die ("Failed to delete key google\n");[m
+[32m+[m[41m  [m
+[32m+[m[32m  rv = insert ("ab", 2, 2);[m
+[32m+[m[32m  if (!rv) die ("Failed to insert key ab\n");[m
+[32m+[m
+[32m+[m[32m  rv = insert("bb", 2, 2);[m
+[32m+[m[32m  if (!rv) die ("Failed to insert key bb\n");[m
+[32m+[m
+[32m+[m[32m  print();[m
+[32m+[m[32m  printf("So far so good\n\n");[m
+[32m+[m
+[32m+[m[32m  rv = search("ab", 2, &ip);[m
+[32m+[m[32m  printf("Rv is %d\n", rv);[m
+[32m+[m[32m  if (!rv) die ("Failed to find key ab\n");[m
+[32m+[m[32m  if (ip != 2) die ("Found bad IP for key ab\n");[m
+[32m+[m[41m  [m
+[32m+[m[32m  rv = search("aa", 2, NULL);[m
+[32m+[m[32m  if (rv) die ("Found bogus key aa\n");[m
+[32m+[m
+[32m+[m[32m  ip = 0;[m
+[32m+[m
+[32m+[m[32m  rv = search("bb", 2, &ip);[m
+[32m+[m[32m  if (!rv) die ("Failed to find key bb\n");[m
+[32m+[m[32m  if (ip != 2) die ("Found bad IP for key bb\n");[m
+[32m+[m
+[32m+[m[32m  ip = 0;[m
+[32m+[m
+[32m+[m[32m  rv = delete("cb", 2);[m
+[32m+[m[32m  if (rv) die ("deleted bogus key cb\n");[m
+[32m+[m
+[32m+[m[32m  rv = delete("bb", 2);[m
+[32m+[m[32m  if (!rv) die ("Failed to delete real key bb\n");[m
+[32m+[m
+[32m+[m[32m  rv = search("ab", 2, &ip);[m
+[32m+[m[32m  if (!rv) die ("Failed to find key ab\n");[m
+[32m+[m[32m  if (ip != 2) die ("Found bad IP for key ab\n");[m
+[32m+[m
+[32m+[m[32m  ip = 0;[m
+[32m+[m
+[32m+[m[32m  rv = delete("ab", 2);[m
+[32m+[m[32m  if (!rv) die ("Failed to delete real key ab\n");[m
+[32m+[m
+[32m+[m[32m  printf("End of self-tests, tree is:\n");[m
+[32m+[m[32m  print();[m
+[32m+[m[32m  printf("End of self-tests\n");[m
+[32m+[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid help() {[m
+[32m+[m[32m  printf ("DNS Simulator.  Usage: ./dns-[variant] [options]\n\n");[m
+[32m+[m[32m  printf ("Options:\n");[m
+[32m+[m[32m  printf ("\t-c numclients - Use numclients threads.\n");[m
+[32m+[m[32m  printf ("\t-h - Print this help.\n");[m
+[32m+[m[32m  printf ("\t-l length - Run clients for length seconds.\n");[m
+[32m+[m[32m  printf ("\t-q  - Allow a client to block (squat) if a requested name is taken.\n");[m
+[32m+[m[32m  printf ("\t-t  - Stress test name squatting.\n");[m
+[32m+[m[32m  printf ("\n\n");[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint main(int argc, char ** argv) {[m
+[32m+[m[32m  int numthreads = 1; // default to 1[m
+[32m+[m[32m  int c, i, rv;[m
+[32m+[m[32m  pthread_t *tinfo;[m
+[32m+[m[32m  int stress_squatting = 0;[m
+[32m+[m
+[32m+[m[32m  // Read options from command line:[m
+[32m+[m[32m  //   # clients from command line, as well as seed file[m
+[32m+[m[32m  //   Simulation length[m
+[32m+[m[32m  //   Block if a name is already taken ("Squat")[m
+[32m+[m[32m  //   Stress test "squatting"[m
+[32m+[m[32m  while ((c = getopt (argc, argv, "c:hl:qt")) != -1) {[m
+[32m+[m[32m    switch (c) {[m
+[32m+[m[32m    case 'c':[m
+[32m+[m[32m      numthreads = atoi(optarg);[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    case 'h':[m
+[32m+[m[32m      help();[m
+[32m+[m[32m      return 0;[m
+[32m+[m[32m    case 'l':[m
+[32m+[m[32m      simulation_length = atoi(optarg);[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    case 'q':[m
+[32m+[m[32m      allow_squatting = 1;[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    case 't':[m
+[32m+[m[32m      stress_squatting = 1;[m
+[32m+[m[32m      break;[m
+[32m+[m[32m    default:[m
+[32m+[m[32m      printf ("Unknown option\n");[m
+[32m+[m[32m      help();[m
+[32m+[m[32m      return 1;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[41m  [m
+[32m+[m[32m  // Create initial data structure, populate with initial entries[m
+[32m+[m[32m  // Note: Each variant of the tree has a different init function, statically compiled in[m
+[32m+[m[32m  init(numthreads);[m
+[32m+[m[32m  srandom(time(0));[m
+[32m+[m
+[32m+[m[32m  // Run the self-tests if we are in debug mode[m[41m [m
+[32m+[m[32m#ifdef DEBUG[m
+[32m+[m[32m  self_tests();[m
+[32m+[m[32m#endif[m
+[32m+[m
+[32m+[m[32m  // Launch client threads[m
+[32m+[m[32m  tinfo = calloc(numthreads, sizeof(pthread_t));[m
+[32m+[m[32m  for (i = 0; i < numthreads; i++) {[m
+[32m+[m
+[32m+[m[32m    if (stress_squatting) {[m
+[32m+[m[32m      rv = pthread_create(&tinfo[i], NULL,[m
+[32m+[m			[32m  &squatter_stress, &i);[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      rv = pthread_create(&tinfo[i], NULL,[m
+[32m+[m			[32m  &client, NULL);[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if (rv != 0) {[m
+[32m+[m[32m      printf ("Thread creation failed %d\n", rv);[m
+[32m+[m[32m      return rv;[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  // After the simulation is done, shut it down[m
+[32m+[m[32m  sleep (simulation_length);[m
+[32m+[m[32m  finished = 1;[m
+[32m+[m
+[32m+[m[32m  // Wait for all clients to exit.  If we are allowing blocking,[m
+[32m+[m[32m  // cancel the threads, since they may hang forever[m
+[32m+[m[32m  if (allow_squatting) {[m
+[32m+[m[32m      for (i = 0; i < numthreads; i++) {[m
+[32m+[m	[32mint rv = pthread_cancel(tinfo[i]);[m
+[32m+[m	[32mif (rv != 0)[m
+[32m+[m	[32m  printf ("Uh oh.  pthread_cancel failed %d\n", rv);[m
+[32m+[m[32m      }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  for (i = 0; i < numthreads; i++) {[m
+[32m+[m[32m    int rv = pthread_join(tinfo[i], NULL);[m
+[32m+[m[32m    if (rv != 0)[m
+[32m+[m[32m      printf ("Uh oh.  pthread_join failed %d\n", rv);[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m#ifdef DEBUG[m[41m  [m
+[32m+[m[32m  /* Print the final tree for fun */[m
+[32m+[m[32m  print();[m
+[32m+[m[32m#endif[m
+[32m+[m[41m  [m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab3/mutex-trie.c b/lab3/mutex-trie.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..df39c5e[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/mutex-trie.c[m
+[36m@@ -0,0 +1,32 @@[m
+[32m+[m[32m/* A (reverse) trie with trie-wide mutual exclusion. */[m
+[32m+[m
+[32m+[m[32m#include <stddef.h>[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include "trie.h"[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid init(int numthreads) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32mint insert (const char *string, size_t strlen, int32_t ip4_address) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint search  (const char *string, size_t strlen, int32_t *ip4_address) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m[32mint delete  (const char *string, size_t strlen) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid print() {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab3/rw-trie.c b/lab3/rw-trie.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..b0aca1b[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/rw-trie.c[m
+[36m@@ -0,0 +1,29 @@[m
+[32m+[m[32m/* A (reverse) trie with reader-writer locks. */[m
+[32m+[m
+[32m+[m[32m#include <stddef.h>[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include "trie.h"[m
+[32m+[m
+[32m+[m[32mvoid init(int numthreads) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint insert (const char *string, size_t strlen, int32_t ip4_address) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint search  (const char *string, size_t strlen, int32_t *ip4_address) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m[32mint delete  (const char *string, size_t strlen) {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m  return 0;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid print() {[m
+[32m+[m[32m  /* Your code here */[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab3/sequential-trie.c b/lab3/sequential-trie.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..dab0fed[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/sequential-trie.c[m
+[36m@@ -0,0 +1,363 @@[m
+[32m+[m[32m/* A simple, (reverse) trie.  Only for use with 1 thread. */[m
+[32m+[m
+[32m+[m[32m#include <stddef.h>[m
+[32m+[m[32m#include <stdio.h>[m
+[32m+[m[32m#include <string.h>[m
+[32m+[m[32m#include <stdlib.h>[m
+[32m+[m[32m#include "trie.h"[m
+[32m+[m
+[32m+[m[32mstruct trie_node {[m
+[32m+[m[32m  struct trie_node *next;  /* parent list */[m
+[32m+[m[32m  unsigned int strlen; /* Length of the key */[m
+[32m+[m[32m  int32_t ip4_address; /* 4 octets */[m
+[32m+[m[32m  struct trie_node *children; /* Sorted list of children */[m
+[32m+[m[32m  char key[64]; /* Up to 64 chars */[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32mstatic struct trie_node * root = NULL;[m
+[32m+[m
+[32m+[m[32mstruct trie_node * new_leaf (const char *string, size_t strlen, int32_t ip4_address) {[m
+[32m+[m[32m  struct trie_node *new_node = malloc(sizeof(struct trie_node));[m
+[32m+[m[32m  if (!new_node) {[m
+[32m+[m[32m    printf ("WARNING: Node memory allocation failed.  Results may be bogus.\n");[m
+[32m+[m[32m    return NULL;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  assert(strlen < 64);[m
+[32m+[m[32m  assert(strlen > 0);[m
+[32m+[m[32m  new_node->next = NULL;[m
+[32m+[m[32m  new_node->strlen = strlen;[m
+[32m+[m[32m  strncpy(new_node->key, string, strlen);[m
+[32m+[m[32m  new_node->key[strlen] = '\0';[m
+[32m+[m[32m  new_node->ip4_address = ip4_address;[m
+[32m+[m[32m  new_node->children = NULL;[m
+[32m+[m
+[32m+[m[32m  return new_node;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint compare_keys (const char *string1, int len1, const char *string2, int len2, int *pKeylen) {[m
+[32m+[m[32m    int keylen, offset1, offset2;[m
+[32m+[m[32m    keylen = len1 < len2 ? len1 : len2;[m
+[32m+[m[32m    offset1 = len1 - keylen;[m
+[32m+[m[32m    offset2 = len2 - keylen;[m
+[32m+[m[32m    assert (keylen > 0);[m
+[32m+[m[32m    if (pKeylen)[m
+[32m+[m[32m      *pKeylen = keylen;[m
+[32m+[m[32m    return strncmp(&string1[offset1], &string2[offset2], keylen);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid init(int numthreads) {[m
+[32m+[m[32m  if (numthreads != 1)[m
+[32m+[m[32m    printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);[m
+[32m+[m
+[32m+[m[32m  root = NULL;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/* Recursive helper function.[m
+[32m+[m[32m * Returns a pointer to the node if found.[m
+[32m+[m[32m * Stores an optional pointer to the[m[41m [m
+[32m+[m[32m * parent, or what should be the parent if not found.[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m */[m
+[32m+[m[32mstruct trie_node *[m[41m [m
+[32m+[m[32m_search (struct trie_node *node, const char *string, size_t strlen) {[m
+[32m+[m[41m	 [m
+[32m+[m[32m  int keylen, cmp;[m
+[32m+[m
+[32m+[m[32m  // First things first, check if we are NULL[m[41m [m
+[32m+[m[32m  if (node == NULL) return NULL;[m
+[32m+[m
+[32m+[m[32m  assert(node->strlen < 64);[m
+[32m+[m
+[32m+[m[32m  // See if this key is a substring of the string passed in[m
+[32m+[m[32m  cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);[m
+[32m+[m[32m  if (cmp == 0) {[m
+[32m+[m[32m    // Yes, either quit, or recur on the children[m
+[32m+[m
+[32m+[m[32m    // If this key is longer than our search string, the key isn't here[m
+[32m+[m[32m    if (node->strlen > keylen) {[m
+[32m+[m[32m      return NULL;[m
+[32m+[m[32m    } else if (strlen > keylen) {[m
+[32m+[m[32m      // Recur on children list[m
+[32m+[m[32m      return _search(node->children, string, strlen - keylen);[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      assert (strlen == keylen);[m
+[32m+[m
+[32m+[m[32m      return node;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m  } else if (cmp < 0) {[m
+[32m+[m[32m    // No, look right (the node's key is "less" than the search key)[m
+[32m+[m[32m    return _search(node->next, string, strlen);[m
+[32m+[m[32m  } else {[m
+[32m+[m[32m    // Quit early[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mint search  (const char *string, size_t strlen, int32_t *ip4_address) {[m
+[32m+[m[32m  struct trie_node *found;[m
+[32m+[m
+[32m+[m[32m  // Skip strings of length 0[m
+[32m+[m[32m  if (strlen == 0)[m
+[32m+[m[32m    return 0;[m
+[32m+[m
+[32m+[m[32m  found = _search(root, string, strlen);[m
+[32m+[m[41m  [m
+[32m+[m[32m  if (found && ip4_address)[m
+[32m+[m[32m    *ip4_address = found->ip4_address;[m
+[32m+[m
+[32m+[m[32m  return (found != NULL);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/* Recursive helper function */[m
+[32m+[m[32mint _insert (const char *string, size_t strlen, int32_t ip4_address,[m[41m [m
+[32m+[m	[32m     struct trie_node *node, struct trie_node *parent, struct trie_node *left) {[m
+[32m+[m
+[32m+[m[32m  int cmp, keylen;[m
+[32m+[m
+[32m+[m[32m  // First things first, check if we are NULL[m[41m [m
+[32m+[m[32m  assert (node != NULL);[m
+[32m+[m[32m  assert (node->strlen < 64);[m
+[32m+[m
+[32m+[m[32m  // Take the minimum of the two lengths[m
+[32m+[m[32m  cmp = compare_keys (node->key, node->strlen, string, strlen, &keylen);[m
+[32m+[m[32m  if (cmp == 0) {[m
+[32m+[m[32m    // Yes, either quit, or recur on the children[m
+[32m+[m
+[32m+[m[32m    // If this key is longer than our search string, we need to insert[m
+[32m+[m[32m    // "above" this node[m
+[32m+[m[32m    if (node->strlen > keylen) {[m
+[32m+[m[32m      struct trie_node *new_node;[m
+[32m+[m
+[32m+[m[32m      assert(keylen == strlen);[m
+[32m+[m[32m      assert((!parent) || parent->children == node);[m
+[32m+[m
+[32m+[m[32m      new_node = new_leaf (string, strlen, ip4_address);[m
+[32m+[m[32m      node->strlen -= keylen;[m
+[32m+[m[32m      new_node->children = node;[m
+[32m+[m
+[32m+[m[32m      assert ((!parent) || (!left));[m
+[32m+[m
+[32m+[m[32m      if (parent) {[m
+[32m+[m	[32mparent->children = new_node;[m
+[32m+[m[32m      } else if (left) {[m
+[32m+[m	[32mleft->next = new_node;[m
+[32m+[m[32m      } else if ((!parent) || (!left)) {[m
+[32m+[m	[32mroot = new_node;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      return 1;[m
+[32m+[m
+[32m+[m[32m    } else if (strlen > keylen) {[m
+[32m+[m[41m      [m
+[32m+[m[32m      if (node->children == NULL) {[m
+[32m+[m	[32m// Insert leaf here[m
+[32m+[m	[32mstruct trie_node *new_node = new_leaf (string, strlen - keylen, ip4_address);[m
+[32m+[m	[32mnode->children = new_node;[m
+[32m+[m	[32mreturn 1;[m
+[32m+[m[32m      } else {[m
+[32m+[m	[32m// Recur on children list, store "parent" (loosely defined)[m
+[32m+[m[32m      return _insert(string, strlen - keylen, ip4_address,[m
+[32m+[m		[32m     node->children, node, NULL);[m
+[32m+[m[32m      }[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      assert (strlen == keylen);[m
+[32m+[m[32m      if (node->ip4_address == 0) {[m
+[32m+[m	[32mnode->ip4_address = ip4_address;[m
+[32m+[m	[32mreturn 1;[m
+[32m+[m[32m      } else {[m
+[32m+[m	[32mreturn 0;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m  } else {[m
+[32m+[m[32m    /* Is there any common substring? */[m
+[32m+[m[32m    int i, cmp2, keylen2, overlap = 0;[m
+[32m+[m[32m    for (i = 1; i < keylen; i++) {[m
+[32m+[m[32m      cmp2 = compare_keys (&node->key[i], node->strlen - i,[m[41m [m
+[32m+[m			[32m   &string[i], strlen - i, &keylen2);[m
+[32m+[m[32m      assert (keylen2 > 0);[m
+[32m+[m[32m      if (cmp2 == 0) {[m
+[32m+[m	[32moverlap = 1;[m
+[32m+[m	[32mbreak;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    if (overlap) {[m
+[32m+[m[32m      // Insert a common parent, recur[m
+[32m+[m[32m      struct trie_node *new_node = new_leaf (&string[i], strlen - i, 0);[m
+[32m+[m[32m      int diff = node->strlen - i;[m
+[32m+[m[32m      assert ((node->strlen - diff) > 0);[m
+[32m+[m[32m      node->strlen -= diff;[m
+[32m+[m[32m      new_node->children = node;[m
+[32m+[m[32m      assert ((!parent) || (!left));[m
+[32m+[m
+[32m+[m[32m      if (node == root) {[m
+[32m+[m	[32mnew_node->next = node->next;[m
+[32m+[m	[32mnode->next = NULL;[m
+[32m+[m	[32mroot = new_node;[m
+[32m+[m[32m      } else if (parent) {[m
+[32m+[m	[32massert(parent->children == node);[m
+[32m+[m	[32mnew_node->next = NULL;[m
+[32m+[m	[32mparent->children = new_node;[m
+[32m+[m[32m      } else if (left) {[m
+[32m+[m	[32mnew_node->next = node->next;[m
+[32m+[m	[32mnode->next = NULL;[m
+[32m+[m	[32mleft->next = new_node;[m
+[32m+[m[32m      } else if ((!parent) && (!left)) {[m
+[32m+[m	[32mroot = new_node;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      return _insert(string, i, ip4_address,[m
+[32m+[m		[32m     node, new_node, NULL);[m
+[32m+[m[32m    } else if (cmp < 0) {[m
+[32m+[m[32m      if (node->next == NULL) {[m
+[32m+[m	[32m// Insert here[m
+[32m+[m	[32mstruct trie_node *new_node = new_leaf (string, strlen, ip4_address);[m
+[32m+[m	[32mnode->next = new_node;[m
+[32m+[m	[32mreturn 1;[m
+[32m+[m[32m      } else {[m
+[32m+[m	[32m// No, recur right (the node's key is "greater" than  the search key)[m
+[32m+[m	[32mreturn _insert(string, strlen, ip4_address, node->next, NULL, node);[m
+[32m+[m[32m      }[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      // Insert here[m
+[32m+[m[32m      struct trie_node *new_node = new_leaf (string, strlen, ip4_address);[m
+[32m+[m[32m      new_node->next = node;[m
+[32m+[m[32m      if (node == root)[m
+[32m+[m	[32mroot = new_node;[m
+[32m+[m[32m      else if (parent && parent->children == node)[m
+[32m+[m	[32mparent->children = new_node;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    return 1;[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint insert (const char *string, size_t strlen, int32_t ip4_address) {[m
+[32m+[m[32m  // Skip strings of length 0[m
+[32m+[m[32m  if (strlen == 0)[m
+[32m+[m[32m    return 0;[m
+[32m+[m
+[32m+[m[32m  /* Edge case: root is null */[m
+[32m+[m[32m  if (root == NULL) {[m
+[32m+[m[32m    root = new_leaf (string, strlen, ip4_address);[m
+[32m+[m[32m    return 1;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  return _insert (string, strlen, ip4_address, root, NULL, NULL);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/* Recursive helper function.[m
+[32m+[m[32m * Returns a pointer to the node if found.[m
+[32m+[m[32m * Stores an optional pointer to the[m[41m [m
+[32m+[m[32m * parent, or what should be the parent if not found.[m
+[32m+[m[32m *[m[41m [m
+[32m+[m[32m */[m
+[32m+[m[32mstruct trie_node *[m[41m [m
+[32m+[m[32m_delete (struct trie_node *node, const char *string,[m[41m [m
+[32m+[m	[32m size_t strlen) {[m
+[32m+[m[32m  int keylen, cmp;[m
+[32m+[m
+[32m+[m[32m  // First things first, check if we are NULL[m[41m [m
+[32m+[m[32m  if (node == NULL) return NULL;[m
+[32m+[m
+[32m+[m[32m  assert(node->strlen < 64);[m
+[32m+[m
+[32m+[m[32m  // See if this key is a substring of the string passed in[m
+[32m+[m[32m  cmp = compare_keys (node->key, node->strlen, string, strlen, &keylen);[m
+[32m+[m[32m  if (cmp == 0) {[m
+[32m+[m[32m    // Yes, either quit, or recur on the children[m
+[32m+[m
+[32m+[m[32m    // If this key is longer than our search string, the key isn't here[m
+[32m+[m[32m    if (node->strlen > keylen) {[m
+[32m+[m[32m      return NULL;[m
+[32m+[m[32m    } else if (strlen > keylen) {[m
+[32m+[m[32m      struct trie_node *found =  _delete(node->children, string, strlen - keylen);[m
+[32m+[m[32m      if (found) {[m
+[32m+[m	[32m/* If the node doesn't have children, delete it.[m
+[32m+[m	[32m * Otherwise, keep it around to find the kids */[m
+[32m+[m	[32mif (found->children == NULL && found->ip4_address == 0) {[m
+[32m+[m	[32m  assert(node->children == found);[m
+[32m+[m	[32m  node->children = found->next;[m
+[32m+[m	[32m  free(found);[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32m/* Delete the root node if we empty the tree */[m
+[32m+[m	[32mif (node == root && node->children == NULL && node->ip4_address == 0) {[m
+[32m+[m	[32m  root = node->next;[m
+[32m+[m	[32m  free(node);[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32mreturn node; /* Recursively delete needless interior nodes */[m
+[32m+[m[32m      } else[m[41m [m
+[32m+[m	[32mreturn NULL;[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      assert (strlen == keylen);[m
+[32m+[m
+[32m+[m[32m      /* We found it! Clear the ip4 address and return. */[m
+[32m+[m[32m      if (node->ip4_address) {[m
+[32m+[m	[32mnode->ip4_address = 0;[m
+[32m+[m
+[32m+[m	[32m/* Delete the root node if we empty the tree */[m
+[32m+[m	[32mif (node == root && node->children == NULL && node->ip4_address == 0) {[m
+[32m+[m	[32m  root = node->next;[m
+[32m+[m	[32m  free(node);[m
+[32m+[m	[32m  return (struct trie_node *) 0x100100; /* XXX: Don't use this pointer for anything except[m[41m [m
+[32m+[m						[32m * comparison with NULL, since the memory is freed.[m
+[32m+[m						[32m * Return a "poison" pointer that will probably[m[41m [m
+[32m+[m						[32m * segfault if used.[m
+[32m+[m						[32m */[m
+[32m+[m	[32m}[m
+[32m+[m	[32mreturn node;[m
+[32m+[m[32m      } else {[m
+[32m+[m	[32m/* Just an interior node with no value */[m
+[32m+[m	[32mreturn NULL;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m  } else if (cmp < 0) {[m
+[32m+[m[32m    // No, look right (the node's key is "less" than  the search key)[m
+[32m+[m[32m    struct trie_node *found = _delete(node->next, string, strlen);[m
+[32m+[m[32m    if (found) {[m
+[32m+[m[32m      /* If the node doesn't have children, delete it.[m
+[32m+[m[32m       * Otherwise, keep it around to find the kids */[m
+[32m+[m[32m      if (found->children == NULL && found->ip4_address == 0) {[m
+[32m+[m	[32massert(node->next == found);[m
+[32m+[m	[32mnode->next = found->next;[m
+[32m+[m	[32mfree(found);[m
+[32m+[m[32m      }[m[41m       [m
+[32m+[m
+[32m+[m[32m      return node; /* Recursively delete needless interior nodes */[m
+[32m+[m[32m    }[m
+[32m+[m[32m    return NULL;[m
+[32m+[m[32m  } else {[m
+[32m+[m[32m    // Quit early[m
+[32m+[m[32m    return NULL;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint delete  (const char *string, size_t strlen) {[m
+[32m+[m[32m  // Skip strings of length 0[m
+[32m+[m[32m  if (strlen == 0)[m
+[32m+[m[32m    return 0;[m
+[32m+[m
+[32m+[m[32m  return (NULL != _delete(root, string, strlen));[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid _print (struct trie_node *node) {[m
+[32m+[m[32m  printf ("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n",[m[41m [m
+[32m+[m	[32m  node, node->strlen, node->key, node->ip4_address, node->next, node->children);[m
+[32m+[m[32m  if (node->children)[m
+[32m+[m[32m    _print(node->children);[m
+[32m+[m[32m  if (node->next)[m
+[32m+[m[32m    _print(node->next);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid print() {[m
+[32m+[m[32m  printf ("Root is at %p\n", root);[m
+[32m+[m[32m  /* Do a simple depth-first search */[m
+[32m+[m[32m  if (root)[m
+[32m+[m[32m    _print(root);[m
+[32m+[m[32m}[m
+[1mdiff --git a/lab3/slack.txt b/lab3/slack.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..090b9b2[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/slack.txt[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mCumulative Late Hours Used: 0[m
+[1mdiff --git a/lab3/trie.h b/lab3/trie.h[m
+[1mnew file mode 100644[m
+[1mindex 0000000..01d1032[m
+[1m--- /dev/null[m
+[1m+++ b/lab3/trie.h[m
+[36m@@ -0,0 +1,33 @@[m
+[32m+[m[32m#ifndef __TRIE_H__[m
+[32m+[m[32m#define __TRIE_H__[m
+[32m+[m
+[32m+[m[32m#include <stdint.h>[m
+[32m+[m[32m#include <assert.h>[m
+[32m+[m
+[32m+[m[32m/* A simple (reverse) trie interface */[m
+[32m+[m
+[32m+[m[32m/* Optional init routine.  May not be required. */[m
+[32m+[m[32mvoid init (int numthreads);[m
+[32m+[m
+[32m+[m[32m/* Return 1 on success, 0 on failure */[m
+[32m+[m[32mint insert (const char *string, size_t strlen, int32_t ip4_address);[m
+[32m+[m
+[32m+[m[32m/* Return 1 if the key is found, 0 if not.[m[41m [m
+[32m+[m[32m * If ip4_address is not NULL, store the IP[m[41m [m
+[32m+[m[32m * here.[m[41m  [m
+[32m+[m[32m */[m
+[32m+[m[32mint search  (const char *string, size_t strlen, int32_t *ip4_address);[m
+[32m+[m
+[32m+[m[32m/* Return 1 if the key is found and deleted, 0 if not. */[m
+[32m+[m[32mint delete  (const char *string, size_t strlen);[m
+[32m+[m
+[32m+[m[32m/* Print the structure of the tree.  Mostly useful for debugging. */[m
+[32m+[m[32mvoid print ();[m[41m [m
+[32m+[m
+[32m+[m[32m/* Determines whether to allow blocking until[m[41m [m
+[32m+[m[32m * a name is available.[m
+[32m+[m[32m */[m
+[32m+[m[32mextern int allow_squatting;[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#endif /* __TRIE_H__ */[m[41m [m
+[1mdiff --git a/mysyscall.h b/mysyscall.h[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0b11371[m
+[1m--- /dev/null[m
+[1m+++ b/mysyscall.h[m
+[36m@@ -0,0 +1,223 @@[m
+[32m+[m[32m#ifndef __MYSYSCALL_H__[m
+[32m+[m[32m#define __MYSYSCALL_H__[m
+[32m+[m[32m#include <dirent.h>[m
+[32m+[m[32m#define O_CREAT     0100[m
+[32m+[m[32m#define O_RDONLY    0000[m
+[32m+[m[32m#define O_RDWR	    0002[m
+[32m+[m[32m#define O_WRONLY    0001[m
+[32m+[m[32m#define ENOSYS      38[m
+[32m+[m[32m#define O_DIRECTORY 0200000[m
+[32m+[m
+[32m+[m[32m// Exercise 5: Your code here[m
+[32m+[m[32m// Populate each of these functions with appropriate[m
+[32m+[m[32m// assembly code for each number of system call arguments.[m
+[32m+[m[32m//[m
+[32m+[m[32m// Go ahead and fill in all 7 variants, as you will eventually[m
+[32m+[m[32m// need them.[m
+[32m+[m[32m//[m
+[32m+[m[32m// Friendly advice: as you figure out the signature of a system[m
+[32m+[m[32m// call, you might consider writing a macro for it for future reference,[m
+[32m+[m[32m// like:[m
+[32m+[m[32m//[m
+[32m+[m[32m// #define MY_GETPID(...) MY_SYSCALL...(...)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL0(NUM)		\[m
+[32m+[m[32m  ({							          \[m
+[32m+[m[32m    int rv = -ENOSYS;				\[m
+[32m+[m[32m    asm volatile (          \[m
+[32m+[m[32m      "movl %1, %%eax;"			\[m
+[32m+[m[41m    [m	[32m"int $0x80;" 					\[m
+[32m+[m[41m    [m	[32m"movl %%eax, %0;" 		\[m
+[32m+[m[41m    [m	[32m:"=r" (rv)					  \[m
+[32m+[m[41m    [m	[32m:"r" (NUM)					  \[m
+[32m+[m[41m    [m	[32m:"%eax"						    \[m
+[32m+[m[41m    [m	[32m);						        \[m
+[32m+[m[32m    rv;							        \[m
+[32m+[m[32m  })[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL1(NUM, ARG1)\[m
+[32m+[m[32m  ({							          \[m
+[32m+[m[32m    int rv = -ENOSYS;				\[m
+[32m+[m[32m    asm volatile (          \[m
+[32m+[m[32m      "movl %1, %%eax;"			\[m
+[32m+[m[32m      "movl %2, %%ebx;"     \[m
+[32m+[m[32m      "int $0x80;" 					\[m
+[32m+[m[32m      "movl %%eax, %0;" 		\[m
+[32m+[m[32m      :"=r" (rv)				  	\[m
+[32m+[m[32m      :"r" (NUM), "r" (ARG1)\[m
+[32m+[m[32m      :"%eax"	,"%ebx"				\[m
+[32m+[m[32m      );						        \[m
+[32m+[m[32m    rv;							        \[m
+[32m+[m[32m  })[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL2(NUM, ARG1, ARG2)\[m
+[32m+[m[32m   ({							            \[m
+[32m+[m[32m     int rv = -ENOSYS;				\[m
+[32m+[m[32m     asm volatile (           \[m
+[32m+[m[32m       "movl %1, %%eax;"			\[m
+[32m+[m[32m       "movl %2, %%ebx;"			\[m
+[32m+[m[32m       "movl %3, %%ecx;"			\[m
+[32m+[m[32m       "int $0x80;" 					\[m
+[32m+[m[32m       "movl %%eax, %0;" 			\[m
+[32m+[m[32m       :"=r" (rv)					    \[m
+[32m+[m[32m       :"r" (NUM), "r" (ARG1), "r" (ARG2)\[m
+[32m+[m[32m       :"%eax","%ebx","%ecx"	\[m
+[32m+[m[32m       );						          \[m
+[32m+[m[32m     rv;					           	\[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL3(NUM, ARG1, ARG2, ARG3)\[m
+[32m+[m[32m   ({							              \[m
+[32m+[m[32m     int rv = -ENOSYS;					\[m
+[32m+[m[32m     asm volatile (             \[m
+[32m+[m[32m       "movl %1, %%eax;"			  \[m
+[32m+[m[32m       "movl %2, %%ebx;"			  \[m
+[32m+[m[32m       "movl %3, %%ecx;"			  \[m
+[32m+[m[32m       "movl %4, %%edx;"			  \[m
+[32m+[m[32m       "int $0x80;" 					  \[m
+[32m+[m[32m       "movl %%eax, %0;" 				\[m
+[32m+[m[32m       :"=r" (rv)					      \[m
+[32m+[m[32m       :"g" (NUM), "g" (ARG1), "g" (ARG2), "g" (ARG3)\[m
+[32m+[m[32m       :"%eax","%ebx","%ecx","%edx"\[m
+[32m+[m[32m       );					            	\[m
+[32m+[m[32m     rv;						            \[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL4(NUM, ARG1, ARG2, ARG3, ARG4)	\[m
+[32m+[m[32m   ({							              \[m
+[32m+[m[32m     int rv = -ENOSYS;					\[m
+[32m+[m[32m     asm volatile (             \[m
+[32m+[m[32m       "movl %1, %%eax;"			  \[m
+[32m+[m[32m       "movl %2, %%ebx;"			  \[m
+[32m+[m[32m       "movl %3, %%ecx;"			  \[m
+[32m+[m[32m       "movl %4, %%edx;"			  \[m
+[32m+[m[32m       "movl %5, %%esi;"			  \[m
+[32m+[m[32m       "int $0x80;" 				   	\[m
+[32m+[m[32m       "movl %%eax, %0;" 				\[m
+[32m+[m[32m       :"=r" (rv)					      \[m
+[32m+[m[32m       :"r" (NUM)					      \[m
+[32m+[m[32m       :"%eax"						      \[m
+[32m+[m[32m       );						            \[m
+[32m+[m[32m     rv;					             	\[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m[32m#define MY_SYSCALL5(NUM, ARG1, ARG2, ARG3, ARG4, ARG5)	\[m
+[32m+[m[32m   ({							              \[m
+[32m+[m[32m     int rv = -ENOSYS;					\[m
+[32m+[m[32m     asm volatile (             \[m
+[32m+[m[32m     "movl %1, %%eax;"			  \[m
+[32m+[m[32m     "movl %2, %%ebx;"			  \[m
+[32m+[m[32m     "movl %3, %%ecx;"			  \[m
+[32m+[m[32m     "movl %4, %%edx;"			  \[m
+[32m+[m[32m     "movl %5, %%esi;"			  \[m
+[32m+[m[32m     "movl %6, %%edi;"			  \[m
+[32m+[m[32m     "int $0x80;" 					  \[m
+[32m+[m[32m     "movl %%eax, %0;" 				\[m
+[32m+[m[32m     :"=r" (rv)					      \[m
+[32m+[m[32m     :"r" (NUM)					      \[m
+[32m+[m[32m     :"%eax"						      \[m
+[32m+[m[32m     );						            \[m
+[32m+[m[32m    rv;							            \[m
+[32m+[m[32m   })[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the open syscall[m
+[32m+[m[32mName        #    |  ARG1                          | ARG2       |  ARG3[m
+[32m+[m[32msys_open	  0x05 | 	const char __user *filename	  | int flags  |	int mode[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32m#define MY_OPEN(ARG1, ARG2, ARG3) MY_SYSCALL3(5,ARG1,ARG2,ARG3)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the write syscall[m
+[32m+[m[32mName        #    |   ARG1              |  ARG2                    | ARG3[m
+[32m+[m[32msys_write	 0x04	 |   unsigned int fd	 |  const char __user *buf	| size_t count[m
+[32m+[m[32mstdin = 0[m
+[32m+[m[32mstdout = 1[m
+[32m+[m[32mstderr = 2[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m
+[32m+[m[32m#define MY_WRITE(FD, BUFFER, AMOUNT) MY_SYSCALL3(4,FD,BUFFER,AMOUNT)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the open syscall[m
+[32m+[m[32mName        #    |  ARG1[m
+[32m+[m[32msys_chdir	12     |	const char __user *filename[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m
+[32m+[m[32m#define MY_CHDIR(filename) MY_SYSCALL1(12,filename)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the read syscall[m
+[32m+[m[32mName        #    |   ARG1             |  ARG2               | ARG3[m
+[32m+[m[32msys_read	0x03	 |   unsigned int fd	|   char __user *buf	| size_t count	-[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32m#define MY_READ(FD, BUFFER, AMOUNT) MY_SYSCALL3(3,FD,BUFFER,AMOUNT)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the getdents syscall[m
+[32m+[m[32mName          #    |   ARG1              |  ARG2                               |  ARG3[m
+[32m+[m[32msys_getdents	0x8d |   unsigned int fd	 |  struct linux_dirent __user *dirent | 	unsigned int count[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32mstruct linux_dirent {[m
+[32m+[m[32m        long           d_ino;[m
+[32m+[m[32m        size_t          d_off;[m
+[32m+[m[32m        unsigned short d_reclen;[m
+[32m+[m[32m        char           d_name[];[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m#define MY_GETDENTS(FD,linux_dirent, COUNT) MY_SYSCALL3(141,FD, linux_dirent, COUNT)[m
+[32m+[m
+[32m+[m[32m/****************************************************[m
+[32m+[m[32mDefinition of the sys_unlink syscall[m
+[32m+[m[32mName          #    |   ARG1[m
+[32m+[m[32msys_unlink	 0x0a	 |   const char __user *pathname[m
+[32m+[m[32m*****************************************************/[m
+[32m+[m[32m#define MY_UNLINK(pathname) MY_SYSCALLS1(10,pathname)[m
+[32m+[m[32m// Defing my own syscalls[m
+[32m+[m
+[32m+[m[32mint inline myGetDentsFunction (int fd,char * dir,size_t count){[m
+[32m+[m[32m  if (count < 0){[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  int read= MY_GETDENTS(fd,dir,count);[m
+[32m+[m[32m  return read;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid inline myExitFunction (int RV){[m
+[32m+[m[32m  MY_SYSCALL1(1,RV);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid inline myWriteFunction (int FD,char *BUFFER,int AMOUNT){[m
+[32m+[m[32m  MY_WRITE(FD,BUFFER,AMOUNT);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/*[m
+[32m+[m[32mint inline myGETDENTS (int FD,linux_dirent *dirp,int COUNT){[m
+[32m+[m[32m  MY_GETDENTS(FD,struct linux_dirent *dirp,COUNT);[m
+[32m+[m[32m}[m
+[32m+[m[32m*/[m
+[32m+[m
+[32m+[m[32mint inline myReadFunction (int FD,char *BUFFER,int AMOUNT){[m
+[32m+[m[32m  int rv = MY_READ(FD,BUFFER,AMOUNT);[m
+[32m+[m[32m  return rv;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mint inline myOpenFunction (ARG1, ARG2, ARG3){[m
+[32m+[m[32m  int fd = MY_OPEN(ARG1, ARG2 , ARG3);[m
+[32m+[m[32m  return fd;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid inline myUnlinkFunction (char* fileName){[m
+[32m+[m[32m  MY_SYSCALL1(10,fileName);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid inline myCHDIR (char* fileName){[m
+[32m+[m[32m  MY_CHDIR(fileName);[m
+[32m+[m[32m}[m
+[32m+[m[32m#endif // __MYSYSCALL_H__[m
