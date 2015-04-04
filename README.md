@@ -4,9 +4,8 @@ This README is to help streamline workflow between group partners
 
 ### What is this repository for? ###
 
-This application is for Lab 2 of Don Porter's CSE 306 - Operating Systems class.
+This application is for Lab 3 of Don Porter's CSE 306 - Operating Systems class.
 Version # unnecessary. (we have a strict layout of functionality)
-We have two editable branches, Lab2_working and Lab2_chris. 
 
 ### Contribution guidelines ###
 
