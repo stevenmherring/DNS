@@ -20,7 +20,7 @@ int simulation_length = 30; // default to 30 seconds
 volatile int finished = 0;
 
 // Uncomment this line for debug printing
-#define DEBUG 1
+//#define DEBUG 1
 #ifdef DEBUG
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
@@ -65,44 +65,46 @@ client(void *arg)
 
       rv = random_r(&rd, &chars);
       if (rv) {
-	printf("Failed to get random number - %d\n", rv);
-	return NULL;
+        printf("Failed to get random number - %d\n", rv);
+        return NULL;
       }
 
       for (i = 0; i < 6 && (i+j) < length; i++) {
-	char val = ( (chars >> (5 * i)) & 31);
-	if (val > 25)
-	  val = 25;
-	buf[j+i] = 'a' + val;
-      }
+          char val = ( (chars >> (5 * i)) & 31);
+          if (val > 25)
+            val = 25;
+            buf[j+i] = 'a' + val;
+          }
     }
 
     DEBUG_PRINT ("Random string is %s\n", buf);
     
 
     switch (code % 3) {
-    case 0: // Search
-      DEBUG_PRINT ("Search\n");
-      search (buf, length, NULL);
-      break;
-    case 1: // insert
-      DEBUG_PRINT ("insert\n");
-      rv = random_r(&rd, &ip4_addr);
-      if (rv) {
-	printf("Failed to get random number - %d\n", rv);
-	return NULL;
-      }
+      case 0: // Search
+        DEBUG_PRINT ("Search\n");
+        search (buf, length, NULL);
+        break;
 
-      insert (buf, length, ip4_addr);
-      break;
-    case 2: // delete
-      DEBUG_PRINT ("delete\n");
-      delete (buf, length);
-      break;
-    default:
-      assert(0);
+      case 1: // insert
+        DEBUG_PRINT ("insert\n");
+        rv = random_r(&rd, &ip4_addr);
+        if (rv) {
+      	  printf("Failed to get random number - %d\n", rv);
+          return NULL;
+        }
+
+        insert (buf, length, ip4_addr);
+        break;
+
+      case 2: // delete
+        DEBUG_PRINT ("delete\n");
+        delete (buf, length);
+        break;
+      default:
+        assert(0);
+      }
     }
-  }
 
   return NULL;
 }
@@ -138,15 +140,24 @@ squatter_stress(void *arg)
   } while (0)
 
 int self_tests() {
+  int myID = (int ) pthread_self();
+  printf("My thread ID is %d\n",myID);
   int rv;
   int32_t ip = 0;
 
+  printf("Start of self test\n");
+  print();
+  printf("Start of inserts\n");
   rv = insert ("abc", 3, 4);
   if (!rv) die ("Failed to insert key abc\n");
 
-  rv = delete("abc", 3);
+
+  rv = insert ("bbb", 3, 4);
+  if (!rv) die ("Failed to insert key bbb\n");
+
+  /*rv = delete("abc", 3);
   if (!rv) die ("Failed to delete key abc\n");
-  print();
+  print();*/
 
   rv = insert ("google", 6, 5);
   if (!rv) die ("Failed to insert key google\n");
@@ -197,7 +208,7 @@ int self_tests() {
 
   ip = 0;
 
-  rv = delete("ab", 2);
+  //rv = delete("ab", 2);
   if (!rv) die ("Failed to delete real key ab\n");
 
   printf("End of self-tests, tree is:\n");
@@ -265,6 +276,8 @@ int main(int argc, char ** argv) {
 #endif
 
   // Launch client threads
+  //printf("Starting self tests \n");
+  //self_tests();
   tinfo = calloc(numthreads, sizeof(pthread_t));
   for (i = 0; i < numthreads; i++) {
 

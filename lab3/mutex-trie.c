@@ -14,9 +14,13 @@ struct trie_node {
   struct trie_node *children; /* Sorted list of children */
   char key[64]; /* Up to 64 chars */
 };
+struct lock_queue {
+  int threadID;
+};
 
 static struct trie_node * root = NULL;
 static pthread_mutex_t lock;
+static pthread_cond_t cv;
 
 
 struct trie_node * new_leaf (const char *string, size_t strlen, int32_t ip4_address) {
@@ -54,6 +58,7 @@ void init(int numthreads) {
     printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);
   root = NULL;
   pthread_mutex_init(&lock, NULL);
+  pthread_cond_init(&cv,NULL);
 }
 
 /* Recursive helper function.
@@ -239,21 +244,50 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
   }
 }
 
-int insert (const char *string, size_t strlen, int32_t ip4_address) {
+int insert (const char *string, size_t strlength, int32_t ip4_address) {
   int ret = 0;
-  // Skip strings of length 0
-  if (strlen == 0)
+ // int32_t *searchIP = (int32_T *)ip4_address;
+  // Skip strings of length 
+  if (allow_squatting){
+  int myID = (int ) pthread_self();
+    while ((search(string, strlength, &ip4_address)) == 1){
+      /* To do*/
+      // Add thread to a wait queue FIFO 
+       printf("Tread : %d Inserting : %s Before wait\n",myID,string);
+      pthread_mutex_lock(&lock);
+      pthread_cond_wait(&cv,&lock);
+
+      printf("Tread : %d Just received signal\n",myID);
+    }
+  printf("Tread : %d Inserting : %s\n",myID,string);
+  if (root == NULL) {
+    pthread_mutex_lock(&lock);
+    root = new_leaf (string, strlength, ip4_address);
+    pthread_mutex_unlock(&lock);
+    return 1;
+  }
+  if (strlength == 0){
     return 0;
+  }
+  //pthread_mutex_lock(&lock);
+  ret = _insert (string, strlength, ip4_address, root, NULL, NULL);
+  pthread_mutex_unlock(&lock);
+  return ret;
+  }
+
+  if (strlength == 0){
+    return 0;
+  }
 
   /* Edge case: root is null */
   if (root == NULL) {
     pthread_mutex_lock(&lock);
-    root = new_leaf (string, strlen, ip4_address);
-	pthread_mutex_unlock(&lock);
+    root = new_leaf (string, strlength, ip4_address);
+	  pthread_mutex_unlock(&lock);
     return 1;
   }
   pthread_mutex_lock(&lock);
-  ret = _insert (string, strlen, ip4_address, root, NULL, NULL);
+  ret = _insert (string, strlength, ip4_address, root, NULL, NULL);
   pthread_mutex_unlock(&lock);
   return ret;
 }
@@ -350,12 +384,17 @@ _delete (struct trie_node *node, const char *string,
 
 int delete  (const char *string, size_t strlen) {
 	int ret = 0;
+  int myID = (int ) pthread_self();
   // Skip strings of length 0
   if (strlen == 0)
     return 0;
   pthread_mutex_lock(&lock);
   ret = (NULL != _delete(root, string, strlen));
+  _delete(root, string, strlen);
+  pthread_cond_broadcast(&cv); 
+  printf("Tread : %d Broadcasting\n",myID);
   pthread_mutex_unlock(&lock);
+  printf("Tread : %d Deleting : %s\n",myID,string);
   return ret;
 }
 
