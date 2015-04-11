@@ -253,7 +253,7 @@ int insert (const char *string, size_t strlength, int32_t ip4_address) {
   if (allow_squatting){
   //int myID = (int) pthread_self();
     while ((search(string, strlength, &ip4_address)) == 1){
-		//pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 		printf("spinnn\n");
       /* To do*/
       // Add thread to a wait queue FIFO 

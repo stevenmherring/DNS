@@ -20,7 +20,7 @@ int simulation_length = 30; // default to 30 seconds
 volatile int finished = 0;
 
 // Uncomment this line for debug printin
-#define DEBUG 1
+//#define DEBUG 1
 #ifdef DEBUG
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
@@ -152,7 +152,7 @@ int self_tests() {
   if (!rv) die ("Failed to insert key abc\n");
 
 
-  rv = insert ("cbc", 3, 4);
+  rv = insert ("bbb", 3, 4);
   if (!rv) die ("Failed to insert key bbb\n");
 
   rv = delete("abc", 3);
@@ -300,12 +300,12 @@ int main(int argc, char ** argv) {
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
       for (i = 0; i < numthreads; i++) {
-	printf("hung\n");
+//	printf("hung\n");
 	int rv = pthread_cancel(tinfo[i]);
 	if (rv != 0)
 	  printf ("Uh oh.  pthread_cancel failed %d\n", rv);
       }
-	printf("nuts");
+//	printf("nuts\n");
   }
 
   for (i = 0; i < numthreads; i++) {
