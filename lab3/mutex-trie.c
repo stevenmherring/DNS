@@ -129,7 +129,7 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 	     struct trie_node *node, struct trie_node *parent, struct trie_node *left) {
 
   int cmp, keylen;
-  printf("insert success %s\n", string);
+ // printf("insert success %s\n", string);
   // First things first, check if we are NULL 
   assert (node != NULL);
   assert (node->strlen < 64);
@@ -251,10 +251,12 @@ int insert (const char *string, size_t strlength, int32_t ip4_address) {
  int ret = 0;
   // Skip strings of length
   if (allow_squatting){
-  //int myID = (int) pthread_self();
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+//  int myID = (int) pthread_self();
     while ((search(string, strlength, &ip4_address)) == 1){
 		//pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-		printf("spinnn\n");
+//	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);		
+//       printf("spinnn: %d, %s\n", myID, string);
       /* To do*/
       // Add thread to a wait queue FIFO 
 	 // printf("Tread : %d Squatting : @ %s \n",myID,string);
