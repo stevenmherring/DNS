@@ -19,8 +19,8 @@ int allow_squatting = 0;
 int simulation_length = 30; // default to 30 seconds
 volatile int finished = 0;
 
-// Uncomment this line for debug printing
-//#define DEBUG 1
+// Uncomment this line for debug printin
+#define DEBUG 1
 #ifdef DEBUG
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
@@ -152,12 +152,11 @@ int self_tests() {
   if (!rv) die ("Failed to insert key abc\n");
 
 
-  rv = insert ("bbb", 3, 4);
+  rv = insert ("cbc", 3, 4);
   if (!rv) die ("Failed to insert key bbb\n");
 
-  /*rv = delete("abc", 3);
+  rv = delete("abc", 3);
   if (!rv) die ("Failed to delete key abc\n");
-  print();*/
 
   rv = insert ("google", 6, 5);
   if (!rv) die ("Failed to insert key google\n");
@@ -174,6 +173,7 @@ int self_tests() {
   rv = insert ("ab", 2, 2);
   if (!rv) die ("Failed to insert key ab\n");
 
+  printf("get here\n");
   rv = insert("bb", 2, 2);
   if (!rv) die ("Failed to insert key bb\n");
 
@@ -208,7 +208,7 @@ int self_tests() {
 
   ip = 0;
 
-  //rv = delete("ab", 2);
+  rv = delete("ab", 2);
   if (!rv) die ("Failed to delete real key ab\n");
 
   printf("End of self-tests, tree is:\n");
@@ -274,7 +274,6 @@ int main(int argc, char ** argv) {
 #ifdef DEBUG
   self_tests();
 #endif
-
   // Launch client threads
   //printf("Starting self tests \n");
   //self_tests();
@@ -293,7 +292,6 @@ int main(int argc, char ** argv) {
       return rv;
     }
   }
-
   // After the simulation is done, shut it down
   sleep (simulation_length);
   finished = 1;
@@ -302,10 +300,12 @@ int main(int argc, char ** argv) {
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
       for (i = 0; i < numthreads; i++) {
+	printf("hung\n");
 	int rv = pthread_cancel(tinfo[i]);
 	if (rv != 0)
 	  printf ("Uh oh.  pthread_cancel failed %d\n", rv);
       }
+	printf("nuts");
   }
 
   for (i = 0; i < numthreads; i++) {

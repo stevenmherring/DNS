@@ -20,6 +20,7 @@ struct lock_queue {
 
 static struct trie_node * root = NULL;
 static pthread_mutex_t lock;
+static pthread_mutexattr_t Attr;
 static pthread_cond_t cv;
 
 
@@ -57,8 +58,10 @@ void init(int numthreads) {
   if (numthreads != 1)
     printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);
   root = NULL;
-  pthread_mutex_init(&lock, NULL);
-  pthread_cond_init(&cv,NULL);
+  pthread_mutexattr_init(&Attr);
+  pthread_mutexattr_settype(&Attr, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(&lock, &Attr);
+ pthread_cond_init(&cv,NULL);
 }
 
 /* Recursive helper function.
@@ -106,18 +109,18 @@ _search (struct trie_node *node, const char *string, size_t strlen) {
 
 
 int search  (const char *string, size_t strlen, int32_t *ip4_address) {
-  struct trie_node *found;
-
-  // Skip strings of length 0
-  if (strlen == 0)
-    return 0;
   pthread_mutex_lock(&lock);
+  struct trie_node *found;
+  // Skip strings of length 0
+  if (strlen == 0){
+    pthread_mutex_unlock(&lock);
+	return 0;
+  }
   found = _search(root, string, strlen);
-  pthread_mutex_unlock(&lock);
-  
   if (found && ip4_address)
     *ip4_address = found->ip4_address;
-
+	
+  pthread_mutex_unlock(&lock);
   return (found != NULL);
 }
 
@@ -126,7 +129,7 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 	     struct trie_node *node, struct trie_node *parent, struct trie_node *left) {
 
   int cmp, keylen;
-
+  printf("insert success %s\n", string);
   // First things first, check if we are NULL 
   assert (node != NULL);
   assert (node->strlen < 64);
@@ -244,49 +247,50 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
   }
 }
 
-int insert (const char *string, size_t strlength, int32_t ip4_address) {
-  int ret = 0;
- // int32_t *searchIP = (int32_T *)ip4_address;
-  // Skip strings of length 
+int insert (const char *string, size_t strlength, int32_t ip4_address) { 
+ int ret = 0;
+  // Skip strings of length
   if (allow_squatting){
-  int myID = (int ) pthread_self();
+  //int myID = (int) pthread_self();
     while ((search(string, strlength, &ip4_address)) == 1){
+		//pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+		printf("spinnn\n");
       /* To do*/
       // Add thread to a wait queue FIFO 
-       printf("Tread : %d Inserting : %s Before wait\n",myID,string);
-      pthread_mutex_lock(&lock);
+	 // printf("Tread : %d Squatting : @ %s \n",myID,string);
       pthread_cond_wait(&cv,&lock);
-
-      printf("Tread : %d Just received signal\n",myID);
+	//  printf("Tread : %d Finished Squatting : @ %s \n",myID,string);
     }
-  printf("Tread : %d Inserting : %s\n",myID,string);
+	  pthread_mutex_lock(&lock);
   if (root == NULL) {
-    pthread_mutex_lock(&lock);
+  //  pthread_mutex_lock(&lock);
     root = new_leaf (string, strlength, ip4_address);
     pthread_mutex_unlock(&lock);
     return 1;
   }
   if (strlength == 0){
+  pthread_mutex_unlock(&lock);
     return 0;
   }
-  //pthread_mutex_lock(&lock);
+ // pthread_mutex_lock(&lock);
   ret = _insert (string, strlength, ip4_address, root, NULL, NULL);
   pthread_mutex_unlock(&lock);
   return ret;
   }
-
+pthread_mutex_lock(&lock);
   if (strlength == 0){
+  pthread_mutex_unlock(&lock);
     return 0;
   }
 
   /* Edge case: root is null */
   if (root == NULL) {
-    pthread_mutex_lock(&lock);
+   // pthread_mutex_lock(&lock);
     root = new_leaf (string, strlength, ip4_address);
 	  pthread_mutex_unlock(&lock);
     return 1;
   }
-  pthread_mutex_lock(&lock);
+  //pthread_mutex_lock(&lock);
   ret = _insert (string, strlength, ip4_address, root, NULL, NULL);
   pthread_mutex_unlock(&lock);
   return ret;
@@ -384,17 +388,15 @@ _delete (struct trie_node *node, const char *string,
 
 int delete  (const char *string, size_t strlen) {
 	int ret = 0;
-  int myID = (int ) pthread_self();
   // Skip strings of length 0
-  if (strlen == 0)
+  if (strlen == 0){
     return 0;
+	}
   pthread_mutex_lock(&lock);
   ret = (NULL != _delete(root, string, strlen));
-  _delete(root, string, strlen);
-  pthread_cond_broadcast(&cv); 
-  printf("Tread : %d Broadcasting\n",myID);
+ // if(ret == 0)
   pthread_mutex_unlock(&lock);
-  printf("Tread : %d Deleting : %s\n",myID,string);
+  pthread_cond_broadcast(&cv); 
   return ret;
 }
 
