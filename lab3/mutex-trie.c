@@ -129,7 +129,7 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 	     struct trie_node *node, struct trie_node *parent, struct trie_node *left) {
 
   int cmp, keylen;
-  printf("insert success %s\n", string);
+ // printf("insert success %s\n", string);
   // First things first, check if we are NULL 
   assert (node != NULL);
   assert (node->strlen < 64);
@@ -247,32 +247,24 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
   }
 }
 
-int insert (const char *string, size_t strlength, int32_t ip4_address) { 
- int ret = 0;
+int insert (const char *string, size_t strlength, int32_t ip4_address) {  
+int ret = 0;
   // Skip strings of length
   if (allow_squatting){
-  //int myID = (int) pthread_self();
-    while ((search(string, strlength, &ip4_address)) == 1){
-		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-		printf("spinnn\n");
-      /* To do*/
-      // Add thread to a wait queue FIFO 
-	 // printf("Tread : %d Squatting : @ %s \n",myID,string);
+    while ((search(string, strlength, &ip4_address)) == 1) {
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
       pthread_cond_wait(&cv,&lock);
-	//  printf("Tread : %d Finished Squatting : @ %s \n",myID,string);
     }
-	  pthread_mutex_lock(&lock);
+  pthread_mutex_lock(&lock);
   if (root == NULL) {
-  //  pthread_mutex_lock(&lock);
     root = new_leaf (string, strlength, ip4_address);
     pthread_mutex_unlock(&lock);
     return 1;
   }
   if (strlength == 0){
-  pthread_mutex_unlock(&lock);
+    pthread_mutex_unlock(&lock);
     return 0;
   }
- // pthread_mutex_lock(&lock);
   ret = _insert (string, strlength, ip4_address, root, NULL, NULL);
   pthread_mutex_unlock(&lock);
   return ret;

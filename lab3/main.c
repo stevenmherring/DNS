@@ -295,7 +295,7 @@ int main(int argc, char ** argv) {
   // After the simulation is done, shut it down
   sleep (simulation_length);
   finished = 1;
-
+	
   // Wait for all clients to exit.  If we are allowing blocking,
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
@@ -318,6 +318,6 @@ int main(int argc, char ** argv) {
   /* Print the final tree for fun */
   print();
 #endif
-  
+//printf("done\n");  
   return 0;
 }
