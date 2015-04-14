@@ -1,4 +1,4 @@
-all: dns-sequential dns-mutex dns-rw dns-fine
+all: dns-sequential dns-mutex dns-rw dns-fine dns-chrisMutex
 
 CFLAGS = -g -Wall -Werror -pthread
 
@@ -16,6 +16,9 @@ dns-rw: main.c rw-trie.o
 
 dns-fine: main.c fine-trie.o
 	gcc $(CFLAGS) -o dns-fine fine-trie.o main.c
+
+dns-chrisMutex: main.c Chrismutex-trie.c
+	gcc $(CLFAGS) -o chrisMutex chrisMutex-trie.o main.c
 
 handin:	clean
 	@if [ `git status --porcelain| wc -l` != 0 ] ; then echo "\n\n\n\n\t\tWARNING: YOU HAVE UNCOMMITTED CHANGES\n\n    Consider committing any pending changes and rerunning make handin.\n\n\n\n"; fi

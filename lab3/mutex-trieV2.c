@@ -1,4 +1,3 @@
-
 /* A simple, (reverse) trie.  Only for use with 1 thread. */
 
 #include <stddef.h>
@@ -8,6 +7,7 @@
 #include <pthread.h>
 #include "trie.h"
 
+unsigned int sleep(unsigned int seconds);
 struct trie_node {
   struct trie_node *next;  /* parent list */
   unsigned int strlen; /* Length of the key */
@@ -23,17 +23,23 @@ static struct trie_node * root = NULL;
 static pthread_mutex_t lock;
 static pthread_mutexattr_t Attr;
 static pthread_cond_t cv;
+static int locksgone = 0;
 int r = 0;
 
 
 void cleanup_handler(void * arg){
-//int myID = (int ) pthread_self();
- // printf("My thread ID is %d and Im in cleanup handler\n",myID);
-
-
+  //    int myID = (int ) pthread_self();
+  //   printf("My thread ID is %d and Im in cleanup handler\n",myID);
+  printf("lock %d \n",locksgone);
+  if (locksgone == 0){
+  pthread_mutex_trylock(&lock);
   pthread_mutex_unlock(&lock);
-  
-  pthread_exit(0);
+  pthread_mutex_destroy(&lock);
+  locksgone = 1;
+  }
+  //exit(0);
+  pthread_exit(0);     
+  //pthread_testcancel();
 }
 
 
@@ -61,15 +67,17 @@ int compare_keys (const char *string1, int len1, const char *string2, int len2, 
     offset1 = len1 - keylen;
     offset2 = len2 - keylen;
     assert (keylen > 0);
-    if (pKeylen)
+    if (pKeylen){
       *pKeylen = keylen;
+    }
     return strncmp(&string1[offset1], &string2[offset2], keylen);
 }
 
 void init(int numthreads) {
 
-  if (numthreads != 1)
+  if (numthreads != 1){
     printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);
+  }
   root = NULL;
   pthread_mutexattr_init(&Attr);
   pthread_mutex_init(&lock, &Attr);
@@ -119,41 +127,34 @@ _search (struct trie_node *node, const char *string, size_t strlen) {
 
 }
 
-
-int search  (const char *string, size_t strlen, int32_t *ip4_address) {
   //pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
   //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-  int hasLock = pthread_mutex_trylock(&lock) ;
+    /*  printf("My thread ID is %d and I just searched.\n",myID);
+      sleep(1);
+    pthread_cleanup_pop(0);*/
 
-      int myID = (int ) pthread_self();
-      printf("My thread ID is %d and I just searched.\n",myID);
+int search  (const char *string, size_t strlen, int32_t *ip4_address) {
+  //int hasLock = pthread_mutex_trylock(&lock) ;
 
-  //printf("Haslock : %d \n",hasLock);
-  if (hasLock != 0){
-    printf("Value of try lock is %d \n",hasLock);
-    while (hasLock == 16){
-      pthread_mutex_trylock(&lock);
-      printf("spin\n");
-    }
-    if (hasLock == 35){
-      printf("thread %ld : value 35\n",pthread_self());
-        ;
-    }else {
-
+     int myID = (int ) pthread_self();
+  struct trie_node *found;
 
     pthread_cleanup_push(cleanup_handler,&lock);
-    printf("Not 35 not 16..thread id %ld \n",pthread_self());
-    pthread_cleanup_pop(1);
-    return 1;
+  /*if (pthread_mutex_trylock(&lock) != 0){
+    //printf("Value of try lock is %d \n",hasLock);
+    
+    if (pthread_mutex_trylock(&lock) == 16){
+      //pthread_mutex_trylock(&lock);
+      return 1;
+    }
+    if (pthread_mutex_trylock(&lock)  == 35){
+      printf("thread %ld : value 35\n",pthread_self());        
     }
   }
-  struct trie_node *found;
+  */
   // Skip strings of length 0
   if (strlen == 0){
-  pthread_cleanup_push(cleanup_handler,&lock);
-      
-    printf("Im leaving search STRLN == 0 threadID %ld\n",pthread_self());
-  pthread_cleanup_pop(1);
+  pthread_mutex_unlock(&lock);
     //pthread_mutex_unlock(&lock);
     return 0;
   }
@@ -161,9 +162,9 @@ int search  (const char *string, size_t strlen, int32_t *ip4_address) {
   if (found && ip4_address){
     *ip4_address = found->ip4_address;
   }
-  pthread_cleanup_push(cleanup_handler,&lock);
-  printf("Im leaving search right before found!= NULl\n");
-  pthread_cleanup_pop(1);
+    printf("Im leaving search right before found!= NULL My id : %d \n",myID);
+   // pthread_mutex_unlock(&lock);
+  pthread_cleanup_pop(0);
   return (found != NULL);
 }
 
@@ -291,20 +292,19 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 }
 
 int insert (const char *string, size_t strlength, int32_t ip4_address) {  
+  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 int ret = 0;
   // Skip strings of length
   if (allow_squatting){ 
-     pthread_cleanup_push(cleanup_handler,NULL);
-      int myID = (int ) pthread_self();
-      printf("My thread ID is %d and I just inserted.\n",myID);
-
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-    //pthread_mutex_lock(&lock);
-   
+    pthread_cleanup_push(cleanup_handler,NULL);
+    pthread_mutex_lock(&lock);
+    int myID = (int ) pthread_self();
     while ((search(string, strlength, &ip4_address)) == 1) { // net 0 lock
-
+  
       printf("THREAD ID : %ld Just entered wait\n",pthread_self());
       pthread_cond_wait(&cv,&lock); // net +1 lock
+      printf("THREAD ID : %ld WOKE UP\n",pthread_self());
+
 
     }
     //pthread_mutex_lock(&lock);
@@ -318,13 +318,17 @@ int ret = 0;
      if (strlength == 0){
       pthread_mutex_unlock(&lock);
       return 0;
+    
     }
+
     ret = _insert (string, strlength, ip4_address, root, NULL, NULL);
-     pthread_cleanup_pop(1);
+     pthread_mutex_unlock(&lock);
+    printf("My thread ID is %d and I just inserted.\n",myID);
+     pthread_cleanup_pop(0);
     return ret;
   }
   //Outside squatting
-pthread_mutex_lock(&lock);
+  pthread_mutex_lock(&lock);
   if (strlength == 0){
   pthread_mutex_unlock(&lock);
     return 0;
@@ -432,21 +436,29 @@ struct trie_node * _delete (struct trie_node *node, const char *string, size_t s
 }
 
 int delete  (const char *string, size_t strlen) {
-  // pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+  //pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
   int ret = 0;
-      int myID = (int ) pthread_self();
-      printf("My thread ID is %d and I just deleted.\n",myID);
+  int myID = (int ) pthread_self();
+
+  pthread_cleanup_push(cleanup_handler,NULL);
+  pthread_mutex_lock(&lock);
+  printf("My thread ID is %d and I just deleted.\n",myID);
 
   // Skip strings of length 0
   if (strlen == 0){
+    pthread_mutex_unlock(&lock);
     return 0;
   }
-  pthread_cleanup_push(cleanup_handler,NULL);
-  pthread_mutex_lock(&lock);
   ret = (NULL != _delete(root, string, strlen));
  // if(ret == 0)
-  pthread_cleanup_pop(1);
+
+
+  //pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
+  printf("CANCEL ENABLED broadcast %d\n",myID);
+  pthread_mutex_unlock(&lock);
   pthread_cond_broadcast(&cv);
+  pthread_cleanup_pop(0);
+  pthread_testcancel();
   return ret;
 }
 

@@ -43,6 +43,7 @@ client(void *arg)
   initstate_r(salt, rand_state, sizeof(rand_state), &rd);
 
   while (!finished) {
+
     /* Pick a random operation, string, and ip */
     int32_t code;
     int rv = random_r(&rd, &code);
@@ -294,30 +295,34 @@ int main(int argc, char ** argv) {
   }
   // After the simulation is done, shut it down
   sleep (simulation_length);
+  printf("Stopped sleeping");
   finished = 1;
 	
   // Wait for all clients to exit.  If we are allowing blocking,
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
       for (i = 0; i < numthreads; i++) {
-//	printf("hung\n");
 	int rv = pthread_cancel(tinfo[i]);
+  //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 	if (rv != 0)
 	  printf ("Uh oh.  pthread_cancel failed %d\n", rv);
       }
-//	printf("nuts\n");
   }
-
+  printf("All canceled\n");
   for (i = 0; i < numthreads; i++) {
     int rv = pthread_join(tinfo[i], NULL);
+    int myID = (int )tinfo[i];
+    printf("My thread ID is %d and Im in join\n",myID);
+
+    printf("JOIN RV IS : %d I is %d \n",rv, i);
     if (rv != 0)
       printf ("Uh oh.  pthread_join failed %d\n", rv);
   }
+  return 0;
 
 #ifdef DEBUG  
   /* Print the final tree for fun */
   print();
 #endif
 //printf("done\n");  
-  return 0;
 }
