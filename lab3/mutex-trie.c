@@ -400,15 +400,17 @@ int delete(const char *string, size_t strlen) {
 
         // if squatting is allowed and a key was deleted.
         if (allow_squatting && result) {
-            printf("Thread: %lu Node deleted, broadcasting %s\n", (long) pthread_self(), string);
+            rv = pthread_mutex_unlock(&lock);
+	    assert(rv == 0);
+	    printf("Thread: %lu Node deleted, broadcasting %s\n", (long) pthread_self(), string);
             rv = pthread_cond_broadcast(&cv);
             // Check to see if the broadcasr was successful
             assert(rv == 0);
-        }
-
+        } else {
         // Unlock
         rv = pthread_mutex_unlock(&lock);
         assert(rv == 0);
+	}
     }
     return result;
 }
