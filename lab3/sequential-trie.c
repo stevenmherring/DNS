@@ -49,7 +49,7 @@ int compare_keys (const char *string1, int len1, const char *string2, int len2, 
 }
 
 void init(int numthreads) {
-  if (numthreads != 1)
+  if (numthreads > 1)
     printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);
 
   root = NULL;
@@ -241,7 +241,7 @@ int insert (const char *string, size_t strlen, int32_t ip4_address) {
   // Skip strings of length 0
   int rv;
   while(allow_squatting) {
-    printf("Thread: %ld entered the squatting deadlock\n", pthread_self());
+    printf("Thread: %ld entered the squatting deadlock", pthread_self());
     rv = pthread_cond_wait(&cv, &lock);
     assert(rv == 0);
   }
