@@ -258,7 +258,6 @@ int main(int argc, char ** argv) {
   // Note: Each variant of the tree has a different init function, statically compiled in
   init(numthreads);
   srandom(time(0));
-
   // Run the self-tests if we are in debug mode 
 #ifdef DEBUG
   self_tests();
@@ -284,19 +283,33 @@ int main(int argc, char ** argv) {
   // After the simulation is done, shut it down
   sleep (simulation_length);
   finished = 1;
-
+#ifdef DEBUG
+   printf("\n------------------------------\n\n");
+   printf("You have %d worker threads", numthreads);
+   printf("\n------------------------------\n\n");
+#endif
   // Wait for all clients to exit.  If we are allowing blocking,
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
       for (i = 0; i < numthreads; i++) {
 	int rv = pthread_cancel(tinfo[i]);
-	if (rv != 0)
+	#ifdef DEBUG
+	printf("Thread: %ld queued for cancellation\n", tinfo[i]);
+	#endif
+  	if (rv != 0)
 	  printf ("Uh oh.  pthread_cancel failed %d\n", rv);
       }
   }
 
   for (i = 0; i < numthreads; i++) {
+    #ifdef DEBUG
+    printf("Thread: %ld attempting to join with Thread: %ld\n", tinfo[i], pthread_self());
+    #endif
     int rv = pthread_join(tinfo[i], NULL);
+    assert(rv == 0);
+    #ifdef DEBUG
+    printf("Thread: %ld: successfully joined with Thread: %ld\n",tinfo[i], pthread_self());
+    #endif
     if (rv != 0)
       printf ("Uh oh.  pthread_join failed %d\n", rv);
   }

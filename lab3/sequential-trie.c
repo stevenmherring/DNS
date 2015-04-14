@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "trie.h"
+#include <pthread.h>
 
 struct trie_node {
   struct trie_node *next;  /* parent list */
@@ -15,6 +16,8 @@ struct trie_node {
 };
 
 static struct trie_node * root = NULL;
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
 
 struct trie_node * new_leaf (const char *string, size_t strlen, int32_t ip4_address) {
   struct trie_node *new_node = malloc(sizeof(struct trie_node));
@@ -236,6 +239,12 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 
 int insert (const char *string, size_t strlen, int32_t ip4_address) {
   // Skip strings of length 0
+  int rv;
+  while(allow_squatting) {
+    printf("Thread: %ld entered the squatting deadlock\n", pthread_self());
+    rv = pthread_cond_wait(&cv, &lock);
+    assert(rv == 0);
+  }
   if (strlen == 0)
     return 0;
 
