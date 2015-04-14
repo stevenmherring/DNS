@@ -6,7 +6,7 @@ CFLAGS = -g -Wall -Werror -pthread
 	gcc $(CFLAGS) -c -o $@ $<
 
 dns-sequential: main.c sequential-trie.o
-	gcc $(CFLAGS) -o dns-sequential sequential-trie.o main.c
+	gcc $(CFLAGS) -o dns-sequential sequential-trie.o main.c 
 
 dns-mutex: main.c mutex-trie.o
 	gcc $(CFLAGS) -o dns-mutex mutex-trie.o main.c
