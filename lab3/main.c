@@ -19,8 +19,8 @@ int allow_squatting = 0;
 int simulation_length = 30; // default to 30 seconds
 volatile int finished = 0;
 
-// Uncomment this line for debug printin
-//#define DEBUG 1
+// Uncomment this line for debug printing
+#define DEBUG 1
 #ifdef DEBUG
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
@@ -66,46 +66,44 @@ client(void *arg)
 
       rv = random_r(&rd, &chars);
       if (rv) {
-        printf("Failed to get random number - %d\n", rv);
-        return NULL;
+	printf("Failed to get random number - %d\n", rv);
+	return NULL;
       }
 
       for (i = 0; i < 6 && (i+j) < length; i++) {
-          char val = ( (chars >> (5 * i)) & 31);
-          if (val > 25)
-            val = 25;
-            buf[j+i] = 'a' + val;
-          }
+	char val = ( (chars >> (5 * i)) & 31);
+	if (val > 25)
+	  val = 25;
+	buf[j+i] = 'a' + val;
+      }
     }
 
     DEBUG_PRINT ("Random string is %s\n", buf);
     
 
     switch (code % 3) {
-      case 0: // Search
-        DEBUG_PRINT ("Search\n");
-        search (buf, length, NULL);
-        break;
-
-      case 1: // insert
-        DEBUG_PRINT ("insert\n");
-        rv = random_r(&rd, &ip4_addr);
-        if (rv) {
-      	  printf("Failed to get random number - %d\n", rv);
-          return NULL;
-        }
-
-        insert (buf, length, ip4_addr);
-        break;
-
-      case 2: // delete
-        DEBUG_PRINT ("delete\n");
-        delete (buf, length);
-        break;
-      default:
-        assert(0);
+    case 0: // Search
+      DEBUG_PRINT ("Search\n");
+      search (buf, length, NULL);
+      break;
+    case 1: // insert
+      DEBUG_PRINT ("insert\n");
+      rv = random_r(&rd, &ip4_addr);
+      if (rv) {
+	printf("Failed to get random number - %d\n", rv);
+	return NULL;
       }
+
+      insert (buf, length, ip4_addr);
+      break;
+    case 2: // delete
+      DEBUG_PRINT ("delete\n");
+      delete (buf, length);
+      break;
+    default:
+      assert(0);
     }
+  }
 
   return NULL;
 }
@@ -141,23 +139,15 @@ squatter_stress(void *arg)
   } while (0)
 
 int self_tests() {
-  int myID = (int ) pthread_self();
-  printf("My thread ID is %d\n",myID);
   int rv;
   int32_t ip = 0;
 
-  printf("Start of self test\n");
-  print();
-  printf("Start of inserts\n");
   rv = insert ("abc", 3, 4);
   if (!rv) die ("Failed to insert key abc\n");
 
-
-  rv = insert ("bbb", 3, 4);
-  if (!rv) die ("Failed to insert key bbb\n");
-
   rv = delete("abc", 3);
   if (!rv) die ("Failed to delete key abc\n");
+  print();
 
   rv = insert ("google", 6, 5);
   if (!rv) die ("Failed to insert key google\n");
@@ -174,7 +164,6 @@ int self_tests() {
   rv = insert ("ab", 2, 2);
   if (!rv) die ("Failed to insert key ab\n");
 
-  printf("get here\n");
   rv = insert("bb", 2, 2);
   if (!rv) die ("Failed to insert key bb\n");
 
@@ -270,14 +259,12 @@ int main(int argc, char ** argv) {
   // Note: Each variant of the tree has a different init function, statically compiled in
   init(numthreads);
   srandom(time(0));
-
   // Run the self-tests if we are in debug mode 
 #ifdef DEBUG
   self_tests();
 #endif
+
   // Launch client threads
-  //printf("Starting self tests \n");
-  //self_tests();
   tinfo = calloc(numthreads, sizeof(pthread_t));
   for (i = 0; i < numthreads; i++) {
 
@@ -293,11 +280,16 @@ int main(int argc, char ** argv) {
       return rv;
     }
   }
+
   // After the simulation is done, shut it down
   sleep (simulation_length);
   printf("Stopped sleeping");
   finished = 1;
-	
+#ifdef DEBUG
+   printf("\n------------------------------\n\n");
+   printf("You have %d worker threads", numthreads);
+   printf("\n------------------------------\n\n");
+#endif
   // Wait for all clients to exit.  If we are allowing blocking,
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
@@ -305,16 +297,27 @@ int main(int argc, char ** argv) {
 	int rv = pthread_cancel(tinfo[i]);
   //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 	if (rv != 0)
+	#ifdef DEBUG
+	printf("Thread: %ld queued for cancellation\n", tinfo[i]);
+	#endif
+  	if (rv != 0)
 	  printf ("Uh oh.  pthread_cancel failed %d\n", rv);
       }
   }
   printf("All canceled\n");
   for (i = 0; i < numthreads; i++) {
+    #ifdef DEBUG
+    printf("Thread: %ld attempting to join with Thread: %ld\n", tinfo[i], pthread_self());
+    #endif
     int rv = pthread_join(tinfo[i], NULL);
     int myID = (int )tinfo[i];
     printf("My thread ID is %d and Im in join\n",myID);
 
     printf("JOIN RV IS : %d I is %d \n",rv, i);
+    assert(rv == 0);
+    #ifdef DEBUG
+    printf("Thread: %ld: successfully joined with Thread: %ld\n",tinfo[i], pthread_self());
+    #endif
     if (rv != 0)
       printf ("Uh oh.  pthread_join failed %d\n", rv);
   }
@@ -324,5 +327,6 @@ int main(int argc, char ** argv) {
   /* Print the final tree for fun */
   print();
 #endif
-//printf("done\n");  
+  
+  return 0;
 }

@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "trie.h"
 #include <pthread.h>
+#include "trie.h"
 
 struct trie_node {
   struct trie_node *next;  /* parent list */
@@ -18,6 +18,9 @@ struct trie_node {
 static struct trie_node * root = NULL;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
+static int volatile waiting = 0;
+static int threadCount;
+
 
 struct trie_node * new_leaf (const char *string, size_t strlen, int32_t ip4_address) {
   struct trie_node *new_node = malloc(sizeof(struct trie_node));
@@ -49,8 +52,7 @@ int compare_keys (const char *string1, int len1, const char *string2, int len2, 
 }
 
 void init(int numthreads) {
-  if (numthreads > 1)
-    printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);
+  threadCount = numthreads;
   root = NULL;
 }
 
@@ -100,17 +102,39 @@ _search (struct trie_node *node, const char *string, size_t strlen) {
 
 int search  (const char *string, size_t strlen, int32_t *ip4_address) {
   struct trie_node *found;
+  int rv, result;
 
   // Skip strings of length 0
   if (strlen == 0)
     return 0;
 
+  rv = pthread_mutex_lock(&lock);
+  assert(rv == 0);
   found = _search(root, string, strlen);
   
   if (found && ip4_address)
     *ip4_address = found->ip4_address;
 
-  return (found != NULL);
+  result = (found != NULL);
+
+  rv = pthread_mutex_unlock(&lock);
+  assert(rv == 0);
+
+  return result;
+}
+
+int squat_search(const char *string, size_t strlen, int32_t *ip4_address) {
+  struct trie_node *found;
+  int result = 0;
+  if(strlen == 0)
+    return result;
+  found = _search(root, string, strlen);
+
+  if(found && ip4_address)
+    *ip4_address = found->ip4_address;
+
+  result = (found != NULL);
+  return result;
 }
 
 /* Recursive helper function */
@@ -237,23 +261,34 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 }
 
 int insert (const char *string, size_t strlen, int32_t ip4_address) {
-  // Skip strings of length 0
-  int rv;
-  while(allow_squatting) {
-    printf("Thread: %ld entered the squatting deadlock\n", pthread_self());
-    rv = pthread_cond_wait(&cv, &lock);
+  int result = 0;
+  if(strlen > 0) {
+    int rv;
+    rv = pthread_mutex_lock(&lock);
+    assert(rv == 0);
+
+    if(allow_squatting && squat_search(string, strlen, &ip4_address)) {
+      do {
+        waiting++;
+        if(waiting == threadCount) {
+          printf("All squatting\n");
+        }
+        pthread_cond_wait(&cv, &lock);
+        waiting--;
+      } while (squat_search(string, strlen, &ip4_address));
+    }
+    //edge case, if null 
+    if(root == NULL) {
+      root = new_leaf(string, strlen, ip4_address);
+      result = 1;
+    } else {
+      result = _insert(string, strlen, ip4_address, root, NULL, NULL);
+    }
+    rv = pthread_mutex_unlock(&lock);
     assert(rv == 0);
   }
-  if (strlen == 0)
-    return 0;
-
-  /* Edge case: root is null */
-  if (root == NULL) {
-    root = new_leaf (string, strlen, ip4_address);
-    return 1;
-  }
-  return _insert (string, strlen, ip4_address, root, NULL, NULL);
-}
+  return result;
+}//insert
 
 /* Recursive helper function.
  * Returns a pointer to the node if found.
@@ -346,11 +381,22 @@ _delete (struct trie_node *node, const char *string,
 }
 
 int delete  (const char *string, size_t strlen) {
+	int result = 0;
   // Skip strings of length 0
-  if (strlen == 0)
-    return 0;
+  if(strlen != 0) {
+    int rv;
+    rv = pthread_mutex_lock(&lock);
+    assert(rv == 0);
+    result = (NULL != _delete(root, string, strlen));
 
-  return (NULL != _delete(root, string, strlen));
+    if(result && allow_squatting) {
+      rv = pthread_cond_broadcast(&cv);
+      assert(rv == 0);
+    }
+    rv = pthread_mutex_unlock(&lock);
+    assert(rv == 0);
+  }
+  return result;
 }
 
 
@@ -364,8 +410,16 @@ void _print (struct trie_node *node) {
 }
 
 void print() {
+  int rv;
+  rv = pthread_mutex_lock(&lock);
+  assert(rv == 0);
+
   printf ("Root is at %p\n", root);
   /* Do a simple depth-first search */
-  if (root)
+  if (root){
     _print(root);
+	}
+
+  rv = pthread_mutex_unlock(&lock);
+  assert(rv == 0);
 }

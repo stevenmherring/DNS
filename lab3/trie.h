@@ -1,6 +1,6 @@
 #ifndef __TRIE_H__
 #define __TRIE_H__
-
+#define MAX_KEY_SIZE 64
 #include <stdint.h>
 #include <assert.h>
 

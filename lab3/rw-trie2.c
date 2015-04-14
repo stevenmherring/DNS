@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "trie.h"
 #include <pthread.h>
+#include "trie.h"
 
 struct trie_node {
   struct trie_node *next;  /* parent list */
@@ -16,8 +16,8 @@ struct trie_node {
 };
 
 static struct trie_node * root = NULL;
-static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
+static pthread_rwlock_t lock;
+
 
 struct trie_node * new_leaf (const char *string, size_t strlen, int32_t ip4_address) {
   struct trie_node *new_node = malloc(sizeof(struct trie_node));
@@ -49,9 +49,11 @@ int compare_keys (const char *string1, int len1, const char *string2, int len2, 
 }
 
 void init(int numthreads) {
-  if (numthreads > 1)
+
+  if (numthreads != 1)
     printf("WARNING: This Trie is only safe to use with one thread!!!  You have %d!!!\n", numthreads);
   root = NULL;
+  pthread_rwlock_init(&lock, NULL);
 }
 
 /* Recursive helper function.
@@ -104,8 +106,9 @@ int search  (const char *string, size_t strlen, int32_t *ip4_address) {
   // Skip strings of length 0
   if (strlen == 0)
     return 0;
-
+  //pthread_mutex_lock(&lock);
   found = _search(root, string, strlen);
+  //pthread_mutex_unlock(&lock);
   
   if (found && ip4_address)
     *ip4_address = found->ip4_address;
@@ -237,22 +240,22 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 }
 
 int insert (const char *string, size_t strlen, int32_t ip4_address) {
+  int ret = 0;
   // Skip strings of length 0
-  int rv;
-  while(allow_squatting) {
-    printf("Thread: %ld entered the squatting deadlock\n", pthread_self());
-    rv = pthread_cond_wait(&cv, &lock);
-    assert(rv == 0);
-  }
   if (strlen == 0)
     return 0;
 
   /* Edge case: root is null */
   if (root == NULL) {
+    pthread_rwlock_wrlock(&lock);
     root = new_leaf (string, strlen, ip4_address);
+	pthread_rwlock_unlock(&lock);
     return 1;
   }
-  return _insert (string, strlen, ip4_address, root, NULL, NULL);
+  pthread_rwlock_wrlock(&lock);
+  ret = _insert (string, strlen, ip4_address, root, NULL, NULL);
+  pthread_rwlock_unlock(&lock);
+  return ret;
 }
 
 /* Recursive helper function.
@@ -346,11 +349,14 @@ _delete (struct trie_node *node, const char *string,
 }
 
 int delete  (const char *string, size_t strlen) {
+	int ret = 0;
   // Skip strings of length 0
   if (strlen == 0)
     return 0;
-
-  return (NULL != _delete(root, string, strlen));
+  pthread_rwlock_wrlock(&lock);
+  ret = (NULL != _delete(root, string, strlen));
+  pthread_rwlock_unlock(&lock);
+  return ret;
 }
 
 
@@ -366,6 +372,9 @@ void _print (struct trie_node *node) {
 void print() {
   printf ("Root is at %p\n", root);
   /* Do a simple depth-first search */
-  if (root)
+  if (root){
+    //pthread_mutex_lock(&lock);
     _print(root);
+	  //pthread_mutex_unlock(&lock);
+	}
 }
