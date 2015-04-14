@@ -294,34 +294,34 @@ int main(int argc, char ** argv) {
   // cancel the threads, since they may hang forever
   if (allow_squatting) {
       for (i = 0; i < numthreads; i++) {
-	int rv = pthread_cancel(tinfo[i]);
-  //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-	if (rv != 0)
+	       int rv = pthread_cancel(tinfo[i]);
+         //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 	#ifdef DEBUG
-	printf("Thread: %ld queued for cancellation\n", tinfo[i]);
+        	printf("Thread: %ld queued for cancellation\n", tinfo[i]);
 	#endif
-  	if (rv != 0)
-	  printf ("Uh oh.  pthread_cancel failed %d\n", rv);
+  	     if (rv != 0)
+	         printf ("Uh oh.  pthread_cancel failed %d\n", rv);
+        }
       }
-  }
-  printf("All canceled\n");
-  for (i = 0; i < numthreads; i++) {
-    #ifdef DEBUG
-    printf("Thread: %ld attempting to join with Thread: %ld\n", tinfo[i], pthread_self());
-    #endif
-    int rv = pthread_join(tinfo[i], NULL);
-    int myID = (int )tinfo[i];
-    printf("My thread ID is %d and Im in join\n",myID);
+      printf("All canceled\n");
+      for (i = 0; i < numthreads; i++) {
+        #ifdef DEBUG
+        printf("Thread: %ld attempting to join with Thread: %ld\n", tinfo[i], pthread_self());
+        #endif
+        int rv = pthread_join(tinfo[i], NULL);
+        int myID = (int )tinfo[i];
+        printf("My thread ID is %d and Im in join\n",myID);
 
-    printf("JOIN RV IS : %d I is %d \n",rv, i);
-    assert(rv == 0);
-    #ifdef DEBUG
-    printf("Thread: %ld: successfully joined with Thread: %ld\n",tinfo[i], pthread_self());
-    #endif
-    if (rv != 0)
-      printf ("Uh oh.  pthread_join failed %d\n", rv);
-  }
-  return 0;
+        printf("JOIN RV IS : %d I is %d \n",rv, i);
+        assert(rv == 0);
+        #ifdef DEBUG
+        printf("Thread: %ld: successfully joined with Thread: %ld\n",tinfo[i], pthread_self());
+        #endif
+        if (rv != 0)
+          printf ("Uh oh.  pthread_join failed %d\n", rv);
+      }
+  
+ return 0;
 
 #ifdef DEBUG  
   /* Print the final tree for fun */

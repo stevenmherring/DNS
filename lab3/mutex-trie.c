@@ -1,4 +1,3 @@
-
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,11 +13,22 @@ struct trie_node {
     char key[64]; /* Up to 64 chars */
 };
 
+
+
 static struct trie_node * root = NULL;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
 static int volatile blocked = 0;
 static int blockedCount;
+
+
+void cleanup_handler(void * arg){
+
+  pthread_mutex_unlock(&lock);
+  
+}
+ 
+
 
 struct trie_node * new_leaf(const char *string, size_t strlen, int32_t ip4_address) {
     struct trie_node *new_node = malloc(sizeof (struct trie_node));
@@ -114,15 +124,21 @@ int squat_search(const char *string, size_t strlen, int32_t *ip4_address) {
 
 int search(const char *string, size_t strlen, int32_t *ip4_address) {
     struct trie_node *found;
-    int rv, result;
+    //int rv;
+    int result;
 
     // Skip strings of length 0
     if (strlen == 0)
         return 0;
 
+
+    pthread_cleanup_push(cleanup_handler,&lock);
+
+
     // obtain the lock
-    rv = pthread_mutex_lock(&lock);
-    assert(rv == 0);
+    //rv = 
+    pthread_mutex_lock(&lock);
+    // assert(rv == 0);
     found = _search(root, string, strlen);
 
     if (found && ip4_address)
@@ -131,8 +147,10 @@ int search(const char *string, size_t strlen, int32_t *ip4_address) {
     result = (found != NULL);
 
     // Return the lock
-    rv = pthread_mutex_unlock(&lock);
-    assert(rv == 0);
+    /**** NEW ***/
+    pthread_cleanup_pop(1);
+    //rv = pthread_mutex_unlock(&lock);
+    //assert(rv == 0);
 
     return result;
 }
@@ -266,6 +284,9 @@ int insert(const char *string, size_t strlen, int32_t ip4_address) {
         int rv;
         // obtain the lock
         rv = pthread_mutex_lock(&lock);
+
+        pthread_cleanup_push(cleanup_handler,&lock);
+
         assert(rv == 0);
         // Check to see if node exists
         if (allow_squatting && squat_search(string, strlen, &ip4_address)) {
@@ -280,6 +301,7 @@ int insert(const char *string, size_t strlen, int32_t ip4_address) {
                 rv = pthread_cond_wait(&cv, &lock);
                 assert(rv == 0);
                 blocked--;
+                pthread_testcancel();
                 printf("Thread: %lu No longer blocked\n", (long) pthread_self());
             } while (squat_search(string, strlen, &ip4_address));
         }
@@ -292,7 +314,8 @@ int insert(const char *string, size_t strlen, int32_t ip4_address) {
         }
         printf("Thread: %lu inserted '%s'\n", (long) pthread_self(), string);
         // Unlock
-        rv = pthread_mutex_unlock(&lock);
+        //rv = pthread_mutex_unlock(&lock);
+                pthread_cleanup_pop(1);
         assert(rv == 0);
     }
     return result;
@@ -399,19 +422,20 @@ int delete(const char *string, size_t strlen) {
 
         // if squatting is allowed and a key was deleted.
         if (allow_squatting && result) {
-            printf("Thread: %lu Node deleted, broadcasting %s\n", (long) pthread_self(), string);
+            rv = pthread_mutex_unlock(&lock);
+	    assert(rv == 0);
+	    printf("Thread: %lu Node deleted, broadcasting %s\n", (long) pthread_self(), string);
             rv = pthread_cond_broadcast(&cv);
             // Check to see if the broadcasr was successful
             assert(rv == 0);
-        }
-
+        } else {
         // Unlock
         rv = pthread_mutex_unlock(&lock);
         assert(rv == 0);
+	}
     }
     return result;
 }
-
 
 void _print(struct trie_node *node) {
     printf("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n",
@@ -429,9 +453,10 @@ void print() {
     assert(rv == 0);
 
     printf("Root is at %p\n", root);
+    /* Do a simple depth-first search */
     if (root)
         _print(root);
-    
+
     // Unlock
     rv = pthread_mutex_unlock(&lock);
     assert(rv == 0);
