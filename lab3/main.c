@@ -309,10 +309,6 @@ int main(int argc, char ** argv) {
         printf("Thread: %ld attempting to join with Thread: %ld\n", tinfo[i], pthread_self());
         #endif
         int rv = pthread_join(tinfo[i], NULL);
-        int myID = (int )tinfo[i];
-        printf("My thread ID is %d and Im in join\n",myID);
-
-        printf("JOIN RV IS : %d I is %d \n",rv, i);
         assert(rv == 0);
         #ifdef DEBUG
         printf("Thread: %ld: successfully joined with Thread: %ld\n",tinfo[i], pthread_self());
