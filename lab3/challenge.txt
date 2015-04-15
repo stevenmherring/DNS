@@ -1,3 +1,6 @@
 Add a description of any challenge problems completed in this file.
 
-NONE
+Challenge #1 (up to 5 points): Made the _print function far more readable for users.
+Due to length and size, it would be impossible to 'draw' the tree with characters so
+we kept running counts of the Level and Index of each node on its level to print. Alert the
+user when a new level is entered and a neighbor is the next move.

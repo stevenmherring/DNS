@@ -130,11 +130,7 @@ int search(const char *string, size_t strlen, int32_t *ip4_address) {
     // Skip strings of length 0
     if (strlen == 0)
         return 0;
-
-
     pthread_cleanup_push(cleanup_handler,&lock);
-
-
     // obtain the lock
     //rv = 
     pthread_mutex_lock(&lock);
@@ -437,14 +433,32 @@ int delete(const char *string, size_t strlen) {
     return result;
 }
 
-void _print(struct trie_node *node) {
-    printf("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n",
-            node, node->strlen, node->key, node->ip4_address, node->next, node->children);
-    if (node->children)
-        _print(node->children);
-    if (node->next)
-        _print(node->next);
+void _print (struct trie_node *node, int printLevel, int nodePos) {
+//  printf ("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n", 
+    //  node, node->strlen, node->key, node->ip4_address, node->next, node->children);
+  printf("\nvvvvvvvv - The %d node on Level %d - vvvvvvvvvv\n", nodePos, printLevel);
+  printf("|Node at: %p\n", node);
+  printf("|Key: %.*s\n", node->strlen, node->key);
+  printf("|IP: %d\n", node->ip4_address);
+  printf("|Next: %p\n", node->next);
+  printf("|Child: %p\n", node->children);
+  printf("^^^^^^^^ - The %d node on Level %d - ^^^^^^^^^^\n", nodePos, printLevel);
+  if (node->children) {
+    printf("\nvvvvvvvvvvvvvv\n");
+    printf("!!!Entering next level of trie!!!\n");
+    printf("vvvvvvvvvvvvvv\n");
+   // printf("Now on Level %d at Position %d\n", printLevel, nodePos);
+    _print(node->children, printLevel+1, 0);
+  }
+  if (node->next) {
+    printf("\n>>>>>>>>>>>>>>\n");
+    printf("!!!Moving to next node of level!!!\n");
+    printf(">>>>>>>>>>>>>>\n");
+    //printf("Node on Level %d at Position %d\n", printLevel, nodePos);
+    _print(node->next, printLevel, nodePos+1);
+  }
 }
+
 
 void print() {
     int rv;
@@ -455,7 +469,7 @@ void print() {
     printf("Root is at %p\n", root);
     /* Do a simple depth-first search */
     if (root)
-        _print(root);
+        _print(root, 0, 0);
 
     // Unlock
     rv = pthread_mutex_unlock(&lock);

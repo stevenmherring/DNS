@@ -315,8 +315,6 @@ int main(int argc, char ** argv) {
         if (rv != 0)
           printf ("Uh oh.  pthread_join failed %d\n", rv);
       }
-  
- return 0;
 
 #ifdef DEBUG  
   /* Print the final tree for fun */

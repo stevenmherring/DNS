@@ -940,26 +940,36 @@ int delete  (const char *string, size_t strlen) {
 }
 
 
-void _print (struct trie_node *node) {
-
-  int lockAquired = pthread_mutex_lock(&(node->lock)); 
+void _print (struct trie_node *node, int printLevel, int nodePos) {
+//  printf ("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n", 
+	//  node, node->strlen, node->key, node->ip4_address, node->next, node->children);
+	  int lockAquired = pthread_mutex_lock(&(node->lock)); 
   assert(lockAquired == 0);
-
-  printf ("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n", 
-	  node, node->strlen, node->key, node->ip4_address, node->next, node->children);
-  if (node->children)
-  {
-    _print(node->children);
+  printf("\nvvvvvvvv - The %d node on Level %d - vvvvvvvvvv\n", nodePos, printLevel);
+  printf("|Node at: %p\n", node);
+  printf("|Key: %.*s\n", node->strlen, node->key);
+  printf("|IP: %d\n", node->ip4_address);
+  printf("|Next: %p\n", node->next);
+  printf("|Child: %p\n", node->children);
+  printf("^^^^^^^^ - The %d node on Level %d - ^^^^^^^^^^\n", nodePos, printLevel);
+  if (node->children) {
+    printf("\nvvvvvvvvvvvvvv\n");
+    printf("!!!Entering next level of trie!!!\n");
+    printf("vvvvvvvvvvvvvv\n");
+   // printf("Now on Level %d at Position %d\n", printLevel, nodePos);
+    _print(node->children, printLevel+1, 0);
   }
-  
-  if (node->next)
-  {
-    _print(node->next);
+  if (node->next) {
+    printf("\n>>>>>>>>>>>>>>\n");
+    printf("!!!Moving to next node of level!!!\n");
+    printf(">>>>>>>>>>>>>>\n");
+    //printf("Node on Level %d at Position %d\n", printLevel, nodePos);
+    _print(node->next, printLevel, nodePos+1);
   }
-  
-  int lockReleased = pthread_mutex_unlock(&(node->lock)); 
+    int lockReleased = pthread_mutex_unlock(&(node->lock)); 
   assert(lockReleased == 0);
 }
+
 
 void print() {
   // TODO get root lock
@@ -969,6 +979,6 @@ void print() {
   
   if(node)
   {
-	_print(node);
+	_print(node,0 ,0);
   }
 }
