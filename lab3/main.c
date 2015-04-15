@@ -283,7 +283,6 @@ int main(int argc, char ** argv) {
 
   // After the simulation is done, shut it down
   sleep (simulation_length);
-  printf("Stopped sleeping");
   finished = 1;
 #ifdef DEBUG
    printf("\n------------------------------\n\n");

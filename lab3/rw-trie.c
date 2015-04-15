@@ -15,12 +15,25 @@ struct trie_node {
     char key[64]; /* Up to 64 chars */
 };
 
+
+
 static struct trie_node * root = NULL;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_rwlock_t rwlock = PTHREAD_RWLOCK_INITIALIZER;
+
 static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
 static int volatile blocked = 0;
 static int blockedCount;
 
+
+void cleanup_handler(void * arg){
+    int rv;
+  rv = pthread_mutex_unlock(&lock);
+  assert(rv == 0);
+  rv = pthread_rwlock_unlock(&rwlock);
+  assert(rv == 0);
+}
+ 
 struct trie_node * new_leaf(const char *string, size_t strlen, int32_t ip4_address) {
     struct trie_node *new_node = malloc(sizeof (struct trie_node));
     if (!new_node) {
@@ -116,13 +129,14 @@ int squat_search(const char *string, size_t strlen, int32_t *ip4_address) {
 int search(const char *string, size_t strlen, int32_t *ip4_address) {
     struct trie_node *found;
     int rv, result;
+    pthread_cleanup_push(cleanup_handler,&lock);
 
     // Skip strings of length 0
     if (strlen == 0)
         return 0;
 
     // obtain the lock
-    rv = pthread_mutex_lock(&lock);
+    rv = pthread_rwlock_rdlock(&rwlock);
     assert(rv == 0);
     found = _search(root, string, strlen);
 
@@ -132,7 +146,7 @@ int search(const char *string, size_t strlen, int32_t *ip4_address) {
     result = (found != NULL);
 
     // Return the lock
-    rv = pthread_mutex_unlock(&lock);
+    pthread_cleanup_pop(1);
     assert(rv == 0);
 
     return result;
@@ -266,6 +280,8 @@ int insert(const char *string, size_t strlen, int32_t ip4_address) {
     if (strlen > 0) {
         int rv;
         // obtain the lock
+        pthread_cleanup_push(cleanup_handler,&lock);
+        pthread_rwlock_wrlock(&rwlock);
         rv = pthread_mutex_lock(&lock);
         assert(rv == 0);
         // Check to see if node exists
@@ -278,7 +294,11 @@ int insert(const char *string, size_t strlen, int32_t ip4_address) {
                     blocked--;
                     break;
                 }
-                rv = pthread_cond_wait(&cv, &lock);
+                rv = pthread_rwlock_unlock(&rwlock); 
+                assert(rv == 0); 
+                rv = pthread_cond_wait(&cv, &lock); 
+                assert(rv == 0); 
+                rv = pthread_rwlock_wrlock(&rwlock); 
                 assert(rv == 0);
                 blocked--;
                 printf("Thread: %lu No longer blocked\n", (long) pthread_self());
@@ -293,8 +313,9 @@ int insert(const char *string, size_t strlen, int32_t ip4_address) {
         }
         printf("Thread: %lu inserted '%s'\n", (long) pthread_self(), string);
         // Unlock
-        rv = pthread_mutex_unlock(&lock);
-        assert(rv == 0);
+        //rv = pthread_mutex_unlock(&lock);
+        pthread_cleanup_pop(1);
+        //assert(rv == 0);
     }
     return result;
 }
@@ -393,8 +414,9 @@ int delete(const char *string, size_t strlen) {
     if (strlen != 0) {
         int rv;
         // Obtain the lock
-        rv = pthread_mutex_lock(&lock);
-        assert(rv == 0);
+        pthread_cleanup_push(cleanup_handler,&lock);
+        pthread_rwlock_wrlock(&rwlock);
+        //assert(rv == 0);
         // Attempt to delete the node.
         result = (NULL != _delete(root, string, strlen));
 
@@ -407,8 +429,9 @@ int delete(const char *string, size_t strlen) {
         }
 
         // Unlock
-        rv = pthread_mutex_unlock(&lock);
-        assert(rv == 0);
+        //rv = pthread_mutex_unlock(&lock);
+        //assert(rv == 0);
+        pthread_cleanup_pop(1);
     }
     return result;
 }
