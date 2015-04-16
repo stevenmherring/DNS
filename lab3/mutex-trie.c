@@ -6,11 +6,11 @@
 #include "trie.h"
 
 struct trie_node {
-    struct trie_node *next; /* parent list */
-    unsigned int strlen; /* Length of the key */
-    int32_t ip4_address; /* 4 octets */
-    struct trie_node *children; /* Sorted list of children */
-    char key[64]; /* Up to 64 chars */
+  struct trie_node *next; /* parent list */
+  unsigned int strlen; /* Length of the key */
+  int32_t ip4_address; /* 4 octets */
+  struct trie_node *children; /* Sorted list of children */
+  char key[64]; /* Up to 64 chars */
 };
 
 
@@ -25,206 +25,206 @@ static int blockedCount;
 void cleanup_handler(void * arg){
 
   pthread_mutex_unlock(&lock);
-  
+
 }
- 
+
 
 
 struct trie_node * new_leaf(const char *string, size_t strlen, int32_t ip4_address) {
-    struct trie_node *new_node = malloc(sizeof (struct trie_node));
-    if (!new_node) {
-        printf("WARNING: Node memory allocation failed.  Results may be bogus.\n");
-        return NULL;
-    }
-    assert(strlen < 64);
-    assert(strlen > 0);
-    new_node->next = NULL;
-    new_node->strlen = strlen;
-    strncpy(new_node->key, string, strlen);
-    new_node->key[strlen] = '\0';
-    new_node->ip4_address = ip4_address;
-    new_node->children = NULL;
+  struct trie_node *new_node = malloc(sizeof (struct trie_node));
+  if (!new_node) {
+    printf("WARNING: Node memory allocation failed.  Results may be bogus.\n");
+    return NULL;
+  }
+  assert(strlen < 64);
+  assert(strlen > 0);
+  new_node->next = NULL;
+  new_node->strlen = strlen;
+  strncpy(new_node->key, string, strlen);
+  new_node->key[strlen] = '\0';
+  new_node->ip4_address = ip4_address;
+  new_node->children = NULL;
 
-    return new_node;
+  return new_node;
 }
 
 int compare_keys(const char *string1, int len1, const char *string2, int len2, int *pKeylen) {
-    int keylen, offset1, offset2;
-    keylen = len1 < len2 ? len1 : len2;
-    offset1 = len1 - keylen;
-    offset2 = len2 - keylen;
-    assert(keylen > 0);
-    if (pKeylen)
-        *pKeylen = keylen;
-    return strncmp(&string1[offset1], &string2[offset2], keylen);
+  int keylen, offset1, offset2;
+  keylen = len1 < len2 ? len1 : len2;
+  offset1 = len1 - keylen;
+  offset2 = len2 - keylen;
+  assert(keylen > 0);
+  if (pKeylen)
+  *pKeylen = keylen;
+  return strncmp(&string1[offset1], &string2[offset2], keylen);
 }
 
 void init(int numthreads) {
-    // keep track of the number of threads being used.
-    blockedCount = numthreads;
-    root = NULL;
+  // keep track of the number of threads being used.
+  blockedCount = numthreads;
+  root = NULL;
 }
 
 /* Recursive helper function.
- * Returns a pointer to the node if found.
- * Stores an optional pointer to the 
- * parent, or what should be the parent if not found.
- * 
- */
+* Returns a pointer to the node if found.
+* Stores an optional pointer to the
+* parent, or what should be the parent if not found.
+*
+*/
 struct trie_node *
 _search(struct trie_node *node, const char *string, size_t strlen) {
 
-    int keylen, cmp;
+  int keylen, cmp;
 
-    // First things first, check if we are NULL 
-    if (node == NULL) return NULL;
+  // First things first, check if we are NULL
+  if (node == NULL) return NULL;
 
-    assert(node->strlen < 64);
+  assert(node->strlen < 64);
 
-    // See if this key is a substring of the string passed in
-    cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
-    if (cmp == 0) {
-        // Yes, either quit, or recur on the children
+  // See if this key is a substring of the string passed in
+  cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
+  if (cmp == 0) {
+    // Yes, either quit, or recur on the children
 
-        // If this key is longer than our search string, the key isn't here
-        if (node->strlen > keylen) {
-            return NULL;
-        } else if (strlen > keylen) {
-            // Recur on children list
-            return _search(node->children, string, strlen - keylen);
-        } else {
-            assert(strlen == keylen);
-
-            return node;
-        }
-
-    } else if (cmp < 0) {
-        // No, look right (the node's key is "less" than the search key)
-        return _search(node->next, string, strlen);
+    // If this key is longer than our search string, the key isn't here
+    if (node->strlen > keylen) {
+      return NULL;
+    } else if (strlen > keylen) {
+      // Recur on children list
+      return _search(node->children, string, strlen - keylen);
     } else {
-        // Quit early
-        return 0;
+      assert(strlen == keylen);
+
+      return node;
     }
+
+  } else if (cmp < 0) {
+    // No, look right (the node's key is "less" than the search key)
+    return _search(node->next, string, strlen);
+  } else {
+    // Quit early
+    return 0;
+  }
 
 }
 
 //Special non lock function for squatting
 int squat_search(const char *string, size_t strlen, int32_t *ip4_address) {
-    struct trie_node *found;
-    int result = 0;
-    // Skip strings of length 0
-    if (strlen == 0)
-        return result;
-    found = _search(root, string, strlen);
-    if (found && ip4_address)
-        *ip4_address = found->ip4_address;
-    result = (found != NULL);
-    return result;
+  struct trie_node *found;
+  int result = 0;
+  // Skip strings of length 0
+  if (strlen == 0)
+  return result;
+  found = _search(root, string, strlen);
+  if (found && ip4_address)
+  *ip4_address = found->ip4_address;
+  result = (found != NULL);
+  return result;
 }
 
 int search(const char *string, size_t strlen, int32_t *ip4_address) {
-    struct trie_node *found;
-    //int rv;
-    int result;
+  struct trie_node *found;
+  //int rv;
+  int result;
 
-    // Skip strings of length 0
-    if (strlen == 0)
-        return 0;
-    pthread_cleanup_push(cleanup_handler,&lock);
-    // obtain the lock
-    //rv = 
-    pthread_mutex_lock(&lock);
-    // assert(rv == 0);
-    found = _search(root, string, strlen);
+  // Skip strings of length 0
+  if (strlen == 0)
+  return 0;
+  pthread_cleanup_push(cleanup_handler,&lock);
+  // obtain the lock
+  //rv =
+  pthread_mutex_lock(&lock);
+  // assert(rv == 0);
+  found = _search(root, string, strlen);
 
-    if (found && ip4_address)
-        *ip4_address = found->ip4_address;
+  if (found && ip4_address)
+  *ip4_address = found->ip4_address;
 
-    result = (found != NULL);
+  result = (found != NULL);
 
-    // Return the lock
-    /**** NEW ***/
-    pthread_cleanup_pop(1);
-    //rv = pthread_mutex_unlock(&lock);
-    //assert(rv == 0);
+  // Return the lock
+  /**** NEW ***/
+  pthread_cleanup_pop(1);
+  //rv = pthread_mutex_unlock(&lock);
+  //assert(rv == 0);
 
-    return result;
+  return result;
 }
 
 /* Recursive helper function */
 int _insert(const char *string, size_t strlen, int32_t ip4_address,
-        struct trie_node *node, struct trie_node *parent, struct trie_node *left) {
+  struct trie_node *node, struct trie_node *parent, struct trie_node *left) {
 
     int cmp, keylen;
 
-    // First things first, check if we are NULL 
+    // First things first, check if we are NULL
     assert(node != NULL);
     assert(node->strlen < 64);
 
     // Take the minimum of the two lengths
     cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
     if (cmp == 0) {
-        // Yes, either quit, or recur on the children
+      // Yes, either quit, or recur on the children
 
-        // If this key is longer than our search string, we need to insert
-        // "above" this node
-        if (node->strlen > keylen) {
-            struct trie_node *new_node;
+      // If this key is longer than our search string, we need to insert
+      // "above" this node
+      if (node->strlen > keylen) {
+        struct trie_node *new_node;
 
-            assert(keylen == strlen);
-            assert((!parent) || parent->children == node);
+        assert(keylen == strlen);
+        assert((!parent) || parent->children == node);
 
-            new_node = new_leaf(string, strlen, ip4_address);
-            node->strlen -= keylen;
-            new_node->children = node;
+        new_node = new_leaf(string, strlen, ip4_address);
+        node->strlen -= keylen;
+        new_node->children = node;
 
-            assert((!parent) || (!left));
+        assert((!parent) || (!left));
 
-            if (parent) {
-                parent->children = new_node;
-            } else if (left) {
-                left->next = new_node;
-            } else if ((!parent) || (!left)) {
-                root = new_node;
-            }
-            return 1;
+        if (parent) {
+          parent->children = new_node;
+        } else if (left) {
+          left->next = new_node;
+        } else if ((!parent) || (!left)) {
+          root = new_node;
+        }
+        return 1;
 
-        } else if (strlen > keylen) {
+      } else if (strlen > keylen) {
 
-            if (node->children == NULL) {
-                // Insert leaf here
-                struct trie_node *new_node = new_leaf(string, strlen - keylen, ip4_address);
-                node->children = new_node;
-                return 1;
-            } else {
-                // Recur on children list, store "parent" (loosely defined)
-                return _insert(string, strlen - keylen, ip4_address,
-                        node->children, node, NULL);
-            }
+        if (node->children == NULL) {
+          // Insert leaf here
+          struct trie_node *new_node = new_leaf(string, strlen - keylen, ip4_address);
+          node->children = new_node;
+          return 1;
         } else {
-            assert(strlen == keylen);
-            if (node->ip4_address == 0) {
-                node->ip4_address = ip4_address;
-                return 1;
-            } else {
-                return 0;
-            }
+          // Recur on children list, store "parent" (loosely defined)
+          return _insert(string, strlen - keylen, ip4_address,
+            node->children, node, NULL);
+          }
+        } else {
+          assert(strlen == keylen);
+          if (node->ip4_address == 0) {
+            node->ip4_address = ip4_address;
+            return 1;
+          } else {
+            return 0;
+          }
         }
 
-    } else {
+      } else {
         /* Is there any common substring? */
         int i, cmp2, keylen2, overlap = 0;
         for (i = 1; i < keylen; i++) {
-            cmp2 = compare_keys(&node->key[i], node->strlen - i,
-                    &string[i], strlen - i, &keylen2);
+          cmp2 = compare_keys(&node->key[i], node->strlen - i,
+            &string[i], strlen - i, &keylen2);
             assert(keylen2 > 0);
             if (cmp2 == 0) {
-                overlap = 1;
-                break;
+              overlap = 1;
+              break;
             }
-        }
+          }
 
-        if (overlap) {
+          if (overlap) {
             // Insert a common parent, recur
             struct trie_node *new_node = new_leaf(&string[i], strlen - i, 0);
             int diff = node->strlen - i;
@@ -234,244 +234,246 @@ int _insert(const char *string, size_t strlen, int32_t ip4_address,
             assert((!parent) || (!left));
 
             if (node == root) {
-                new_node->next = node->next;
-                node->next = NULL;
-                root = new_node;
+              new_node->next = node->next;
+              node->next = NULL;
+              root = new_node;
             } else if (parent) {
-                assert(parent->children == node);
-                new_node->next = NULL;
-                parent->children = new_node;
+              assert(parent->children == node);
+              new_node->next = NULL;
+              parent->children = new_node;
             } else if (left) {
-                new_node->next = node->next;
-                node->next = NULL;
-                left->next = new_node;
+              new_node->next = node->next;
+              node->next = NULL;
+              left->next = new_node;
             } else if ((!parent) && (!left)) {
-                root = new_node;
+              root = new_node;
             }
 
             return _insert(string, i, ip4_address,
-                    node, new_node, NULL);
-        } else if (cmp < 0) {
-            if (node->next == NULL) {
+              node, new_node, NULL);
+            } else if (cmp < 0) {
+              if (node->next == NULL) {
                 // Insert here
                 struct trie_node *new_node = new_leaf(string, strlen, ip4_address);
                 node->next = new_node;
                 return 1;
-            } else {
+              } else {
                 // No, recur right (the node's key is "greater" than  the search key)
                 return _insert(string, strlen, ip4_address, node->next, NULL, node);
+              }
+            } else {
+              // Insert here
+              struct trie_node *new_node = new_leaf(string, strlen, ip4_address);
+              new_node->next = node;
+              if (node == root)
+              root = new_node;
+              else if (parent && parent->children == node)
+              parent->children = new_node;
+              else if (left && left->next == node)
+              left->next = new_node;
             }
-        } else {
-            // Insert here
-            struct trie_node *new_node = new_leaf(string, strlen, ip4_address);
-            new_node->next = node;
-            if (node == root)
-                root = new_node;
-            else if (parent && parent->children == node)
-                parent->children = new_node;
+            return 1;
+          }
         }
-        return 1;
-    }
-}
 
-int insert(const char *string, size_t strlen, int32_t ip4_address) {
-    int result = 0;
-    if (strlen > 0) {
-        int rv;
-        // obtain the lock
-        rv = pthread_mutex_lock(&lock);
+        int insert(const char *string, size_t strlen, int32_t ip4_address) {
+          int result = 0;
+          if (strlen > 0) {
+            int rv;
+            // obtain the lock
+            rv = pthread_mutex_lock(&lock);
 
-        pthread_cleanup_push(cleanup_handler,&lock);
+            pthread_cleanup_push(cleanup_handler,&lock);
 
-        assert(rv == 0);
-        // Check to see if node exists
-        if (allow_squatting && squat_search(string, strlen, &ip4_address)) {
-            do {
+            assert(rv == 0);
+            // Check to see if node exists
+            if (allow_squatting && squat_search(string, strlen, &ip4_address)) {
+              do {
                 printf("Thread: %lu Blocked from insert'%s'\n", (long) pthread_self(), string);
                 blocked++;
                 if (blocked == blockedCount) {
-                    printf("\nEveryone is Squatting, Free the last squatter!\n");
-                    blocked--;
-                    break;
+                  printf("\nEveryone is Squatting, Free the last squatter!\n");
+                  blocked--;
+                  break;
                 }
                 rv = pthread_cond_wait(&cv, &lock);
                 assert(rv == 0);
                 blocked--;
                 pthread_testcancel();
                 printf("Thread: %lu No longer blocked\n", (long) pthread_self());
-            } while (squat_search(string, strlen, &ip4_address));
+              } while (squat_search(string, strlen, &ip4_address));
+            }
+            /* Edge case: root is null */
+            if (root == NULL) {
+              root = new_leaf(string, strlen, ip4_address);
+              result = 1;
+            } else {
+              result = _insert(string, strlen, ip4_address, root, NULL, NULL);
+            }
+            printf("Thread: %lu inserted '%s'\n", (long) pthread_self(), string);
+            // Unlock
+            //rv = pthread_mutex_unlock(&lock);
+            pthread_cleanup_pop(1);
+            assert(rv == 0);
+          }
+          return result;
         }
-        /* Edge case: root is null */
-        if (root == NULL) {
-            root = new_leaf(string, strlen, ip4_address);
-            result = 1;
-        } else {
-            result = _insert(string, strlen, ip4_address, root, NULL, NULL);
-        }
-        printf("Thread: %lu inserted '%s'\n", (long) pthread_self(), string);
-        // Unlock
-        //rv = pthread_mutex_unlock(&lock);
-                pthread_cleanup_pop(1);
-        assert(rv == 0);
-    }
-    return result;
-}
 
-/* Recursive helper function.
- * Returns a pointer to the node if found.
- * Stores an optional pointer to the 
- * parent, or what should be the parent if not found.
- */
-struct trie_node *
-_delete(struct trie_node *node, const char *string,
-        size_t strlen) {
-    int keylen, cmp;
+        /* Recursive helper function.
+        * Returns a pointer to the node if found.
+        * Stores an optional pointer to the
+        * parent, or what should be the parent if not found.
+        */
+        struct trie_node *
+        _delete(struct trie_node *node, const char *string,
+          size_t strlen) {
+            int keylen, cmp;
 
-    // First things first, check if we are NULL 
-    if (node == NULL) return NULL;
+            // First things first, check if we are NULL
+            if (node == NULL) return NULL;
 
-    assert(node->strlen < 64);
+            assert(node->strlen < 64);
 
-    // See if this key is a substring of the string passed in
-    cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
-    if (cmp == 0) {
-        // Yes, either quit, or recur on the children
+            // See if this key is a substring of the string passed in
+            cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
+            if (cmp == 0) {
+              // Yes, either quit, or recur on the children
 
-        // If this key is longer than our search string, the key isn't here
-        if (node->strlen > keylen) {
-            return NULL;
-        } else if (strlen > keylen) {
-            struct trie_node *found = _delete(node->children, string, strlen - keylen);
-            if (found) {
-                /* If the node doesn't have children, delete it.
-                 * Otherwise, keep it around to find the kids */
-                if (found->children == NULL && found->ip4_address == 0) {
+              // If this key is longer than our search string, the key isn't here
+              if (node->strlen > keylen) {
+                return NULL;
+              } else if (strlen > keylen) {
+                struct trie_node *found = _delete(node->children, string, strlen - keylen);
+                if (found) {
+                  /* If the node doesn't have children, delete it.
+                  * Otherwise, keep it around to find the kids */
+                  if (found->children == NULL && found->ip4_address == 0) {
                     assert(node->children == found);
                     node->children = found->next;
                     free(found);
-                }
+                  }
 
-                /* Delete the root node if we empty the tree */
-                if (node == root && node->children == NULL && node->ip4_address == 0) {
+                  /* Delete the root node if we empty the tree */
+                  if (node == root && node->children == NULL && node->ip4_address == 0) {
                     root = node->next;
                     free(node);
-                }
+                  }
 
+                  return node; /* Recursively delete needless interior nodes */
+                } else
+                return NULL;
+              } else {
+                assert(strlen == keylen);
+
+                /* We found it! Clear the ip4 address and return. */
+                if (node->ip4_address) {
+                  node->ip4_address = 0;
+
+                  /* Delete the root node if we empty the tree */
+                  if (node == root && node->children == NULL && node->ip4_address == 0) {
+                    root = node->next;
+                    free(node);
+                    return (struct trie_node *) 0x100100; /* XXX: Don't use this pointer for anything except
+                    * comparison with NULL, since the memory is freed.
+                    * Return a "poison" pointer that will probably
+                    * segfault if used.
+                    */
+                  }
+                  return node;
+                } else {
+                  /* Just an interior node with no value */
+                  return NULL;
+                }
+              }
+
+            } else if (cmp < 0) {
+              // No, look right (the node's key is "less" than  the search key)
+              struct trie_node *found = _delete(node->next, string, strlen);
+              if (found) {
+                /* If the node doesn't have children, delete it.
+                * Otherwise, keep it around to find the kids */
+                if (found->children == NULL && found->ip4_address == 0) {
+                  assert(node->next == found);
+                  node->next = found->next;
+                  free(found);
+                }
                 return node; /* Recursively delete needless interior nodes */
-            } else
-                return NULL;
-        } else {
-            assert(strlen == keylen);
-
-            /* We found it! Clear the ip4 address and return. */
-            if (node->ip4_address) {
-                node->ip4_address = 0;
-
-                /* Delete the root node if we empty the tree */
-                if (node == root && node->children == NULL && node->ip4_address == 0) {
-                    root = node->next;
-                    free(node);
-                    return (struct trie_node *) 0x100100; /* XXX: Don't use this pointer for anything except 
-                         * comparison with NULL, since the memory is freed.
-                         * Return a "poison" pointer that will probably 
-                         * segfault if used.
-                         */
-                }
-                return node;
+              }
+              return NULL;
             } else {
-                /* Just an interior node with no value */
-                return NULL;
+              // Quit early
+              return NULL;
             }
-        }
 
-    } else if (cmp < 0) {
-        // No, look right (the node's key is "less" than  the search key)
-        struct trie_node *found = _delete(node->next, string, strlen);
-        if (found) {
-            /* If the node doesn't have children, delete it.
-             * Otherwise, keep it around to find the kids */
-            if (found->children == NULL && found->ip4_address == 0) {
-                assert(node->next == found);
-                node->next = found->next;
-                free(found);
+          }
+
+          int delete(const char *string, size_t strlen) {
+            int result = 0;
+            // Skip strings of length 0
+            if (strlen != 0) {
+              int rv;
+              // Obtain the lock
+              rv = pthread_mutex_lock(&lock);
+              assert(rv == 0);
+              // Attempt to delete the node.
+              result = (NULL != _delete(root, string, strlen));
+
+              // if squatting is allowed and a key was deleted.
+              if (allow_squatting && result) {
+                rv = pthread_mutex_unlock(&lock);
+                assert(rv == 0);
+                printf("Thread: %lu Node deleted, broadcasting %s\n", (long) pthread_self(), string);
+                rv = pthread_cond_broadcast(&cv);
+                // Check to see if the broadcasr was successful
+                assert(rv == 0);
+              } else {
+                // Unlock
+                rv = pthread_mutex_unlock(&lock);
+                assert(rv == 0);
+              }
             }
-            return node; /* Recursively delete needless interior nodes */
-        }
-        return NULL;
-    } else {
-        // Quit early
-        return NULL;
-    }
+            return result;
+          }
 
-}
+          void _print (struct trie_node *node, int printLevel, int nodePos) {
+            //  printf ("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n",
+            //  node, node->strlen, node->key, node->ip4_address, node->next, node->children);
+            printf("\nvvvvvvvv - The %d node on Level %d - vvvvvvvvvv\n", nodePos, printLevel);
+            printf("|Node at: %p\n", node);
+            printf("|Key: %.*s\n", node->strlen, node->key);
+            printf("|IP: %d\n", node->ip4_address);
+            printf("|Next: %p\n", node->next);
+            printf("|Child: %p\n", node->children);
+            printf("^^^^^^^^ - The %d node on Level %d - ^^^^^^^^^^\n", nodePos, printLevel);
+            if (node->children) {
+              printf("\nvvvvvvvvvvvvvv\n");
+              printf("!!!Entering next level of trie!!!\n");
+              printf("vvvvvvvvvvvvvv\n");
+              // printf("Now on Level %d at Position %d\n", printLevel, nodePos);
+              _print(node->children, printLevel+1, 0);
+            }
+            if (node->next) {
+              printf("\n>>>>>>>>>>>>>>\n");
+              printf("!!!Moving to next node of level!!!\n");
+              printf(">>>>>>>>>>>>>>\n");
+              //printf("Node on Level %d at Position %d\n", printLevel, nodePos);
+              _print(node->next, printLevel, nodePos+1);
+            }
+          }
 
-int delete(const char *string, size_t strlen) {
-    int result = 0;
-    // Skip strings of length 0
-    if (strlen != 0) {
-        int rv;
-        // Obtain the lock
-        rv = pthread_mutex_lock(&lock);
-        assert(rv == 0);
-        // Attempt to delete the node.
-        result = (NULL != _delete(root, string, strlen));
 
-        // if squatting is allowed and a key was deleted.
-        if (allow_squatting && result) {
-            rv = pthread_mutex_unlock(&lock);
-	    assert(rv == 0);
-	    printf("Thread: %lu Node deleted, broadcasting %s\n", (long) pthread_self(), string);
-            rv = pthread_cond_broadcast(&cv);
-            // Check to see if the broadcasr was successful
+          void print() {
+            int rv;
+            // Obtain the lock
+            rv = pthread_mutex_lock(&lock);
             assert(rv == 0);
-        } else {
-        // Unlock
-        rv = pthread_mutex_unlock(&lock);
-        assert(rv == 0);
-	}
-    }
-    return result;
-}
 
-void _print (struct trie_node *node, int printLevel, int nodePos) {
-//  printf ("Node at %p.  Key %.*s, IP %d.  Next %p, Children %p\n", 
-    //  node, node->strlen, node->key, node->ip4_address, node->next, node->children);
-  printf("\nvvvvvvvv - The %d node on Level %d - vvvvvvvvvv\n", nodePos, printLevel);
-  printf("|Node at: %p\n", node);
-  printf("|Key: %.*s\n", node->strlen, node->key);
-  printf("|IP: %d\n", node->ip4_address);
-  printf("|Next: %p\n", node->next);
-  printf("|Child: %p\n", node->children);
-  printf("^^^^^^^^ - The %d node on Level %d - ^^^^^^^^^^\n", nodePos, printLevel);
-  if (node->children) {
-    printf("\nvvvvvvvvvvvvvv\n");
-    printf("!!!Entering next level of trie!!!\n");
-    printf("vvvvvvvvvvvvvv\n");
-   // printf("Now on Level %d at Position %d\n", printLevel, nodePos);
-    _print(node->children, printLevel+1, 0);
-  }
-  if (node->next) {
-    printf("\n>>>>>>>>>>>>>>\n");
-    printf("!!!Moving to next node of level!!!\n");
-    printf(">>>>>>>>>>>>>>\n");
-    //printf("Node on Level %d at Position %d\n", printLevel, nodePos);
-    _print(node->next, printLevel, nodePos+1);
-  }
-}
+            printf("Root is at %p\n", root);
+            /* Do a simple depth-first search */
+            if (root)
+            _print(root, 0, 0);
 
-
-void print() {
-    int rv;
-    // Obtain the lock
-    rv = pthread_mutex_lock(&lock);
-    assert(rv == 0);
-
-    printf("Root is at %p\n", root);
-    /* Do a simple depth-first search */
-    if (root)
-        _print(root, 0, 0);
-
-    // Unlock
-    rv = pthread_mutex_unlock(&lock);
-    assert(rv == 0);
-}
+            // Unlock
+            rv = pthread_mutex_unlock(&lock);
+            assert(rv == 0);
+          }
