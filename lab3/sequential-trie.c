@@ -231,6 +231,8 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 	root = new_node;
       else if (parent && parent->children == node)
 	parent->children = new_node;
+      else if (left && left->next == node)
+       left->next = new_node;
     }
     return 1;
   }
