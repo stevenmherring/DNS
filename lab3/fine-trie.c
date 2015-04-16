@@ -58,6 +58,7 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
   }
 
   void init(int numthreads) {
+    //Initialization function, set root node to null, initialize the lock we will use for root.
     root = NULL;
     int rv = pthread_mutex_init(&root_lock, NULL);
     assert(rv == 0);
@@ -75,29 +76,29 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
   * node should never be null
   */
   int32_t _search (struct trie_node *node, const char *string, size_t strlen) {
-
+    //This function is always entered by one of the _search functions, this is the HEAVY LIFTER of the searchers.
     int keylen, cmp;
     int rc;
     // First things first, check if we are NULL
-    // this should never happen
+    // NULL node means something screwed up somewhere.
     assert(node != NULL);
     if (node == NULL) return -1;
-
+    //Strlen must be below 64 characters, this is just a standard of the application
     assert(node->strlen < 64);
-
-
+    //Similar to the strlen being below 64 it must be greater than 0
     assert(strlen >0);
-    // See if this key is a substring of the string passed in
+    //Check for substring, we start by comparing the sizes.
     cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
     if (cmp == 0)
     {
       // Yes, either quit, or recur on the children
-
       // If this key is longer than our search string, the key isn't here
       if (node->strlen > keylen)
       {
+        //Unlock the lock we previously acquired in a controller search function
         int rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
+        //return fail code
         return -1;
       }
       else if (strlen > keylen)
@@ -106,55 +107,54 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
         {
           // first lock children, then unlock parent to prevent possible
           // hand over hand
+          //acquire childs lock, assert gaurantees we got it or terminates
           rc = pthread_mutex_lock(&(node->children->lock));
           assert(rc == 0);
-
+          //unlock the current nodes lock, this is us moving forward on the search
           rc = pthread_mutex_unlock(&(node->lock));
           assert(rc == 0);
-
-          // Recur on children list
+          //Recur into the child
           return _search(node->children, string, strlen - keylen);
         }
         else
         {
+          //if there are no children release the lock, return fail code
           rc = pthread_mutex_unlock(&(node->lock));
           assert(rc == 0);
-
           return -1;
         }
       }
       else
       {
+        //strlen should be the same length as keylen, assert it, return the IP address of the node
         assert (strlen == keylen);
         rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
-
         return node->ip4_address;
       }
-
     }
     else if (cmp < 0)
     {
+      //cmp returns 0 then we are looking next to us for the node
       if(node->next != NULL)
       {
         // No, look right (the node's key is "less" than the search key)
-
         // hand over hand
+        //assign the next node
         struct trie_node *next = node->next;
+        //get its lock, release the lock of current node
         rc = pthread_mutex_lock(&(next->lock));
         assert(rc == 0);
-
-
         rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
-
+        //recur the search through the next node
         return _search(next, string, strlen);
       }
       else
       {
+        //not found release lock, return fail.
         rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
-
         return -1;
       }
     }
@@ -163,7 +163,6 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
       // Quit early
       rc = pthread_mutex_unlock(&(node->lock));
       assert(rc == 0);
-
       return -1;
     }
 
@@ -188,17 +187,13 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
     // this should never happen
     assert(node != NULL);
     if (node == NULL) return -1;
-
     assert(node->strlen < 64);
-
-
     assert(strlen >0);
     // See if this key is a substring of the string passed in
     cmp = compare_keys(node->key, node->strlen, string, strlen, &keylen);
     if (cmp == 0)
     {
       // Yes, either quit, or recur on the children
-
       // If this key is longer than our search string, the key isn't here
       if (node->strlen > keylen)
       {
@@ -215,12 +210,8 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
           // situation where the thread has no locks and children is deleted
           rc = pthread_mutex_lock(&(node->children->lock));
           assert(rc == 0);
-
-
           rc = pthread_mutex_unlock(&(node->lock));
           assert(rc == 0);
-
-
           // Recur on children list
           return _search(node->children, string, strlen - keylen);
         }
@@ -228,14 +219,12 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
         {
           rc = pthread_mutex_unlock(&(node->lock));
           assert(rc == 0);
-
           return -1;
         }
       }
       else
       {
-
-
+        //here is where squatting block happens, loop through until rv = 1 due to having a max # of squats
         int rv = 0;
         node->waiting++;
         while(!rv)
@@ -252,40 +241,32 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
             assert(waitSuccess == 0);
           }
         }
-
         assert (strlen == keylen);
         rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
-
-
-
         return 1;
       }
-
     }
     else if (cmp < 0)
     {
       if(node->next != NULL)
       {
         // No, look right (the node's key is "less" than the search key)
-
         // first lock next, then unlock parent to prevent possible
         // situation where the thread has no locks and next is deleted
+        //assign next node, get its lock, return lock of current node
+        //recur through the next
         struct trie_node *next = node->next;
         rc = pthread_mutex_lock(&(next->lock));
         assert(rc == 0);
-
-
         rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
-
         return _search(next, string, strlen);
       }
       else
       {
         rc = pthread_mutex_unlock(&(node->lock));
         assert(rc == 0);
-
         return -1;
       }
     }
@@ -294,30 +275,22 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
       // Quit early
       rc = pthread_mutex_unlock(&(node->lock));
       assert(rc == 0);
-
       return -1;
     }
-
   }
 
-
   int search  (const char *string, size_t strlen, int32_t *ip4_address) {
+    //Search Controller
+    //main thread communicates directly with this and this pushes us where to go.
     int32_t found;
     int rc;
     // Skip strings of length 0
-
     if (strlen == 0)
     return 0;
-
     struct trie_node *node = root;
-
 
     if(node == NULL)
     return 0;
-
-
-
-
     rc = pthread_mutex_lock(&(node->lock));
     assert(rc == 0);
 
@@ -325,7 +298,6 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
 
     if (found >= 0 && ip4_address)
     *ip4_address = found;
-
 
     return (found >= 0);
   }
@@ -335,7 +307,6 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
     int32_t found;
     int rc;
     // Skip strings of length 0
-
     if (strlen == 0)
     return 0;
 
@@ -353,8 +324,6 @@ int _insert (const char *string, size_t strlen, int32_t ip4_address,
     }
     rc = pthread_mutex_unlock(&(root_lock));
     assert(rc == 0);
-
-
 
     while(!found)
     {
