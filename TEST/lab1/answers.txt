@@ -1,6 +1,0 @@
-Place the answers to required questions in this text file.
-
-Exercise 4:
-	1. Logical comparison between register eax (system call number) and the number of system calls available.
-
-	2. The order of the input registers would be EAX, EBX, ECX, EDX, ESI, EDI
